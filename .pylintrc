@@ -1,0 +1,6 @@
+[BASIC]
+# Enforce snake_case for public functions, allow anything for private functions
+function-rgx=^(_.*|[a-z_][a-z0-9_]*)$
+
+# Permissive naming for variables
+variable-rgx=.*

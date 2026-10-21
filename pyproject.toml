@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "propakai"
+version = "1.0.0"
+description = "Cohesive Python package for implementations of ITU-R P. recommendations."
+requires-python = ">=3.10"
+
+# Minimal core dependencies required for using recommendation implementations:
+dependencies = ["filelock", "platformdirs", "xlrd"]
+
+# For full propakai package functionality (incl. geo_catalog & extras sub-packages):
+optional-dependencies.full = ["geopandas", "shapely", "rasterio", "pyproj", "pyshp", "osmnx"]
+
+license = "MIT"
+license-files = ["LICENSE.txt"]
+keywords = ["propagation", "pathloss", "radio", "frequency", "RF", "radiofrequency", "radiowave",
+            "recommendation", "prediction", "ITU"]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Intended Audience :: Telecommunications Industry",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
+]
+authors = [
+    {name="Communications Research Centre Canada"},
+]
+maintainers = [
+    {name="Martin-Pierre Lussier", email="martin-pierre.lussier@ised-isde.gc.ca"},
+]
+
+[project.scripts]
+propakai-info = "propakai.cli.info:main"
+propakai-data-cleanup = "propakai.cli.data_cleanup:main"
+propakai-bin-cleanup = "propakai.cli.bin_cleanup:main"
+
+#[project.urls]
+Homepage = "https://github.com/ic-crc/propakai"
+Repository = "https://github.com/ic-crc/propakai.git"
+
+[tool.setuptools.packages.find]
+include = ["propakai*"]
+exclude = ["**/*.pyc"]
+
+[tool.setuptools.package-data]
+"*" = ["*.dll", "*.so", "*.dylib"]

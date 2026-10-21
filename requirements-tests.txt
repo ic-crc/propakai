@@ -1,0 +1,6 @@
+# Install propakai in editable mode (minimal core dependencies)
+-e .
+
+# Additional dependencies for running tests
+pandas
+openpyxl

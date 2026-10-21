@@ -1,0 +1,8 @@
+# Install propakai in editable mode (minimal core dependencies).
+# Note that installing propakai is not even required to generate the docs unless we want to do
+# something like dynamically fetching __version__ from __init__.py using importlib.metadata.
+-e .
+
+# Dependencies for generating documentation (static site) from docstrings
+zensical
+mkdocstrings-python

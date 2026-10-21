@@ -1,0 +1,10 @@
+# Install propakai in editable mode (full package functionality incl. geo_catalog & extras sub-packages)
+-e .[full]
+
+# Additional dependencies for running examples
+numpy
+matplotlib
+
+# Alternative back-end for matplotlib,
+# requires libqt5gui5 system package to be installed on Linux
+#PyQt5

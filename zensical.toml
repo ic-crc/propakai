@@ -1,0 +1,216 @@
+[project]
+site_url = "https://www.example.com/"
+site_name = "PropaKai"
+site_description = "Cohesive Python package for implementations of ITU-R P. recommendations."
+site_author = "Communications Research Centre Canada"
+# copyright = """
+# Copyright (c) 2026 His Majesty the King in Right of Canada, as represented by the Minister of \
+# Industry through the Communications Research Centre Canada."""
+
+repo_url = "https://github.com/ic-crc/propakai"
+repo_name = "ic-crc/propakai"
+# edit_uri = "edit/main/docs/"
+
+docs_dir = "docs"
+exclude_docs = """
+README.md
+README.fr.md
+"""   
+
+nav = [
+  { "Home" = "index.md" },
+
+  { "API Reference" = [
+      { "p368_10_dso" = "api_reference/p368_10_dso.md" },
+      { "p452_18" = "api_reference/p452_18.md" },
+      { "p452_18_dso" = "api_reference/p452_18_dso.md" },
+      { "p453_14" = "api_reference/p453_14.md" },
+      { "p528_5_dso" = "api_reference/p528_5_dso.md" },
+      { "p530_18" = "api_reference/p530_18.md" },
+      { "p618_14" = "api_reference/p618_14.md" },
+      { "p619_6" = "api_reference/p619_6.md" },
+      { "p676_13" = "api_reference/p676_13.md" },
+      { "p681_11" = "api_reference/p681_11.md" },
+      { "p834_9" = "api_reference/p834_9.md" },
+      { "p835_6" = "api_reference/p835_6.md" },
+      { "p835_7" = "api_reference/p835_7.md" },
+      { "p837_8" = "api_reference/p837_8.md" },
+      { "p838_3" = "api_reference/p838_3.md" },
+      { "p839_4" = "api_reference/p839_4.md" },
+      { "p840_9" = "api_reference/p840_9.md" },
+      { "p1057_7" = "api_reference/p1057_7.md" },
+      { "p1144_13" = "api_reference/p1144_13.md" },
+      { "p1411_13" = "api_reference/p1411_13.md" },
+      { "p1510_1" = "api_reference/p1510_1.md" },
+      { "p1511_3" = "api_reference/p1511_3.md" },
+      { "p1546_6" = "api_reference/p1546_6.md" },
+      { "p1812_8" = "api_reference/p1812_8.md" },
+      { "p1812_8_dso" = "api_reference/p1812_8_dso.md" },
+      { "p2001_6" = "api_reference/p2001_6.md" },
+      { "p2108_1" = "api_reference/p2108_1.md" },
+      { "p2108_1_dso" = "api_reference/p2108_1_dso.md" },
+      { "p2109_2" = "api_reference/p2109_2.md" },
+      { "p2109_2_dso" = "api_reference/p2109_2_dso.md" },
+      { "p2145_0" = "api_reference/p2145_0.md" },
+      { "p2148_0" = "api_reference/p2148_0.md" },
+      { "types" = "api_reference/types.md" },
+
+      { "extras" = [
+          "api_reference/extras/index.md",
+          { "buildings" = "api_reference/extras/buildings.md" },
+          { "streets" = "api_reference/extras/streets.md" },
+          { "topography" = "api_reference/extras/topography.md" }
+        ]
+      },
+
+      { "geo_catalog" = [
+          "api_reference/geo_catalog/index.md",
+          { "gc_idwm" = "api_reference/geo_catalog/gc_idwm.md" },
+          { "gc_p452_18" = "api_reference/geo_catalog/gc_p452_18.md" },
+          { "gc_p453_14" = "api_reference/geo_catalog/gc_p453_14.md" },
+          { "gc_p530_19" = "api_reference/geo_catalog/gc_p530_19.md" },
+          { "gc_p534_6" = "api_reference/geo_catalog/gc_p534_6.md" },
+          { "gc_p617_6" = "api_reference/geo_catalog/gc_p617_6.md" },
+          { "gc_p678_3" = "api_reference/geo_catalog/gc_p678_3.md" },
+          { "gc_p834_9" = "api_reference/geo_catalog/gc_p834_9.md" },
+          { "gc_p835_7" = "api_reference/geo_catalog/gc_p835_7.md" },
+          { "gc_p836_6" = "api_reference/geo_catalog/gc_p836_6.md" },
+          { "gc_p837_8" = "api_reference/geo_catalog/gc_p837_8.md" },
+          { "gc_p839_4" = "api_reference/geo_catalog/gc_p839_4.md" },
+          { "gc_p840_9" = "api_reference/geo_catalog/gc_p840_9.md" },
+          { "gc_p1510_1" = "api_reference/geo_catalog/gc_p1510_1.md" },
+          { "gc_p1511_3" = "api_reference/geo_catalog/gc_p1511_3.md" },
+          { "gc_p1546_6" = "api_reference/geo_catalog/gc_p1546_6.md" },
+          { "gc_p1812_8" = "api_reference/geo_catalog/gc_p1812_8.md" },
+          { "gc_p1853_2" = "api_reference/geo_catalog/gc_p1853_2.md" },
+          { "gc_p2001_6" = "api_reference/geo_catalog/gc_p2001_6.md" },
+          { "gc_p2145_0" = "api_reference/geo_catalog/gc_p2145_0.md" },
+          { "gc_p2148_0" = "api_reference/geo_catalog/gc_p2148_0.md" }
+        ]
+      }
+    ]
+  },
+
+  { "CLI" = "cli/cli.md" },
+]
+
+# extra_css = ["stylesheets/extra.css"]
+# extra_javascript = ["javascripts/extra.js"]
+
+[project.theme]
+# variant = "classic"
+# custom_dir = "overrides"
+# favicon = "images/favicon.png"
+language = "en"
+features = [
+  "announce.dismiss",
+  # "content.action.edit",
+  # "content.action.view",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.code.select",
+  "content.footnote.tooltips",
+  "content.tabs.link",
+  "content.tooltips",
+  # "header.autohide",
+  # "navigation.expand",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  # "navigation.instant.progress",
+  # "navigation.path",
+  # "navigation.prune",
+  "navigation.sections",
+  "navigation.tabs",
+  # "navigation.tabs.sticky",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+  # "toc.follow",
+  # "toc.integrate",
+]
+
+logo = "assets/propakai_logo.png"
+
+# [project.theme.icon]
+# logo = "lucide/smile"
+
+# [project.theme.font]
+# text = "Inter"
+# code = "Jetbrains Mono"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "orange"
+accent = "orange"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "orange"
+accent = "orange"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to system preference"
+
+# [[project.extra.social]]
+# icon = "fontawesome/brands/github"
+# link = "https://github.com/user/repo"
+
+# [[project.extra.social]]
+# icon = "fontawesome/brands/mastodon"
+# link = "https://fosstodon.org/@user"
+
+[project.markdown_extensions]
+abbr = {}
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+md_in_html = {}
+toc.permalink = true
+pymdownx.arithmatex.generic = true
+pymdownx.betterem = {}
+pymdownx.caret = {}
+pymdownx.details = {}
+pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
+pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
+pymdownx.highlight.anchor_linenums = true
+pymdownx.highlight.line_spans = "__span"
+pymdownx.highlight.pygments_lang_class = true
+pymdownx.inlinehilite = {}
+pymdownx.keys = {}
+pymdownx.magiclink = {}
+pymdownx.mark = {}
+pymdownx.smartsymbols = {}
+# pymdownx.snippets.base_path = "includes"
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+pymdownx.tabbed.alternate_style = true
+pymdownx.tabbed.combine_header_slug = true
+pymdownx.tasklist.custom_checkbox = true
+pymdownx.tilde = {}
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+show_signature_annotations = true
+separate_signature = true
+# merge_init_into_class = true # has side effect of removing seing source option for enums
+members_order = "source"
+inherited_members = true
+show_bases = true
+show_source = true
+show_root_heading = true
+show_root_full_path = true
+
+# [project.plugins.offline]
+# enabled = true

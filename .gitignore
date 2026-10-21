@@ -1,0 +1,41 @@
+# All build folders and files
+build/
+
+# Downloaded files from the ITU website for tests/validation
+**/itu_proprietary/*
+
+# Compiled binaries (containing .dll, .so, .dylib)
+bin/
+
+# Python byte codes
+__pycache__/
+*.pyc
+
+# Generated static site for docs
+/site/
+
+# Files created by running examples
+examples/**/*.geojson
+
+# Packaging related files
+*.egg-info/
+/dist/
+
+# Visual Studio Code folders and files
+.vscode/
+
+# Virtual environments
+venv*/
+.venv*/
+env/
+.env/
+
+# Cache from using OSMnx
+cache/
+
+# Zig related
+.zig-cache/
+zig-out/
+
+# Temporary files
+temp/
