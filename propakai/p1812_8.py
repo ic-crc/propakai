@@ -132,11 +132,18 @@ def basic_transmission_loss(f_ghz: float, p_percent: float, pl_percent: float, l
         n0 = n050(centre_lat, centre_lon)
     ae, ab = _effective_earth_radius(delta_n)
     omega = _over_water_percent(dn, rcz, lops)
-    if omega >= 0.75: # otherwise dct and dcr are not used
-        if dct_km is None:
+    if dct_km is None:
+        if omega >= 0.75: # otherwise dct and dcr are not used
+            assert rcz is not None
             dct_km = _dct(rcz, lops)
-        if dcr_km is None:
+        else:
+            dct_km = 500.0
+    if dcr_km is None:
+        if omega >= 0.75: # otherwise dct and dcr are not used
+            assert rcz is not None
             dcr_km = _dcr(rcz, lops)
+        else:
+            dcr_km = 500.0
 
     dlt, dlr, thetat, thetar, theta, hstd, hsrd, hte, hre, hm =_path_profile_parameters(f_ghz,
                                                                 htg_m, hrg_m, d_km, h_mamsl, ae)

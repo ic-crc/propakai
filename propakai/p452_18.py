@@ -135,11 +135,18 @@ def clear_air_basic_transmission_loss(
     g = _g_profile(d_km, h_mamsl, cc, rch_m)
     lops = _length_of_path_sections_profile(d_km)
     omega = _over_water_percent(dn, rcz, lops)
-    if omega >= 0.75: # otherwise dct and dcr are not used
-        if dct_km is None:
+    if dct_km is None:
+        if omega >= 0.75: # otherwise dct and dcr are not used
+            assert rcz is not None
             dct_km = _dct(rcz, lops)
-        if dcr_km is None:
+        else:
+            dct_km = 500.0
+    if dcr_km is None:
+        if omega >= 0.75: # otherwise dct and dcr are not used
+            assert rcz is not None
             dcr_km = _dcr(rcz, lops)
+        else:
+            dcr_km = 500.0
     dtm, dlm =  _longest_continuous_land(dn, rcz, lops)
     centre_lat, centre_lon = p2001_6.intermediate_path_point(latt, lont, latr, lonr, dn/2.0)
     b0 = _b0(centre_lat, dtm, dlm)

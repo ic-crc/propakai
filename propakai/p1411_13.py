@@ -843,6 +843,7 @@ def _L0n(f_ghz: float, d: float, h1: float, h2: float, hr: float, w: float, phi_
     """
     ITU-R P.1411-13, Annex 1, Section 4.2.2.2, eq.(49)
     """
+    L0n = 0
     max_k = 10
     c = 2.998E8 # in m/s
     wavelength = 1.0E-9*c/f_ghz # in meters
@@ -904,6 +905,7 @@ def _LdRD(f_ghz: float, h1: float, h2: float, hr: float, w: float, phi_rad: floa
     """
     ITU-R P.1411-13, Annex 1, Section 4.2.2.2,  eq.(53).
     """
+    LdRD = 0
     max_k = 10
     c = 2.998E8 # in m/s
     wavelength = 1.0E-9*c/f_ghz # in meters

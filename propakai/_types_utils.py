@@ -27,7 +27,7 @@ __all__ = ['to_c_double_ptr',
            'to_c_short_ptr']
 
 
-def to_c_double_ptr(data: types.FloatArray|None, expected_num_elem: int=None
+def to_c_double_ptr(data: types.FloatArray|None, expected_num_elem: int|None=None
                     ) -> Tuple[ct._Pointer, int, array.array|Any|None]:
     """
     Gets a pointer to a C/C++ double array for interoperability.
@@ -35,7 +35,7 @@ def to_c_double_ptr(data: types.FloatArray|None, expected_num_elem: int=None
     Args:
         data (FloatArray|None): The input data, which must be a sequence of float-like values,
             an array.array, or a numpy.ndarray. If None, returns a null pointer.
-        expected_num_elem (int, optional): If provided and not None, checks that the number of
+        expected_num_elem (int|None, optional): If provided and not None, checks that the number of
             elements in data equals this value. Raises ValueError if the check fails.
 
     Returns:
@@ -47,7 +47,7 @@ def to_c_double_ptr(data: types.FloatArray|None, expected_num_elem: int=None
     return _to_c_ptr(data, ct.c_double, np.float64 if np else float, 'd', expected_num_elem)
 
 
-def to_c_float_ptr(data: types.FloatArray|None, expected_num_elem: int=None
+def to_c_float_ptr(data: types.FloatArray|None, expected_num_elem: int|None=None
                    ) -> Tuple[ct._Pointer, int, array.array|Any|None]:
     """
     Gets a pointer to a C/C++ float array for interoperability.
@@ -55,7 +55,7 @@ def to_c_float_ptr(data: types.FloatArray|None, expected_num_elem: int=None
     Args:
         data (FloatArray|None): The input data, which must be a sequence of float-like values,
             an array.array, or a numpy.ndarray. If None, returns a null pointer.
-        expected_num_elem (int, optional): If provided and not None, checks that the number of
+        expected_num_elem (int|None, optional): If provided and not None, checks that the number of
             elements in data equals this value. Raises ValueError if the check fails.
 
     Returns:
@@ -67,7 +67,7 @@ def to_c_float_ptr(data: types.FloatArray|None, expected_num_elem: int=None
     return _to_c_ptr(data, ct.c_float, np.float32 if np else float, 'f', expected_num_elem)
 
 
-def to_c_int_ptr(data: types.IntArray|None, expected_num_elem: int=None
+def to_c_int_ptr(data: types.IntArray|None, expected_num_elem: int|None=None
                  ) -> Tuple[ct._Pointer, int, array.array|Any|None]:
     """
     Gets a pointer to a C/C++ int array for interoperability.
@@ -75,7 +75,7 @@ def to_c_int_ptr(data: types.IntArray|None, expected_num_elem: int=None
     Args:
         data (IntArray|None): The input data, which must be a sequence of int-like values,
             an array.array, or a numpy.ndarray. If None, returns a null pointer.
-        expected_num_elem (int, optional): If provided and not None, checks that the number of
+        expected_num_elem (int|None, optional): If provided and not None, checks that the number of
             elements in data equals this value. Raises ValueError if the check fails.
 
     Returns:
@@ -87,7 +87,7 @@ def to_c_int_ptr(data: types.IntArray|None, expected_num_elem: int=None
     return _to_c_ptr(data, ct.c_int, np.int32 if np else int, 'i', expected_num_elem)
 
 
-def to_c_short_ptr(data: types.IntArray|None, expected_num_elem: int=None
+def to_c_short_ptr(data: types.IntArray|None, expected_num_elem: int|None=None
                    ) -> Tuple[ct._Pointer, int, array.array|Any|None]:
     """
     Gets a pointer to a C/C++ short array for interoperability.
@@ -95,7 +95,7 @@ def to_c_short_ptr(data: types.IntArray|None, expected_num_elem: int=None
     Args:
         data (IntArray|None): The input data, which must be a sequence of int-like values,
             an array.array, or a numpy.ndarray. If None, returns a null pointer.
-        expected_num_elem (int, optional): If provided and not None, checks that the number of
+        expected_num_elem (int|None, optional): If provided and not None, checks that the number of
             elements in data equals this value. Raises ValueError if the check fails.
 
     Returns:
@@ -107,8 +107,8 @@ def to_c_short_ptr(data: types.IntArray|None, expected_num_elem: int=None
     return _to_c_ptr(data, ct.c_short, np.int16 if np else int, 'h', expected_num_elem)
 
 
-def _to_c_ptr(data: types.NumArray|None, wanted_ct_type: type, wanted_np_type: Any,
-              wanted_array_type: str, expected_num_elem: int=None
+def _to_c_ptr(data: types.NumArray|None, wanted_ct_type: Any, wanted_np_type: Any,
+              wanted_array_type: str, expected_num_elem: int|None=None
               ) -> Tuple[ct._Pointer, int, array.array|Any|None]:
     if data is None:
         backing = None
@@ -117,10 +117,11 @@ def _to_c_ptr(data: types.NumArray|None, wanted_ct_type: type, wanted_np_type: A
     else:
         if np is not None and isinstance(data, np.ndarray):
             # no copy performed if data is already in the required format
-            if data.dtype == wanted_np_type:
-                backing = data
+            np_data: Any = data  # Tells Pylance: stop treating this as a Sequence or array.array
+            if np_data.dtype == wanted_np_type:
+                backing = np_data
             else:
-                backing = data.astype(wanted_np_type)
+                backing = np_data.astype(wanted_np_type)
             if not backing.flags['C_CONTIGUOUS']:
                 backing = np.ascontiguousarray(backing)
             ptr = backing.ctypes.data_as(ct.POINTER(wanted_ct_type))

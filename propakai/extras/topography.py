@@ -499,14 +499,16 @@ class GeoRasterDirectoryReader:
         filepaths = []
 
         if extensions is not None:
-            extensions = set(ext.lower() for ext in extensions)
+            extensions_set = set(ext.lower() for ext in extensions)
+        else:
+            extensions_set = None
 
         if recursive:
             for dirpath, _, filenames in os.walk(directory):
                 for filename in filenames:
-                    if extensions is not None:
+                    if extensions_set is not None:
                         _, ext = os.path.splitext(filename)
-                        if ext.lower() not in extensions:
+                        if ext.lower() not in extensions_set:
                             continue
                     full_path = os.path.join(dirpath, filename)
                     filepaths.append(full_path)
@@ -514,9 +516,9 @@ class GeoRasterDirectoryReader:
             for filename in os.listdir(directory):
                 full_path = os.path.join(directory, filename)
                 if os.path.isfile(full_path):
-                    if extensions is not None:
+                    if extensions_set is not None:
                         _, ext = os.path.splitext(filename)
-                        if ext.lower() not in extensions:
+                        if ext.lower() not in extensions_set:
                             continue
                     filepaths.append(full_path)
 

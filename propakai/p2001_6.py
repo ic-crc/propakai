@@ -671,7 +671,7 @@ def _sub_model_1(t4: SimpleNamespace, f: float, vpol: bool, d_km: types.FloatArr
         _precipitation_fading_preleminary_calculations(f=f, q=t4.q, phi_n=t4.phi_mn,
                             phi_e=t4.phi_me, hrainlo=t4.hlo, hrainhi=t4.hhi, drain=t4.d, vpol=vpol)
 
-    def _Qiter(A: float) -> float:
+    def _Qiter(A: float) -> float: # pylint: disable=invalid-name
         Qcaf = _Qcaf(A, Q0ca)
         Qrain = _Qrain(A, is_rain_path, a, b, c, dr, kmod, alpha_mod, G, P)
         return Qrain*(Q0ra/100) + Qcaf*(1-Q0ra/100)
@@ -753,7 +753,7 @@ def _sub_model_3(t4: SimpleNamespace, f: float, latt: float, lont: float, latr: 
         _precipitation_fading_preleminary_calculations(f=f, q=t4.q, phi_n=t4.phi_tcvn,
                         phi_e=t4.phi_tcve, hrainlo=t4.hts, hrainhi=t4.hcv, drain=t4.dtcv, vpol=vpol)
 
-    def _Qiter_tx(A: float) -> float:
+    def _Qiter_tx(A: float) -> float: # pylint: disable=invalid-name
         Qrain = _Qrain(A, is_rain_path, a, b, c, dr, kmod, alpha_mod, G, P)
         Qcaftropo = _Qcaftropo(A)
         return Qrain*(Q0ra/100) + Qcaftropo*(1-Q0ra/100)
@@ -764,7 +764,7 @@ def _sub_model_3(t4: SimpleNamespace, f: float, latt: float, lont: float, latr: 
         _precipitation_fading_preleminary_calculations(f=f, q=t4.q, phi_n=t4.phi_rcvn,
                         phi_e=t4.phi_rcve, hrainlo=t4.hrs, hrainhi=t4.hcv, drain=t4.drcv, vpol=vpol)
 
-    def _Qiter_rx(A: float) -> float:
+    def _Qiter_rx(A: float) -> float: # pylint: disable=invalid-name
         Qrain = _Qrain(A, is_rain_path, a, b, c, dr, kmod, alpha_mod, G, P)
         Qcaftropo = _Qcaftropo(A)
         return Qrain*(Q0ra/100) + Qcaftropo*(1-Q0ra/100)
@@ -1203,7 +1203,8 @@ def _Qcaftropo(a: float) -> float:
 
 def _precipitation_fading_preleminary_calculations(f: float, q: float, phi_n: float, phi_e: float,
                                                    hrainlo: float, hrainhi: float, drain: float,
-                                                   vpol: bool) -> float:
+                                                   vpol: bool
+) -> tuple[bool, float, float, float, float, float, float, float, list[float], list[float], float]:
     """
     ITU-R P.2001-6, Annex C (C.2).
 
@@ -1274,8 +1275,8 @@ def _precipitation_fading_preleminary_calculations(f: float, q: float, phi_n: fl
     dr = min(drain, 300)
     drmin = max(dr, 1)
 
-    #kmod = pow(1.763, alpha)*k*(0.6546*exp(-0.009516*drmin)+0.3499*exp(-0.01182*drmin)) # TODO -0.01182  in P.2001-6
-    kmod = pow(1.763, alpha)*k*(0.6546*exp(-0.009516*drmin)+0.3499*exp(-0.001182*drmin)) # TODO -0.001182 in P.2001-5 and earlier ??
+    #kmod = pow(1.763, alpha)*k*(0.6546*exp(-0.009516*drmin)+0.3499*exp(-0.01182*drmin)) # TODO -0.01182  in P.2001-6 (may be erroneous)
+    kmod = pow(1.763, alpha)*k*(0.6546*exp(-0.009516*drmin)+0.3499*exp(-0.001182*drmin)) # TODO -0.001182 in P.2001-5 and earlier
     alpha_mod = (0.753+0.197/drmin)*alpha+0.1572*exp(-0.02268*drmin)-0.1594*exp(-0.0003617*drmin)
 
     table_C1 = _p2001_6_shared['TABLE_C.1']
@@ -1283,8 +1284,8 @@ def _precipitation_fading_preleminary_calculations(f: float, q: float, phi_n: fl
     assert len_table_C1 == 49, 'Wrong size for TABLE C.1'
     HEIGHT_COL = 0
     PROB_COL = 1
-    G = [0]*len_table_C1
-    P = [0]*len_table_C1
+    G = [0.0]*len_table_C1
+    P = [0.0]*len_table_C1
     G[0] = 1
     # we will use zero-based indexes instead of 1-based
     m = 0
@@ -1755,7 +1756,7 @@ def _troposcatter_basic_transmission_loss(f: float, d: float, p: float, latt: fl
             clim = max(climt, climr)
 
     M = [116.0, 129.60, 119.73, 109.30, 128.50, 119.73, 123.20][clim]
-    #gamma = [20.27, 30.33, 20.27, 10.32, 30.27, 20.27, 30.27][clim] # TODO values from P.2001-6
+    #gamma = [20.27, 30.33, 20.27, 10.32, 30.27, 20.27, 30.27][clim] # TODO values from P.2001-6 (may be erroneous)
     gamma =  [ 0.27,  0.33,  0.27,  0.32,  0.27,  0.27,  0.27][clim] # TODO values from P.2001-4 and earlier
     eq = [7, 8, 6, 9, 10, 6, 6][clim]
 

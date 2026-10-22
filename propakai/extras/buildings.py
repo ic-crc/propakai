@@ -302,7 +302,7 @@ def height_profile(buildings: list[Building], coords: list[tuple[float, float]])
 
 def p1411_urban_metrics(buildings: list[Building], latt: float, lont: float,
                          latr: float, lonr: float, res_m: float=1.0, path_ext_m: float=100.0
-                         ) -> tuple[float, float, float, float, float]:
+                         ) -> tuple[float, float|None, float|None, float, float|None]:
     """
     Computes building-related metrics for a direct transmitter-to-receiver path, suitable as input
     to site-specific, over roof-tops urban/suburban propagation models (ITU-R P.1411).
@@ -388,7 +388,7 @@ def p1411_urban_metrics(buildings: list[Building], latt: float, lont: float,
 
 def p1411_residential_metrics(buildings: list[Building], latt: float, lont: float, latr: float,
                               lonr: float, res_m: float=1.0
-                              ) -> tuple[float, float, float, float, float, float]:
+                    ) -> tuple[float, float|None, float|None, float|None, float|None, float|None]:
     """
     Computes building-related metrics for a direct transmitter-to-receiver path, suitable as input
     to site-specific, below roof-top to near street level residential propagation models (ITU-R

@@ -13,7 +13,7 @@ https://www.itu.int/rec/R-REC-P.1546/en
 """
 
 from os.path import join
-from math import log10, exp, sqrt, atan, degrees, pi
+from math import log10, exp, sqrt, atan, degrees, pi, pow as fpow
 from enum import Enum
 from bisect import bisect_left, bisect_right
 from threading import Lock
@@ -119,6 +119,9 @@ def basic_transmission_loss(f_mhz: float,
     if d_km <= 0.04:
         # Step 17
         E = _fs_0_to_40m_dist(ha_m, h2_m, d_km, h_profile_mamsl)
+
+        # required at Step 19 below
+        first_path_type, second_path_type = _propagation_types(path_type_profile)
     else:
         # Step 1
         first_path_type, second_path_type = _propagation_types(path_type_profile)
@@ -135,6 +138,7 @@ def basic_transmission_loss(f_mhz: float,
         # Step 11
         if second_path_type is not None: # i.e. if we have a mixed path
             E_first = E
+            assert second_path_h1_m is not None
             E_second = _fs_tables_interpolation(f_mhz, t_percent, second_path_type,
                                                 second_path_h1_m, d_km, ha_m, d_profile_km,
                                                 h_profile_mamsl)
@@ -144,6 +148,7 @@ def basic_transmission_loss(f_mhz: float,
             else:
                 E_land = E_second
                 E_sea = E_first
+            assert path_type_profile is not None
             E = _mixed_path_field_strength(E_land, E_sea, d_profile_km, path_type_profile)
 
         # Step 12
@@ -312,7 +317,7 @@ def _compute_h1_m(path1: Path, path2: Path|None, ha_m: float,
 
 def _fs_height_interpolation(nominal_f_mhz: float, nominal_t_percent: float, path: Path,
                              h1_m: float, d_km: float, ha_m: float, d_profile_km: types.FloatArray,
-                             h_profile_mamsl: types.FloatArray) -> float:
+                             h_profile_mamsl: types.FloatArray|None) -> float:
     """ITU-R P.1546-6, Annex 5, Section 4."""
     if h1_m >= 10.0:
         return _fs_height_interpolation_1(nominal_f_mhz, nominal_t_percent, path, h1_m, d_km)
@@ -391,7 +396,8 @@ def _fs_height_interpolation_2(nominal_f_mhz: float, nominal_t_percent: float, p
 
 def _fs_height_interpolation_3(nominal_f_mhz: float, nominal_t_percent: float, path: Path,
                                h1_m: float, d_km: float, ha_m: float,
-                               d_profile_km: types.FloatArray, h_profile_mamsl: types.FloatArray
+                               d_profile_km: types.FloatArray,
+                               h_profile_mamsl: types.FloatArray|None
                                ) -> float:
     """ITU-R P.1546-6, Annex 5, Section 4.3 (h1_m < 0)."""
     E = _fs_height_interpolation_2(nominal_f_mhz, nominal_t_percent, path, 0.0, d_km)
@@ -407,7 +413,7 @@ def _fs_height_interpolation_3(nominal_f_mhz: float, nominal_t_percent: float, p
 def _Ch1(nominal_f_mhz: float, h1_m: float) -> float:
     """ITU-R P.1546-6, Annex 5, Section 4.3, eq.(12)."""
     Kv_map = {100: 1.35, 600: 3.31, 2000: 6.00}
-    Kv = Kv_map[nominal_f_mhz]
+    Kv = Kv_map[int(nominal_f_mhz)]
     theta_eff2_deg = degrees(atan(-h1_m/9000.0))
     v = Kv*theta_eff2_deg
     Ch1_dB = 6.03-_J(v)
@@ -452,9 +458,11 @@ def _fs_distance_interpolation(nominal_f_mhz: float, nominal_t_percent: float, p
                                nominal_h1_m: float, d_km: float) -> float:
     """ITU-R P.1546-6, Annex 5, Section 5."""
     d_inf, d_sup = _nominal_distances_km(d_km)
-    E = E_inf = _fs_tables_entry(nominal_f_mhz, nominal_t_percent, path, nominal_h1_m, d_inf)
+    E = E_inf = _fs_tables_entry(int(nominal_f_mhz), int(nominal_t_percent), path, nominal_h1_m,
+                                 int(d_inf))
     if d_sup is not None:
-        E_sup = _fs_tables_entry(nominal_f_mhz, nominal_t_percent, path, nominal_h1_m, d_sup)
+        E_sup = _fs_tables_entry(int(nominal_f_mhz), int(nominal_t_percent), path, nominal_h1_m,
+                                 int(d_sup))
         E = E_inf + (E_sup-E_inf)*log10(d_km/d_inf)/log10(d_sup/d_inf)
     return E # (dBuV/m)
 
@@ -471,7 +479,7 @@ def _nominal_distances_km(d_km: float) -> tuple[float, float|None]:
 
 def _fs_time_percentage_interpolation(f_mhz: float, t_percent: float, path: Path, h1_m: float,
                                       d_km: float, ha_m: float, d_profile_km: types.FloatArray,
-                                      h_profile_mamsl: types.FloatArray) -> float:
+                                      h_profile_mamsl: types.FloatArray|None) -> float:
     """ITU-R P.1546-6, Annex 5, Section 7."""
     t_inf, t_sup = _nominal_time_percentages(t_percent)
     E = E_inf = _fs_frequency_interpolation(f_mhz, t_inf, path, h1_m, d_km, ha_m, d_profile_km,
@@ -488,7 +496,7 @@ def _fs_time_percentage_interpolation(f_mhz: float, t_percent: float, path: Path
 
 def _nominal_time_percentages(t_percent: float) -> tuple[float, float|None]:
     """ITU-R P.1546-6, Annex 5, Section 7 (see also Annex 6, Step 2)."""
-    if t_percent in [1.0, 10.0, 50.0]:
+    if t_percent in (1.0, 10.0, 50.0):
         return (t_percent, None)
     if t_percent < 10.0:
         return (1.0, 10.0)
@@ -498,7 +506,7 @@ def _nominal_time_percentages(t_percent: float) -> tuple[float, float|None]:
 
 def _fs_frequency_interpolation(f_mhz: float, nominal_t_percent: float, path: Path, h1_m: float,
                                 d_km: float, ha_m: float, d_profile_km: types.FloatArray,
-                                h_profile_mamsl: types.FloatArray) -> float:
+                                h_profile_mamsl: types.FloatArray|None) -> float:
     """ITU-R P.1546-6, Annex 5, Section 6."""
     d600_km = _D06(600.0, h1_m, 10.0)
     if path != Path.LAND and f_mhz < 100.0 and d_km < d600_km:
@@ -527,7 +535,7 @@ def _fs_frequency_interpolation(f_mhz: float, nominal_t_percent: float, path: Pa
 
 def _nominal_frequencies_mhz(f_mhz: float) -> tuple[float, float|None]:
     """ITU-R P.1546-6, Annex 5, Section 6 (see also Annex 6, Step 3)."""
-    if f_mhz in [100.0, 600.0, 2000.0]:
+    if f_mhz in (100.0, 600.0, 2000.0):
         return (f_mhz, None)
     if f_mhz < 600.0:
         return (100.0, 600.0)
@@ -546,8 +554,8 @@ def _mixed_path_field_strength(e_land_dbuvm: float, e_sea_dbuvm: float,
     d_total_km = d_profile_km[-1]
     d_sea_km = _total_sea_distance_km(d_profile_km, path_type_profile)
     F_sea = d_sea_km/d_total_km
-    A0 = 1.0 - pow(1.0-F_sea, 2.0/3.0)
-    A = pow(A0, V)
+    A0 = 1.0 - fpow(1.0-F_sea, 2.0/3.0)
+    A = fpow(A0, V)
     E_dBuVm = (1.0-A)*E_land + A*E_sea
     return E_dBuVm
 
@@ -662,7 +670,7 @@ def _apply_location_variability(e_median_dbuvm: float, q_percent: float,
         if rx_path_type == Path.WARM_SEA or rx_path_type == Path.COLD_SEA:
             return e_median_dbuvm
     if sigma_l_db is None:
-        sigma_l_db = (0.024*f_mhz/1000.0 + 0.52)*pow(wa_m, 0.28)
+        sigma_l_db = (0.024*f_mhz/1000.0 + 0.52)*fpow(wa_m, 0.28)
     E_dBuVm = e_median_dbuvm +  p1057_7.q_inv(q_percent/100.0)*sigma_l_db
     return E_dBuVm
 
@@ -683,8 +691,8 @@ def _tropospheric_scattering_field_strength(f_mhz: float, t_percent: float, d_km
     theta_s_deg = ((180.0*d_km)/(pi*k*a)) + theta_eff_deg + theta_deg
     theta_s_deg = max(theta_s_deg, 0.0)
     log_f = log10(f_mhz)
-    Lf = 5.0*log_f - 2.5*pow(log_f-3.3, 2)
-    Gt = 10.1*pow(-log10(0.02*t_percent), 0.7)
+    Lf = 5.0*log_f - 2.5*fpow(log_f-3.3, 2)
+    Gt = 10.1*fpow(-log10(0.02*t_percent), 0.7)
     E_ts_dBuVm = 24.4 - 20.0*log10(d_km) - 10.0*theta_s_deg - Lf + 0.15*N0 + Gt
     return E_ts_dBuVm
 
@@ -835,10 +843,10 @@ def okumura_hata_field_strength(f_mhz: float, h1_m: float, h2_m: float, d_km: fl
     aH2 = (1.1*log_f - 0.7)*h2_m - (1.56*log_f - 0.8)
     if d_km > 20.0:
         H1p = h1_m / sqrt(1.0 + 0.000007*h1_m*h1_m)
-        b = 1.0 + (0.14 + 0.000187*f_mhz + 0.00107*H1p)*pow(log10(0.05*d_km), 0.8)
+        b = 1.0 + (0.14 + 0.000187*f_mhz + 0.00107*H1p)*fpow(log10(0.05*d_km), 0.8)
     else:
         b = 1.0
-    E = 69.82 - 6.16*log_f + 13.82*log10(h1_m) + aH2 - (44.9-6.55*log10(h1_m))*pow(log10(d_km), b)
+    E = 69.82 - 6.16*log_f + 13.82*log10(h1_m) + aH2 - (44.9-6.55*log10(h1_m))*fpow(log10(d_km), b)
     return E
 
 
@@ -1000,9 +1008,9 @@ _p1546_6_shared = {
     'DATA_DIR': 'p1546_6',
     'fs_tables_lock': Lock(),
     'fs_tables': None,
-    'nominal_heights_m': [10.0, 20.0, 37.5, 75.0, 150.0, 300.0, 600.0, 1200.0],
-    'nominal_dists_km': [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,30,35,40,45,50,55,
+    'nominal_heights_m': (10.0, 20.0, 37.5, 75.0, 150.0, 300.0, 600.0, 1200.0),
+    'nominal_dists_km': (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,30,35,40,45,50,55,
                          60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200,225,
                          250,275,300,325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,
-                         700,725,750,775,800,825,850,875,900,925,950,975,1000]
+                         700,725,750,775,800,825,850,875,900,925,950,975,1000)
 }

@@ -32,8 +32,9 @@ def query(item_id: str, lat: float, lon: float, parameters: list[str]|None=None,
 
     BASE_URL = 'https://br-geoportal.itu.int/ITU-R/BR-GeoApi/interpolate/'
     url = BASE_URL+item_id
-    params={'lat': float(lat), 'lon': float(lon)}
+    params : dict[str, float | str] = {'lat': float(lat), 'lon': float(lon)}
     if parameters is not None:
+        assert values is not None # should have already been verified with _validate_query_inputs()
         for param_name, value in zip(parameters, values):
             params[param_name] = value
     query_string = urllib.parse.urlencode(params)

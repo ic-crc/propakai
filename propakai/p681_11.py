@@ -34,6 +34,10 @@ __all__ = ['ShadowingLevel',
 
 
 class ShadowingLevel(Enum):
+    """
+    MODERATE: percentage of optical shadowing between 55% and 75%
+    EXTREME: percentage of optical shadowing between 75% and 90%
+    """
     MODERATE = 1
     EXTREME  = 2
 
@@ -528,7 +532,8 @@ def mountainous_multipath_fading_distribution(f_ghz: float, theta_deg: float, a_
             raise ValueError('f_ghz must be set to one of: 0.87, 1.5.')
         if not(theta_deg == 30 or theta_deg == 45):
             raise ValueError('theta_deg must be set to one of: 30, 45.')
-    p = a*pow(a_db, -b) # pylint: disable=possibly-used-before-assignment
+        raise ValueError('Failed to compute p.')
+    p = a*pow(a_db, -b)
     return p
 
 
@@ -596,6 +601,8 @@ def _three_segment_model_points(theta1_deg: float, theta2_deg: float, h_m: float
         delta_phi_C (float or None): Azimuth spacing at point C (degrees), from 0 to 90 degrees.
 
     """
+    xi1_deg = xi2_deg = M1 = M2 = None
+
     # Step 1
     tan_theta_1 = tan(radians(theta1_deg))
     tan_theta_2 = tan(radians(theta2_deg))
@@ -622,6 +629,7 @@ def _three_segment_model_points(theta1_deg: float, theta2_deg: float, h_m: float
 
     if x1_squared >= 0 and x2_squared < 0:
         # Step 6
+        assert xi1_deg is not None
         N11 = 4*xi1_deg + 2
         rho = (N11/180)-1
         return (rho, rho, None, None)
@@ -632,9 +640,16 @@ def _three_segment_model_points(theta1_deg: float, theta2_deg: float, h_m: float
         else:
             raise RuntimeError('Cannot compute three-segment model points.')
 
+    assert (
+        xi1_deg is not None
+        and xi2_deg is not None
+        and M1 is not None
+        and M2 is not None
+    )
+
     # Steps 2 & 3
-    rho_A = _rho_A(xi1_deg=xi1_deg, xi2_deg=xi2_deg, m1=M1, m2=M2) # pylint: disable=possibly-used-before-assignment
-    rho_D = _rho_D(xi1_deg=xi1_deg, xi2_deg=xi2_deg, m1=M1, m2=M2) # pylint: disable=possibly-used-before-assignment
+    rho_A = _rho_A(xi1_deg=xi1_deg, xi2_deg=xi2_deg, m1=M1, m2=M2)
+    rho_D = _rho_D(xi1_deg=xi1_deg, xi2_deg=xi2_deg, m1=M1, m2=M2)
 
     # Step 4
     delta_phi_B = xi2_deg - xi1_deg
@@ -649,7 +664,7 @@ def _three_segment_model_points(theta1_deg: float, theta2_deg: float, h_m: float
     return (rho_A, rho_D, delta_phi_B, delta_phi_C)
 
 
-def _rho_A(xi1_deg, xi2_deg, m1, m2) -> float:
+def _rho_A(xi1_deg: float, xi2_deg: float, m1: float, m2: float) -> float:
     """
     ITU-R P.681-11, Annex 1, Section 9.2.1, eq. (39), (41), (42a), (42b).
     """
@@ -660,7 +675,7 @@ def _rho_A(xi1_deg, xi2_deg, m1, m2) -> float:
     return _rho(xi1_deg=xi1_deg, xi2_deg=xi2_deg, m1=m1, m2=m2, n11=N11, n00=N00, n01=N01, n10=N10)
 
 
-def _rho_D(xi1_deg, xi2_deg, m1, m2) -> float:
+def _rho_D(xi1_deg: float, xi2_deg: float, m1: float, m2: float) -> float:
     """
     ITU-R P.681-11, Annex 1, Section 9.2.1, eq. (40a), (40b), (41), (42a), (42b).
     """
@@ -677,7 +692,8 @@ def _rho_D(xi1_deg, xi2_deg, m1, m2) -> float:
     return _rho(xi1_deg=xi1_deg, xi2_deg=xi2_deg, m1=m1, m2=m2, n11=N11, n00=N00, n01=N01, n10=N10)
 
 
-def _rho(xi1_deg, xi2_deg, m1, m2, n11, n00, n01, n10) -> float:
+def _rho(xi1_deg: float, xi2_deg: float, m1: float, m2: float, n11: float, n00: float, n01: float,
+         n10: float) -> float:
     """
     ITU-R P.681-11, Annex 1, Section 9.2.1, eq. (41), (42a), (42b).
     """
@@ -688,7 +704,7 @@ def _rho(xi1_deg, xi2_deg, m1, m2, n11, n00, n01, n10) -> float:
     return rho
 
 
-def _sigma_squared(xi_deg, m) -> float:
+def _sigma_squared(xi_deg: float, m: float) -> float:
     """
     ITU-R P.681-11, Annex 1, Section 9.2.1, eq. (42a), (42b).
     """
@@ -736,6 +752,9 @@ def shadowing_cross_correlation_coefficient(delta_phi_deg: float, theta1_deg: fl
 
     if rho_A == rho_D:
         return rho_A
+
+    if delta_phi_B is None or delta_phi_C is None:
+        raise RuntimeError('Cannot compute cross-correlation coefficient.')
 
     if delta_phi_deg <= delta_phi_B:
         return rho_A

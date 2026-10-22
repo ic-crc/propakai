@@ -404,7 +404,7 @@ def inverse_distribution(distrib_func: Callable[..., float], p_percent: float,
     Note: Implemented algorithm is not part of the ITU recommendation, use with caution.
 
     Args:
-        distrib_func (Callable[..., float]): A function, one of single_frequency_fading_distribution,
+        distrib_func (Callable[..., float]): Function, one of single_frequency_fading_distribution,
             fading_distribution or enhancement_distribution.
         p_percent (float): Percentage of time (%).
         distrib_func_args (tuple[Any, ...]): Arguments for distrib_func, with the exception of a_db

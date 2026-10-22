@@ -243,7 +243,7 @@ def refractive_index(h_km: float,
     return n
 
 
-def _layer_indices(h_lower: float, h_upper: float) -> tuple[float, float]:
+def _layer_indices(h_lower: float, h_upper: float) -> tuple[int, int]:
     """ITU-R P.676-13, Section 2.2.1 of Annex 1"""
     e = e_const
     h_lower = max(0, h_lower)
@@ -356,7 +356,7 @@ def _non_neg_elev_angl_slant_path_gaseous_att(f_ghz: float, h1_km: float, h2_km:
         h_i_mid = h_i_bot+(delta_i/2)
         n_i = refractive_index(h_i_mid, atm, rho0_gm3)
         r_i = Re + h_i_bot
-        if r_1 is None:
+        if r_1 is None or n_1 is None:
             r_1 = r_i
             n_1 = n_i
         beta_i_rad = asin(((n_1*r_1)/(n_i*r_i))*sin_beta_1)
@@ -708,7 +708,7 @@ def downwelling_microwave_brightness_temperature(f_ghz: float, phi1_deg: float,
         # step 4
         n_j = refractive_index(h_j_mid, atm, rho0_gm3)
         r_j = Re + h_j_bot
-        if r_1 is None:
+        if r_1 is None or n_1 is None:
             r_1 = r_j
             n_1 = n_j
         beta_j_rad = asin(((n_1*r_1)/(n_j*r_j))*sin_beta_1)
@@ -791,7 +791,7 @@ def upwelling_microwave_brightness_temperature(f_ghz: float, phi1_deg: float,
         # step 4
         n_j = refractive_index(h_j_mid, atm, rho0_gm3)
         r_j = Re + h_j_bot
-        if r_1 is None:
+        if r_1 is None or n_1 is None:
             r_1 = r_j
             n_1 = n_j
         beta_j_rad = asin(((n_1*r_1)/(n_j*r_j))*sin_beta_1)
