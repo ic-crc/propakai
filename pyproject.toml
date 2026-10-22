@@ -43,7 +43,7 @@ propakai-info = "propakai.cli.info:main"
 propakai-data-cleanup = "propakai.cli.data_cleanup:main"
 propakai-bin-cleanup = "propakai.cli.bin_cleanup:main"
 
-#[project.urls]
+[project.urls]
 Homepage = "https://github.com/ic-crc/propakai"
 Repository = "https://github.com/ic-crc/propakai.git"
 
