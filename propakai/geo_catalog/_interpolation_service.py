@@ -84,7 +84,7 @@ def _validate_query_inputs(item_id: str, lat: float, lon: float, parameters: lis
                 if not re.fullmatch(r'[A-Za-z0-9._]{1,24}', value):
                     raise ValueError(f'Invalid asset value {value}.')
             elif param_name == 'month':
-                if value not in {'01','02','03','04','05','06','07','08','09','10','11','12'}:
+                if value not in ('01','02','03','04','05','06','07','08','09','10','11','12'):
                     raise ValueError(f'Invalid month value {value}.')
             else:
                 raise ValueError(f'Unsupported parameter {param_name}.')
@@ -100,7 +100,7 @@ def int_month_to_str(month: int) -> str:
     return f'{month:02}'
 
 
-def percent_to_str_v1(p_percent: float, accepted_nominal_values: list[float]) -> str:
+def percent_to_str_v1(p_percent: float, accepted_nominal_values: tuple[float,...]) -> str:
     """
     Converts a float percentage to a string to be used for querying the interpolation service.
     Acceptable values for p_percent must be listed in accepted_nominal_values.
@@ -127,7 +127,7 @@ def percent_to_str_v1(p_percent: float, accepted_nominal_values: list[float]) ->
         raise ValueError(f'p_percent must be one of: {accepted_nominal_values}.')
 
 
-def percent_to_str_v2(p_percent: float, accepted_nominal_values: list[float]) -> str:
+def percent_to_str_v2(p_percent: float, accepted_nominal_values: tuple[float,...]) -> str:
     """
     Converts a float percentage to a string to be used for querying the interpolation service.
     Acceptable values for p_percent must be listed in accepted_nominal_values.
@@ -146,7 +146,7 @@ def percent_to_str_v2(p_percent: float, accepted_nominal_values: list[float]) ->
         raise ValueError(f'p_percent must be one of: {accepted_nominal_values}.')
 
 
-def percent_to_str_v3(p_percent: float, accepted_nominal_values: list[float]) -> str:
+def percent_to_str_v3(p_percent: float, accepted_nominal_values: tuple[float,...]) -> str:
     """
     Converts a float percentage to a string to be used for querying the interpolation service.
     Acceptable values for p_percent must be listed in accepted_nominal_values.

@@ -81,8 +81,8 @@ def annual_integrated_cloud_liquid_water_content(lat: float, lon: float, param: 
     if param == ModelParam.PROBABILITY:
         if p_percent is None:
             raise ValueError('p_percent must be specified when param is set to PROBABILITY.')
-        nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70,
-                    80, 90, 95, 99, 100]
+        nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70,
+                    80, 90, 95, 99, 100)
         asset_str = percent_to_str_v1(p_percent, nominals)
     elif param == ModelParam.MEAN:
         asset_str = 'mean'
@@ -117,7 +117,7 @@ def monthly_integrated_cloud_liquid_water_content(lat: float, lon: float, month:
     if param == ModelParam.PROBABILITY:
         if p_percent is None:
             raise ValueError('p_percent must be specified when param is set to PROBABILITY.')
-        nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99, 100]
+        nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99, 100)
         asset_str = percent_to_str_v1(p_percent, nominals)
     elif param == ModelParam.MEAN:
         asset_str = 'mean'

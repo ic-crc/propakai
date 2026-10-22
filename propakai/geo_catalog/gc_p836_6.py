@@ -39,7 +39,7 @@ def annual_water_vapour_scale_height(lat: float, lon: float, p_percent: float) -
         vsch (float): Annual water vapour scale height (km), exceeded for p_percent of an average
             year.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P836-6-201712_tcwc_annual_vsch', lat, lon, ['asset'], [p_str])
 
@@ -62,7 +62,7 @@ def monthly_water_vapour_scale_height(lat: float, lon: float, p_percent: float, 
         vsch (float): Monthly water vapour scale height (km), exceeded for p_percent of an average
             month.
     """
-    nominals = [1.0, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P836-6-201712_tcwc_monthly_vsch', lat, lon, ['asset', 'month'],
@@ -86,7 +86,7 @@ def annual_surface_water_vapour_density(lat: float, lon: float, p_percent: float
         rho (float): Annual values of surface water vapour density (g/m3), exceeded for p_percent
             of an average year.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P836-6-201712_swvd_annual', lat, lon, ['asset'], [p_str])
 
@@ -110,7 +110,7 @@ def monthly_surface_water_vapour_density(lat: float, lon: float, p_percent: floa
         rho (float): Monthly values of surface water vapour density (g/m3), exceeded for p_percent
             of an average month.
     """
-    nominals = [1.0, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P836-6-201712_swvd_monthly', lat, lon, ['asset', 'month'],
@@ -133,7 +133,7 @@ def annual_total_columnar_water_vapour_content(lat: float, lon: float, p_percent
         V (float): Annual total columnar water vapour content (kg/m2), exceeded for p_percent of
             the year.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P836-6-201712_tcwc_annual_v', lat, lon, ['asset'], [p_str])
 
@@ -157,7 +157,7 @@ def monthly_total_columnar_water_vapour_content(lat: float, lon: float, p_percen
         V (float): Monthly total columnar water vapour content (kg/m2), exceeded for p_percent of
             an average month.
     """
-    nominals = [1.0, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P836-6-201712_swvd_monthly', lat, lon, ['asset', 'month'],

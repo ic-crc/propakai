@@ -33,6 +33,6 @@ def sporadic_e_critical_frequency(lat: float, lon: float, p_percent: float) -> f
         foEs (float): Sporadic E critical frequency (MHz), exceeded for average annual time
             percentage of p_percent.
     """
-    nominals = [0.1, 1, 10, 50]
+    nominals = (0.1, 1, 10, 50)
     p_str = percent_to_str_v3(p_percent, nominals)
     return query('Rec-ITU-R-P534-6-202109_foes', lat, lon, ['asset'], [p_str])

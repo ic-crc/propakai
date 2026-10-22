@@ -242,8 +242,8 @@ def radio_climatic_zone4(lat: float, lon: float) -> RadioClimaticZone4:
 
     from shapely.geometry import Point, Polygon
     # polygon enclosing the Mediterranean and the Black Sea
-    warm_seas_coords = [(39.852,-5.231), (33.581,-5.548), (28.287,18.704), (30.558,32.223),
-                        (32.829,43.260), (51.311,43.471), (47.615,7.298), (41.489,-1.468)]
+    warm_seas_coords = ((39.852,-5.231), (33.581,-5.548), (28.287,18.704), (30.558,32.223),
+                        (32.829,43.260), (51.311,43.471), (47.615,7.298), (41.489,-1.468))
     warm_seas_polygon = Polygon([(lon, lat) for lat, lon in warm_seas_coords])
     if warm_seas_polygon.contains(Point(lon, lat)):
         return RadioClimaticZone4.C_WARM_SEA

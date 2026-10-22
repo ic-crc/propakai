@@ -33,6 +33,6 @@ def radio_refractivity_gradient(lat: float, lon: float, p_percent: float) -> flo
         dN (float): Radio refractivity gradient, exceeded for p_percent of time of an average year
             (N-units/km).
     """
-    nominals = [1.0, 10.0, 50.0]
+    nominals = (1, 10, 50)
     p_str = percent_to_str_v3(p_percent, nominals)
     return query('Rec-ITU-R-P1546-6-201908_dn', lat, lon, ['asset'], [p_str])

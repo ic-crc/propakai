@@ -74,8 +74,8 @@ def annual_surface_total_pressure(lat: float, lon: float, p_percent: float) -> f
         Ps (float): Annual surface total (barometric) pressure (hPa), at an exceedance probability
             of p_percent.
     """
-    nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
-                90, 95, 99]
+    nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
+                90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P2145-0-202208_p_annual', lat, lon, ['asset'], [p_str])
 
@@ -95,8 +95,8 @@ def annual_surface_temperature(lat: float, lon: float, p_percent: float) -> floa
     Returns:
         Ts (float): Annual surface temperature (K), at an exceedance probability of p_percent.
     """
-    nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
-                90, 95, 99]
+    nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
+                90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P2145-0-202208_t_annual', lat, lon, ['asset'], [p_str])
 
@@ -117,8 +117,8 @@ def annual_surface_water_vapour_density(lat: float, lon: float, p_percent: float
         ρws (float): Annual surface water vapour density (g/m3), at an exceedance
             probability of p_percent.
     """
-    nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
-                90, 95, 99]
+    nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
+                90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P2145-0-202208_rho_annual', lat, lon, ['asset'], [p_str])
 
@@ -139,8 +139,8 @@ def annual_integrated_water_vapour_content(lat: float, lon: float, p_percent: fl
         Vs (float): Annual integrated water vapour content (kg/m2), at an exceedance probability of
             p_percent.
     """
-    nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
-                90, 95, 99]
+    nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
+                90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P2145-0-202208_v_annual', lat, lon, ['asset'], [p_str])
 
@@ -289,8 +289,8 @@ def monthly_surface_total_pressure(lat: float, lon: float, p_percent: float, mon
         Ps (float): Monthly surface total (barometric) pressure (hPa), at an exceedance probability
             of p_percent.
     """
-    nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
-                90, 95, 99]
+    nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
+                90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P2145-0-202208_p_monthly', lat, lon, ['asset', 'month'],
@@ -313,7 +313,7 @@ def monthly_surface_temperature(lat: float, lon: float, p_percent: float, month:
     Returns:
         Ts (float): Monthly surface temperature (K), at an exceedance probability of p_percent.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P2145-0-202208_t_monthly', lat, lon, ['asset', 'month'],
@@ -338,7 +338,7 @@ def monthly_surface_water_vapour_density(lat: float, lon: float, p_percent: floa
         ρws (float): Monthly surface water vapour density (g/m3), at an exceedance
             probability of p_percent.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P2145-0-202208_rho_monthly', lat, lon, ['asset', 'month'],
@@ -363,7 +363,7 @@ def monthly_integrated_water_vapour_content(lat: float, lon: float, p_percent: f
         Vs (float): Monthly integrated water vapour content (kg/m2), at an exceedance probability of
             p_percent.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P2145-0-202208_v_monthly', lat, lon, ['asset', 'month'],

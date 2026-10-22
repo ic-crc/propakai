@@ -63,7 +63,7 @@ def annual_surface_refractivity_wet_term(lat: float, lon: float, p_percent: floa
         Nwet (float): Annual value of the wet term of the surface refractivity (ppm), exceeded for
             p_percent of an average year.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P453-14-201908_nwet_annual', lat, lon, ['asset'], [p_str])
 
@@ -87,7 +87,7 @@ def monthly_surface_refractivity_wet_term(lat: float, lon: float, p_percent: flo
         Nwet (float): Monthly value of the wet term of the surface refractivity (ppm), exceeded for
             p_percent of an average month.
     """
-    nominals = [0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99]
+    nominals = (0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80, 90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P453-14-201908_nwet_monthly', lat, lon, ['asset', 'month'],
@@ -111,8 +111,8 @@ def annual_refractivity_gradient_1km(lat: float, lon: float, p_percent: float) -
         ΔN_1km (float): Value of the annual mean decrease (i.e., lapse) in radio refractivity over
             a 1 km layer from the surface, exceeded for p_percent of an average year (N-units/km).
     """
-    nominals = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
-                99.9]
+    nominals = (0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
+                99.9)
     p_str = percent_to_str_v2(p_percent, nominals)
     return query('Rec-ITU-R-P453-14-201908_delta_n1km_annual', lat, lon, ['asset'], [p_str])
 
@@ -135,8 +135,8 @@ def monthly_refractivity_gradient_1km(lat: float, lon: float, p_percent: float, 
         ΔN_1km (float): Value of the monthly mean decrease (i.e., lapse) in radio refractivity over
             a 1 km layer from the surface, exceeded for p_percent of an average month (N-units/km).
     """
-    nominals = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
-                99.9]
+    nominals = (0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
+                99.9)
     p_str = percent_to_str_v2(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P453-14-201908_delta_n1km_monthly', lat, lon, ['asset', 'month'],
@@ -160,8 +160,8 @@ def annual_refractivity_gradient_65m(lat: float, lon: float, p_percent: float) -
         ΔN_65m (float): Annual value of the refractivity gradient in the lowest 65 m from the
             surface of the Earth, not exceeded for p_percent of an average year (N-units/km).
     """
-    nominals = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
-                99.9]
+    nominals = (0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
+                99.9)
     p_str = percent_to_str_v2(p_percent, nominals)
     return query('Rec-ITU-R-P453-14-201908_delta_n65m_anual', lat, lon, ['asset'], [p_str])
 
@@ -185,8 +185,8 @@ def monthly_refractivity_gradient_65m(lat: float, lon: float, p_percent: float, 
         ΔN_65m (float): Monthly value of the refractivity gradient in the lowest 65 m from the
             surface of the Earth, not exceeded for p_percent of an average month (N-units/km).
     """
-    nominals = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
-                99.9]
+    nominals = (0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 99.5, 99.8,
+                99.9)
     p_str = percent_to_str_v2(p_percent, nominals)
     month_str = int_month_to_str(month)
     return query('Rec-ITU-R-P453-14-201908_delta_n65m_monthly', lat, lon, ['asset', 'month'],
