@@ -34,7 +34,7 @@ def average_annual_wind_speed(lat: float, lon: float, p_percent: float) -> float
         W (float): Average annual wind speed (m/s), at a height of 10 m above the surface of the
             Earth exceeded for p_percent of an average year.
     """
-    nominals = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
-                90, 95, 99]
+    nominals = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 10, 20, 30, 50, 60, 70, 80,
+                90, 95, 99)
     p_str = percent_to_str_v1(p_percent, nominals)
     return query('Rec-ITU-R-P2148-0-202208_wind_speed', lat, lon, ['asset'], [p_str])
