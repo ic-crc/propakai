@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     freq_ghz = 1.5
     tx_lat = 43.659072
-    tx_lon = -79.382108 
+    tx_lon = -79.382108
     rx_lat = 43.6613634
     rx_lon = -79.3818735
     tx_street_width_m = 27.0
@@ -30,7 +30,9 @@ if __name__ == '__main__':
 
     # Download OpenStreetMap data and get a street graph for the area surrounding the transmitter
     # and receiver locations.
+    print('Getting street data...', end='', flush=True)
     street_graph = streets.StreetGraph(bounds=[(tx_lat, tx_lon), (rx_lat, rx_lon)])
+    print('done', flush=True)
 
     # If desired, the street graph may be displayed.
     street_graph.display()

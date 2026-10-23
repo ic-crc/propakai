@@ -28,7 +28,9 @@ def main():
     # the specified default height in meters. This building data will be used to calculate input
     # parameters for the propagation model.
     bounds = bldg.LatLonBox((tx_lat, tx_lon), (rx_lat, rx_lon))
+    print('Getting building footprint data...', end='', flush=True)
     bldg_list = bldg.from_open_street_map(bounds, avg_floor_height_m=3.0, default_height_m=3.0)
+    print('done', flush=True)
 
     # NOTE: Alternately, if you have better building footprint and height data available from a
     # shapefile (.shp), you may use the bldg.from_shapefile() function instead.
