@@ -17,11 +17,12 @@ from propakai import p835_6 as p835
 
 
 class ExecutionMode(Enum):
+    """Using multi-processing or multi-threading"""
     PROCESSING = auto()
-    THREADING = auto() 
+    THREADING = auto()
 
 
-def zenith_attenuation(f_ghz) -> tuple[float, float]:
+def _zenith_attenuation(f_ghz) -> tuple[float, float]:
     MAGRA = p835.ReferenceAtmosphere.MEAN_ANNUAL_GLOBAL
     att_std_dB, _, _ = p676.slant_path_gaseous_attenuation(f_ghz=f_ghz, h1_km=0, h2_km=100.01,
                                                             phi1_deg=90, atm=MAGRA, rho0_gm3=7.5)
@@ -39,7 +40,7 @@ def zenith_attenuation(f_ghz) -> tuple[float, float]:
     return (att_std_dB, att_dry_dB)
 
 
-def figure_4(exec_mode: ExecutionMode, num_workers: int) -> None:
+def _figure_4(exec_mode: ExecutionMode, num_workers: int) -> None:
     """Calculates values and display FIGURE 4 from ITU-R P.676-13."""
     freqs = list(range(1, 1001, 1))
     atts = [[],[]]
@@ -51,7 +52,7 @@ def figure_4(exec_mode: ExecutionMode, num_workers: int) -> None:
     else:
         executor = concurrent.futures.ProcessPoolExecutor
     with executor(max_workers=num_workers) as executor:
-        futures = [executor.submit(zenith_attenuation, f_ghz) for f_ghz in freqs]
+        futures = [executor.submit(_zenith_attenuation, f_ghz) for f_ghz in freqs]
         for future in futures:
             att_std_dB, att_dry_dB = future.result()
             atts[0].append(att_std_dB)
@@ -78,7 +79,7 @@ def figure_4(exec_mode: ExecutionMode, num_workers: int) -> None:
     plt.show()
 
 
-def get_worker_count(exec_mode: ExecutionMode, default_num_workers: int) -> int:
+def _get_worker_count(exec_mode: ExecutionMode, default_num_workers: int) -> int:
     """Prompts the user to enter the number of worker threads"""
     if exec_mode == ExecutionMode.THREADING:
         worker_name = 'threads'
@@ -100,7 +101,7 @@ def get_worker_count(exec_mode: ExecutionMode, default_num_workers: int) -> int:
             print('Error: Invalid input. Please enter a whole number.')
 
 
-def ask_use_multiprocessing() -> bool:
+def _ask_use_multiprocessing() -> bool:
     prompt = "\nDo you want to use multi-processing instead? [Y/n]: "
     while True:
         response = input(prompt).strip().lower()
@@ -114,7 +115,7 @@ def ask_use_multiprocessing() -> bool:
 
 
 if __name__ == '__main__':
-    exec_mode = ExecutionMode.THREADING
+    _exec_mode = ExecutionMode.THREADING
 
     if hasattr(sys, "_is_gil_enabled") and sys._is_gil_enabled() is False:
         print("\n✅ This Python interpreter is free-threaded (no GIL).")
@@ -123,10 +124,10 @@ if __name__ == '__main__':
         print("\n❌ This Python interpreter has the GIL enabled.")
         print("   This means multi-threading won't significantly improve performance on CPU-" \
               "bound tasks.")
-        if ask_use_multiprocessing() is True:
-            exec_mode = ExecutionMode.PROCESSING
+        if _ask_use_multiprocessing() is True:
+            _exec_mode = ExecutionMode.PROCESSING
 
-    default_num_workers = cpu_count() or 4  # fallback to 4 if cpu_count fails
-    num_workers = get_worker_count(exec_mode, default_num_workers)
+    _default_num_workers = cpu_count() or 4  # fallback to 4 if cpu_count fails
+    _num_workers = _get_worker_count(_exec_mode, _default_num_workers)
 
-    figure_4(exec_mode, num_workers)
+    _figure_4(_exec_mode, _num_workers)

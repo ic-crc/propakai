@@ -14,11 +14,9 @@ from os import environ
 from math import isclose
 import unittest
 import pandas as pd
-
+from propakai import p840_9
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p840_9
 
 
 class Test_P839_4(unittest.TestCase):
@@ -72,7 +70,7 @@ class Test_P839_4(unittest.TestCase):
                          "Optional, requires about 0.5 GB of monthly stats")
     def test_integrated_cloud_liquid_water_content_monthly(self):
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
-        df = pd.read_excel(xlsx_file, sheet_name='P840_9_L', header=None)       
+        df = pd.read_excel(xlsx_file, sheet_name='P840_9_L', header=None)
         lat_list = df.iloc[23:59, 11].to_list()
         lon_list = df.iloc[23:59, 12].to_list()
         p_list = df.iloc[23:59, 13].to_list()

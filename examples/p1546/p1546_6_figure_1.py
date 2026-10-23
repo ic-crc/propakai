@@ -26,7 +26,7 @@ def figure_1() -> None:
         E_list = [] 
         for d in d_list:
             E = p1546._fs_tables_interpolation(f_mhz, t_percent, path, h1, d,
-                                               None, None, None)
+                                               0, (), None) # unused params (h1>=0)
             E_list.append(E)
         E_per_h1.append(E_list)
 

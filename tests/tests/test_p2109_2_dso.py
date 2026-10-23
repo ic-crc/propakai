@@ -13,11 +13,9 @@ from os.path import dirname, abspath
 from math import isclose
 import unittest
 import pandas as pd
-
+from propakai import p2109_2_dso
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p2109_2_dso
 
 
 class Test_2109_2_dso(unittest.TestCase):
@@ -27,6 +25,8 @@ class Test_2109_2_dso(unittest.TestCase):
         df = pd.read_excel(xlsx_file, sheet_name='BEL', header=None)
         f_ghz = df.iloc[10, 1]
         theta_deg = df.iloc[10, 2]
+        assert isinstance(f_ghz, (int, float))
+        assert isinstance(theta_deg, (int, float))
         p_percent_list = df.iloc[14:156, 1].to_list()
         bel_trad_list = df.iloc[14:156, 9].to_list()
         bel_eff_list = df.iloc[14:156, 16].to_list()

@@ -49,7 +49,7 @@ def height_gain_terminal_correction(f_ghz: float, h_m: float, clut: ClutterType,
     if r_m is None:
         r_m = 0.0 # indicates to use default TABLE 3 values in cpp version
     cdll = _p2108_1_dso_shared['cdll']
-    return cdll.P2108_1_HeightGainTerminalCorrection(f_ghz, h_m, clut, r_m, ws_m)
+    return cdll.P2108_1_HeightGainTerminalCorrection(f_ghz, h_m, clut.value, r_m, ws_m)
 
 
 def terrestrial_path_clutter_loss(f_ghz: float, d_km: float, p_percent: float) -> float:

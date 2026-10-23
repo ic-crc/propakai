@@ -12,13 +12,12 @@ import sys
 from os.path import dirname, abspath
 from math import isclose
 import unittest
+from typing import cast
 import pandas as pd
-
-sys.path.insert(0, dirname(abspath(__file__)))
-import _test_utils as _tu
-
 from propakai import p618_14
 from propakai import p837_8
+sys.path.insert(0, dirname(abspath(__file__)))
+import _test_utils as _tu
 
 
 class Test_P618_14(unittest.TestCase):
@@ -118,14 +117,14 @@ class Test_P618_14(unittest.TestCase):
     def test_total_atmospheric_attenuation_2(self):
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P.618-14 Att_Tot', header=None)
-        lat = df.iloc[80, 2]
-        lon = df.iloc[80, 3]
-        hs = df.iloc[80, 4]
-        f = df.iloc[80, 6]
-        theta = df.iloc[80, 7]
-        d = df.iloc[80, 8]
-        eta = df.iloc[80, 9]
-        tau = df.iloc[80, 10]
+        lat = cast(float, df.iloc[80, 2])
+        lon = cast(float, df.iloc[80, 3])
+        hs = cast(float, df.iloc[80, 4])
+        f = cast(float, df.iloc[80, 6])
+        theta = cast(float, df.iloc[80, 7])
+        d = cast(float, df.iloc[80, 8])
+        eta = cast(float, df.iloc[80, 9])
+        tau = cast(float, df.iloc[80, 10])
         p_list = df.iloc[87:107, 2].to_list()
         AS_list = df.iloc[87:107, 5].to_list()
         AR_list = df.iloc[87:107, 6].to_list()

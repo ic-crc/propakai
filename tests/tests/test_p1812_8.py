@@ -15,16 +15,14 @@ import unittest
 import csv
 import copy
 import operator
-
+from propakai import p1812_8
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p1812_8
 
 
 class Test_1812_8(unittest.TestCase):
 
-    class P1812Input:
+    class _P1812Input:
         def __init__(self):
             self.tx_lat: float = 0
             self.tx_lon: float = 0
@@ -47,9 +45,9 @@ class Test_1812_8(unittest.TestCase):
             self.lb_db: float = 0
 
 
-    def read_validation_profile_file(self, pathname: str) -> P1812Input:
+    def _read_validation_profile_file(self, pathname: str) -> list[_P1812Input]:
         inputs = []
-        profile_data = Test_1812_8.P1812Input()
+        profile_data = Test_1812_8._P1812Input()
         with open(pathname, newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             for row in reader:
@@ -92,7 +90,7 @@ class Test_1812_8(unittest.TestCase):
         return inputs
 
 
-    def is_using_default_representative_heights(self, i: P1812Input) -> bool:
+    def _is_using_default_representative_heights(self, i: _P1812Input) -> bool:
         for clutter_cat, repr_height in zip(i.cc, i.rch_m):
             if clutter_cat==1 and repr_height != 0:
                 return False
@@ -111,7 +109,7 @@ class Test_1812_8(unittest.TestCase):
         csv_files = _tu.get_pathnames(_tu.ValidationFileGroup.P1812_8_VALIDATION_PROFILES)
 
         for csv_file in csv_files:
-            inputs = self.read_validation_profile_file(csv_file)
+            inputs = self._read_validation_profile_file(csv_file)
             for i in inputs:
                 params = {
                     'f_ghz': i.f_ghz,
@@ -142,7 +140,7 @@ class Test_1812_8(unittest.TestCase):
                 self.assertTrue(isclose(lb_db, i.lb_db))
 
                 # test using clutter categories (when possible)
-                if self.is_using_default_representative_heights(i) is True:
+                if self._is_using_default_representative_heights(i) is True:
                     using_cc_params = {**params, 'rch_m': None}
                     lb_db = p1812_8.basic_transmission_loss(**using_cc_params)
                     self.assertTrue(isclose(lb_db, i.lb_db))

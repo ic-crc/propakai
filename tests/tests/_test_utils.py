@@ -106,7 +106,7 @@ def get_pathnames(file_group: ValidationFileGroup) -> list[str]:
             _du.print_notice()
             return pathnames
         return pathnames
-    
+
     elif file_group is ValidationFileGroup.P1546_6_VALIDATION_PROFILES:
         target_dir = os.path.join(script_dir, 'validation_data', 'itu_proprietary', 'p1546_6')
         pathnames = _get_pathnames(target_dir, 'csv')

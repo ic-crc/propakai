@@ -14,18 +14,16 @@ from math import isclose
 import unittest
 import csv
 import copy
-
+from propakai import p1546_6
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p1546_6
 
 
 class Test_1546_6(unittest.TestCase):
 
-    class P1546Input:
+    class _P1546Input:
         def __init__(self):
-            self.first_point: str= '', # T or R (transmitter or receiver)
+            self.first_point: str = '' # T or R (transmitter or receiver)
             self.d_km: list[float] = [] # dist from tx
             self.h_mamsl: list[float] = [] # terrain height
             self.cc: list[int] = [] # clutter category
@@ -40,9 +38,9 @@ class Test_1546_6(unittest.TestCase):
             self.lb_db: float = 0
 
 
-    def read_validation_profile_file(self, pathname: str) -> P1546Input:
+    def _read_validation_profile_file(self, pathname: str) -> list[_P1546Input]:
         inputs = []
-        profile_data = Test_1546_6.P1546Input()
+        profile_data = Test_1546_6._P1546Input()
         with open(pathname, newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             for row in reader:
@@ -74,7 +72,7 @@ class Test_1546_6(unittest.TestCase):
         return inputs
 
 
-    def _reverse_profiles(self, i: P1546Input):
+    def _reverse_profiles(self, i: _P1546Input):
         total_d_km = i.d_km[-1]
         i.d_km = [total_d_km-d for d in reversed(i.d_km)]
         i.h_mamsl.reverse()
@@ -108,7 +106,7 @@ class Test_1546_6(unittest.TestCase):
             #    continue
             #print(csv_file)
             try:
-                inputs = self.read_validation_profile_file(csv_file)
+                inputs = self._read_validation_profile_file(csv_file)
             except Exception as _:
                 # file format is not as expected for srg_land_637m.csv
                 #print(f'Skipping {basename(csv_file)}')
@@ -119,7 +117,7 @@ class Test_1546_6(unittest.TestCase):
                     self._reverse_profiles(i)
                 path_profile = [rcz_to_path_map[x] for x in i.rcz]
                 env2 = cc_to_env_map[i.cc[-1]]
-                Lb, E = p1546_6.basic_transmission_loss(f_mhz=i.f_mhz,
+                Lb, _ = p1546_6.basic_transmission_loss(f_mhz=i.f_mhz,
                                                         t_percent=i.p_time_percent,
                                                         ha_m=i.htx_m,
                                                         h2_m=i.hrx_m,

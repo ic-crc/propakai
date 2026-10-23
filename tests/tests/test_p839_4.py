@@ -9,15 +9,13 @@ Uses ITU validation examples file CG-3M3J-13-ValEx-Rev8.3.0.xlsx from
 https://www.itu.int/en/ITU-R/study-groups/rsg3/rwp3m/Pages/digprod.aspx (Validation Examples tab)
 """
 import sys
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath
 from math import isclose
 import unittest
 import pandas as pd
-
+from propakai import p839_4
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p839_4
 
 
 class Test_P839_4(unittest.TestCase):

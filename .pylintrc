@@ -2,5 +2,11 @@
 # Enforce snake_case for public functions, allow anything for private functions
 function-rgx=^(_.*|[a-z_][a-z0-9_]*)$
 
+# Allow optional leading underscores, followed by PascalCase OR "Test_..."
+class-rgx=^_*([A-Z][a-zA-Z0-9]+|Test_[a-zA-Z0-9_]+)$
+
 # Permissive naming for variables
 variable-rgx=.*
+
+# Don't require docstrings on anything starting with "_", "Test_" or "test_"
+no-docstring-rgx=^(_|Test_|test_)

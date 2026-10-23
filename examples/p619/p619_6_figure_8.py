@@ -25,12 +25,12 @@ def figure_8() -> None:
     for p in percentages:
         for i, theta_deg in enumerate(fs_elev_angles):
             enh = p619._tropospheric_scintillation_attenuation(f_ghz, theta_deg, p, nwet_ppm,
-                                                               None, None, ga_dbi)
+                                                               0, 0, ga_dbi)
             enh = abs(enh) # enhancements are negative sign, fades are positive sign
             Ast[i].append(enh)
 
             fade = p619._tropospheric_scintillation_attenuation(f_ghz, theta_deg, 100-p, nwet_ppm,
-                                                                None, None, ga_dbi)
+                                                                0, 0, ga_dbi)
             Ast[i+5].append(fade)
 
     fig, ax1 = plt.subplots()

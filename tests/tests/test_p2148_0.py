@@ -10,7 +10,6 @@ https://br-geoportal.itu.int/ITU-R/BR-GeoCatalogue/BR-GeoApi/collections/rec-itu
 """
 from math import isclose
 import unittest
-
 from propakai import p2148_0
 from propakai.geo_catalog import gc_p2148_0
 

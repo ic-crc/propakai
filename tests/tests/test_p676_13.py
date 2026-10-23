@@ -14,11 +14,9 @@ from os import environ
 from math import isclose, isnan
 import unittest
 import pandas as pd
-
+from propakai import p676_13
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p676_13
 
 
 class Test_P676_13(unittest.TestCase):

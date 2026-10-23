@@ -13,16 +13,14 @@ from os.path import dirname, abspath, basename
 from math import isclose
 import unittest
 import csv
-
+from propakai import p452_18_dso
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p452_18_dso
 
 
 class Test_452_18_dso(unittest.TestCase):
 
-    class ProfileSet:
+    class _ProfileSet:
         def __init__(self):
             self.d_km: list[float] = [] # dist from tx
             self.h_mamsl: list[float] = [] # terrain height
@@ -30,8 +28,8 @@ class Test_452_18_dso(unittest.TestCase):
             self.rcz: list[int] = [] # radio climatic zone
 
 
-    def read_profile_csv_file(self, csv_file: str) -> ProfileSet:
-        profile_data = Test_452_18_dso.ProfileSet()
+    def _read_profile_csv_file(self, csv_file: str) -> _ProfileSet:
+        profile_data = Test_452_18_dso._ProfileSet()
         with open(csv_file, newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
             _header = next(reader)  # Skip header row
@@ -48,7 +46,7 @@ class Test_452_18_dso(unittest.TestCase):
         return profile_data
 
 
-    class Result:
+    class _Result:
         def __init__(self):
             self.profile_filename: str
             self.f_ghz: float
@@ -71,12 +69,12 @@ class Test_452_18_dso(unittest.TestCase):
             self.lb_db: float
 
 
-    def read_result_csv_file(self, csv_file: str) -> list[Result]:
+    def _read_result_csv_file(self, csv_file: str) -> list[_Result]:
         results = []
         with open(csv_file, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                result = Test_452_18_dso.Result()
+                result = Test_452_18_dso._Result()
                 result.profile_filename = row['profile']
                 # Note: fix for the one result file which contains the wrong profile filename
                 if basename(csv_file) == 'test_result_b2iseac_land_eqdist_no_clutter.csv':
@@ -103,21 +101,21 @@ class Test_452_18_dso(unittest.TestCase):
         return results
 
 
-    def read_csv_files(self, csv_files: list[str]):
+    def _read_csv_files(self, csv_files: list[str]):
         profiles = {}
         results = []
         for csv_file in csv_files:
             filename = basename(csv_file)
             if '_profile_' in filename:
-                profiles[filename] = self.read_profile_csv_file(csv_file)
+                profiles[filename] = self._read_profile_csv_file(csv_file)
             elif '_result_' in filename:
-                results.extend(self.read_result_csv_file(csv_file))
+                results.extend(self._read_result_csv_file(csv_file))
         return profiles, results
 
 
     def test_basic_transmission_loss(self):
         csv_files = _tu.get_pathnames(_tu.ValidationFileGroup.P452_18_VALIDATION_PROFILES)
-        profiles, results = self.read_csv_files(csv_files)
+        profiles, results = self._read_csv_files(csv_files)
 
         for r in results:
             params = {

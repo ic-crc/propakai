@@ -39,8 +39,8 @@ def main():
     dist_profile_m = topo.distance_profile_m(tx_lat, tx_lon, rx_lat, rx_lon, sampling_res_m)
     bldg_list = bldg.filter_by_path_intersection(bldg_list, lat_lon_profile)
     bldg_height_profile_m = bldg.height_profile(bldg_list, lat_lon_profile)
-    display_building_height_profile(list(dist_profile_m), list(bldg_height_profile_m),
-                                    'Building height profile')
+    _display_building_height_profile(list(dist_profile_m), list(bldg_height_profile_m),
+                                     'Building height profile')
 
     # In order to get correct metrics for the multi-screen diffraction model, we remove the two
     # smaller buildings (i.e. the buildings that are not part of the multi-screen).
@@ -48,8 +48,8 @@ def main():
 
     # Display the updated building heights profile.
     bldg_height_profile_m = bldg.height_profile(bldg_list, lat_lon_profile)
-    display_building_height_profile(list(dist_profile_m), list(bldg_height_profile_m),
-                                    'Updated building height profile (multi-screen)')
+    _display_building_height_profile(list(dist_profile_m), list(bldg_height_profile_m),
+                                     'Updated building height profile (multi-screen)')
 
     # Calculate path loss along the transmitter to receiver path.
     path_loss_profile_db = [float('nan')] * len(lat_lon_profile)
@@ -71,6 +71,9 @@ def main():
 
         if l_m > 0 and w_m is None:
             continue # skip points where the street width cannot be obtained
+
+        if hr_m is None or b_m is None or w_m is None:
+            continue # skip point if could not retrieve required metric
 
         lb = p1411.site_specific_over_rooftops_urban(
                 f_ghz=freq_ghz, d_m=d_m, h1_m=tx_height_m, h2_m=rx_height_m, hr_m=hr_m, l_m=l_m,
@@ -96,7 +99,8 @@ def main():
     plt.show()
 
 
-def display_building_height_profile(dist_profile_m: list[float], bldg_heights_profile_m: list[float], title: str):
+def _display_building_height_profile(dist_profile_m: list[float],
+                                     bldg_heights_profile_m: list[float], title: str):
     fig, ax1 = plt.subplots()
     fig.set_size_inches(12, 6.75)
     ax1.plot(dist_profile_m, bldg_heights_profile_m, color='#B0B0B0')

@@ -13,11 +13,9 @@ from os.path import dirname, abspath
 from math import isclose
 import unittest
 import pandas as pd
-
+from propakai import p838_3
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
-
-from propakai import p838_3
 
 
 class Test_P838_3(unittest.TestCase):

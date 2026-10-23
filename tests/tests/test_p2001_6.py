@@ -1,3 +1,5 @@
+# pylint: disable=protected-access
+
 # Copyright (c) 2026 His Majesty the King in Right of Canada as represented by the Minister of
 # Industry through the Communications Research Centre Canada.
 #
@@ -14,12 +16,10 @@ from os.path import dirname, abspath, basename
 from math import isclose
 import unittest
 import csv
-
-sys.path.insert(0, dirname(abspath(__file__)))
-import _test_utils as _tu
-
 from propakai import p2001_6
 from propakai.geo_catalog import gc_p2001_6
+sys.path.insert(0, dirname(abspath(__file__)))
+import _test_utils as _tu
 
 
 class Test_P2001_6(unittest.TestCase):
@@ -96,7 +96,7 @@ class Test_P2001_6(unittest.TestCase):
             self.assertTrue(isclose(val, expected_val))
 
 
-    class P2001Profiles:
+    class _P2001Profiles:
         def __init__(self):
             self.tx_lat: float = 0
             self.tx_lon: float = 0
@@ -107,8 +107,8 @@ class Test_P2001_6(unittest.TestCase):
             self.z: list[int] = [] # radio climatic zone
 
 
-    def read_profile_file(self, pathname: str) -> P2001Profiles:
-        profile_data = Test_P2001_6.P2001Profiles()
+    def _read_profile_file(self, pathname: str) -> _P2001Profiles:
+        profile_data = Test_P2001_6._P2001Profiles()
         with open(pathname, newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             for row in reader:
@@ -137,7 +137,7 @@ class Test_P2001_6(unittest.TestCase):
         for csv_file in csv_files:
             filename = basename(csv_file)
             if '_profile' in filename:
-                profile = self.read_profile_file(csv_file)
+                profile = self._read_profile_file(csv_file)
                 if 'b2iseac' in filename:
                     profiles['b2iseac'] = profile
                 elif 'prof4' in filename:
@@ -153,6 +153,8 @@ class Test_P2001_6(unittest.TestCase):
                 elif 'prof4' in filename:
                     profile = profiles['prof4']
 
+                assert profile is not None
+
                 with open(csv_file, 'r', encoding='utf-8') as file:
                     reader = csv.DictReader(file)
                     for row in reader:
@@ -165,7 +167,7 @@ class Test_P2001_6(unittest.TestCase):
                         vpol = bool(row['FlagVp'])
                         expected_Lb = float(row['Lb'])
 
-                        Lb, Lbm1, Lbm2, Lbm3, Lbm4 = \
+                        Lb, _Lbm1, _Lbm2, _Lbm3, _Lbm4 = \
                             p2001_6.basic_transmission_loss(f_ghz, tpc_percent, profile.tx_lat,
                                 profile.tx_lon, profile.rx_lat, profile.rx_lon, htg_m, hrg_m,
                                 gt_dbi, gr_dbi, vpol, profile.d_km, profile.h_mamsl, profile.z)

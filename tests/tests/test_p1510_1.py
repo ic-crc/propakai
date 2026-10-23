@@ -17,12 +17,10 @@ from os.path import dirname, abspath
 from math import isclose
 import unittest
 import pandas as pd
-
-sys.path.insert(0, dirname(abspath(__file__)))
-import _test_utils as _tu
-
 from propakai import p1510_1
 from propakai.geo_catalog import gc_p1510_1
+sys.path.insert(0, dirname(abspath(__file__)))
+import _test_utils as _tu
 
 
 class Test_P1510_1(unittest.TestCase):
