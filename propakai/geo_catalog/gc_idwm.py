@@ -25,6 +25,10 @@ from threading import Lock
 from filelock import FileLock
 from .. import _download_utils as _du
 
+# NOTE: We only import geopandas and shapely within functions as needed. That way, enums like
+# RadioClimaticZone3 or RadioClimaticZone4 may be used from other modules even when geopandas
+# and shapely are not installed.
+
 if TYPE_CHECKING:
     # imports here are not performed at runtime, only when type-checking
     import geopandas

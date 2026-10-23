@@ -577,7 +577,7 @@ class GeoRasterDirectoryReader:
             # Transform coordinates from EPSG:4326 to the raster's CRS if needed
             lats, lons = zip(*coords)
             if src.crs.to_string() != 'EPSG:4326':
-                xs, ys = transform('EPSG:4326', src.crs, lons, lats)
+                xs, ys, *_ = transform('EPSG:4326', src.crs, lons, lats)
             else:
                 xs, ys = lons, lats
 
@@ -660,6 +660,7 @@ class GeoRasterDirectoryReader:
                 that location), None is used as the result for that particular location.
         """
         import rasterio
+        import rasterio.windows
         from rasterio.warp import transform
 
         result = []
@@ -667,7 +668,7 @@ class GeoRasterDirectoryReader:
             # Transform coordinates from EPSG:4326 to the raster's CRS if needed
             lats, lons = zip(*coords)
             if src.crs.to_string() != 'EPSG:4326':
-                xs, ys = transform('EPSG:4326', src.crs, lons, lats)
+                xs, ys, *_ = transform('EPSG:4326', src.crs, lons, lats)
             else:
                 xs, ys = lons, lats
 
@@ -708,8 +709,9 @@ class GeoRasterDirectoryReader:
             win_max_col_i = min(max_col_i + extra, src.width - 1)
             window_height_i = win_max_row_i - win_min_row_i + 1
             window_width_i  = win_max_col_i - win_min_col_i + 1
-            window = rasterio.windows.Window(win_min_col_i, win_min_row_i,
-                                             window_width_i, window_height_i)
+            window = rasterio.windows.Window(
+                        win_min_col_i, win_min_row_i,    # type: ignore[call-arg]
+                        window_width_i, window_height_i) # type: ignore[call-arg]
 
             # Read window data into memory (2D numpy array)
             data = src.read(band, window=window)

@@ -107,6 +107,7 @@ def from_shapefile(filepath: str, height_attribute: str, bounds: LatLonBox|None=
     """
     import shapely
     import pyproj
+    import pyproj.crs
     import shapefile
 
     bldg_list = []
@@ -122,6 +123,7 @@ def from_shapefile(filepath: str, height_attribute: str, bounds: LatLonBox|None=
                                                   always_xy=True)
         bbox = transformer.transform_bounds(left=bounds.min_lon, bottom=bounds.min_lat,
                                             right=bounds.max_lon, top=bounds.max_lat)
+        bbox = shapefile.BBox(*bbox)
     else:
         bbox = None
 
@@ -134,14 +136,14 @@ def from_shapefile(filepath: str, height_attribute: str, bounds: LatLonBox|None=
     sf = shapefile.Reader(filepath)
     #print(sf.fields)
     for shape_rec in sf.iterShapeRecords(bbox=bbox):
-        if shape_rec.shape.shapeType == 5: # 5=POLYGON
+        if shape_rec.shape and shape_rec.shape.shapeType == 5: # 5=POLYGON
             if footprint_transformer is not None:
                 x_coords, y_coords = list(zip(*(shape_rec.shape.points)))
                 new_x_coords, new_y_coords = footprint_transformer.transform(x_coords, y_coords)
                 shape_rec.shape.points = list(zip(list(new_x_coords), list(new_y_coords)))
 
             if len(shape_rec.shape.parts) == 1:
-                footprint = shapely.Polygon(shell=shape_rec.shape.points)
+                footprint = shapely.Polygon(shell=shape_rec.shape.points) # type: ignore[arg-type]
             else: # more than one parts
                 shell = shape_rec.shape.points[0 : shape_rec.shape.parts[1]]
                 holes = []
@@ -149,17 +151,20 @@ def from_shapefile(filepath: str, height_attribute: str, bounds: LatLonBox|None=
                     holes.append(shape_rec.shape.points[shape_rec.shape.parts[i] : \
                                                         shape_rec.shape.parts[i+1]])
                 holes.append(shape_rec.shape.points[shape_rec.shape.parts[-1] : ])
-                footprint = shapely.Polygon(shell=shell, holes=holes)
+                footprint = shapely.Polygon(shell=shell, holes=holes) # type: ignore[arg-type]
 
-            try:
-                height_m = float(shape_rec.record[height_attribute])
-            except Exception as _: # pylint: disable=broad-exception-caught
-                height_m = default_height_m
+            height_m = default_height_m
+            osmid = None
+            if shape_rec.record:
+                try:
+                    height_m = float(shape_rec.record[height_attribute]) # type: ignore[arg-type]
+                except Exception as _: # pylint: disable=broad-exception-caught
+                    height_m = default_height_m
 
-            try:
-                osmid = int(shape_rec.record['osm_id'])
-            except Exception as _: # pylint: disable=broad-exception-caught
-                osmid = None
+                try:
+                    osmid = int(shape_rec.record['osm_id']) # type: ignore[arg-type]
+                except Exception as _: # pylint: disable=broad-exception-caught
+                    osmid = None
 
             bldg = Building(height_m, footprint, osmid)
             bldg_list.append(bldg)
@@ -184,6 +189,8 @@ def from_open_street_map(bounds: LatLonBox, avg_floor_height_m: float=3.0,
         list[Building]: A list of Building objects obtained from the OpenStreetMap.
     """
     import osmnx
+    import pandas as pd
+    from shapely import Polygon
 
     bldg_list = []
 
@@ -203,23 +210,31 @@ def from_open_street_map(bounds: LatLonBox, avg_floor_height_m: float=3.0,
 
     footprints = gdf['geometry'].values.tolist() # already in EPSG 4326
 
-    try:
-        num_levels = gdf['building:levels'].values.tolist() # string or nan
-    except Exception as _: # pylint: disable=broad-exception-caught
-        num_levels = [float('nan')]*len(footprints)
+    if "building:levels" in gdf:
+        # Converts strings to floats, and automatically turns bad strings ("2 floors") into NaN
+        num_levels: list[float] = (
+            pd.to_numeric(gdf["building:levels"], errors="coerce")
+            .astype(float)
+            .tolist()
+        )
+    else:
+        num_levels = [float("nan")] * len(footprints)
 
     indexes = gdf.index.values.tolist()
     _, osmids = list(zip(*indexes))
 
     for footprint, floor_count, osmid in zip(footprints, num_levels, osmids):
-        floor_count = float(floor_count)
         if math.isnan(floor_count):
             height_m = default_height_m
         else:
             height_m = floor_count*avg_floor_height_m
 
-        bldg = Building(height_m, footprint, osmid)
-        bldg_list.append(bldg)
+        #bldg = Building(height_m, footprint, osmid)
+        if isinstance(footprint, Polygon):
+            bldg = Building(height_m, footprint, osmid)
+            bldg_list.append(bldg)
+        else:
+            print('Building skipped, not a Polygon footprint.')
 
     return bldg_list
 
