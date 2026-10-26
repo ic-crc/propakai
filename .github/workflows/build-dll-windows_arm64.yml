@@ -1,0 +1,72 @@
+name: Build .dll files for Windows ARM64
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: windows-11-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANGARM64
+          update: true
+          install: >-
+            mingw-w64-clang-aarch64-clang
+            make
+
+      - name: Build propakai_cpp.dll
+        shell: msys2 {0}
+        run: |
+          cd cpp/propakai_cpp
+          make CXX=clang++
+
+      - name: Build p528_5.dll
+        shell: msys2 {0}
+        run: |
+          cd cpp/ntia_p528_5
+          make CXX=clang++
+
+      - name: Build p368_10.dll
+        shell: msys2 {0}
+        run: |
+          cd cpp/ntia_p368_10
+          make CXX=clang++
+
+      - name: Install python dependencies for tests
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-tests.txt
+
+      - name: Test p1812_8 (propakai_cpp.dll)
+        run: python -m unittest tests/tests/test_p1812_8_dso.py
+
+      - name: Test p452_18 (propakai_cpp.dll)
+        run: python -m unittest tests/tests/test_p452_18_dso.py
+
+      - name: Test p2108_1 (propakai_cpp.dll)
+        run: python -m unittest tests/tests/test_p2108_1_dso.py
+
+      - name: Test p2109_2 (propakai_cpp.dll)
+        run: python -m unittest tests/tests/test_p2109_2_dso.py
+
+      - name: Test p528_5 (p528_5.dll)
+        run: python -m unittest tests/tests/test_p528_5_dso.py
+
+      - name: Test p368_10 (p368_10.dll)
+        run: python -m unittest tests/tests/test_p368_10_dso.py
+
+      - name: Upload .dll files as artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: win-dll-arm64
+          path: |
+            propakai/bin/win/arm64/propakai_cpp.dll
+            propakai/bin/win/arm64/p528_5.dll
+            propakai/bin/win/arm64/p368_10.dll

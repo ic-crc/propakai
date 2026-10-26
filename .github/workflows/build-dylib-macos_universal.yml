@@ -1,0 +1,72 @@
+name: Build .dylib files (universal) for macOS
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Build propakai_cpp.dylib
+      run: |
+        export MACOSX_DEPLOYMENT_TARGET=10.13
+        cd cpp/propakai_cpp
+        make
+
+    - name: Build p528_5.dylib
+      run: |
+        export MACOSX_DEPLOYMENT_TARGET=10.13
+        cd cpp/ntia_p528_5
+        make
+
+    - name: Build p368_10.dylib
+      run: |
+        export MACOSX_DEPLOYMENT_TARGET=10.13
+        cd cpp/ntia_p368_10
+        make
+
+    - name: Check deployment targets
+      run: |
+        otool -l cpp/propakai_cpp/build/release/propakai_cpp.dylib | grep -A 3 LC_VERSION_MIN_MACOSX
+        otool -l cpp/ntia_p528_5/build/release/p528_5.dylib | grep -A 3 LC_VERSION_MIN_MACOSX
+        otool -l cpp/ntia_p368_10/build/release/p368_10.dylib | grep -A 3 LC_VERSION_MIN_MACOSX
+        lipo -info cpp/propakai_cpp/build/release/propakai_cpp.dylib
+        lipo -info cpp/ntia_p528_5/build/release/p528_5.dylib
+        lipo -info cpp/ntia_p368_10/build/release/p368_10.dylib
+
+    - name: Install python dependencies for tests
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements-tests.txt
+
+    - name: Test p1812_8 (propakai_cpp.dylib)
+      run: python -m unittest tests/tests/test_p1812_8_dso.py
+
+    - name: Test p452_18 (propakai_cpp.dylib)
+      run: python -m unittest tests/tests/test_p452_18_dso.py
+
+    - name: Test p2108_1 (propakai_cpp.dylib)
+      run: python -m unittest tests/tests/test_p2108_1_dso.py
+
+    - name: Test p2109_2 (propakai_cpp.dylib)
+      run: python -m unittest tests/tests/test_p2109_2_dso.py
+
+    - name: Test p528_5.dylib
+      run: python -m unittest tests/tests/test_p528_5_dso.py
+
+    - name: Test p368_10.dylib
+      run: python -m unittest tests/tests/test_p368_10_dso.py
+
+    - name: Upload .dylib files as artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: macos-dylibs-universal
+        path: |
+          propakai/bin/macos/universal/propakai_cpp.dylib
+          propakai/bin/macos/universal/p528_5.dylib
+          propakai/bin/macos/universal/p368_10.dylib

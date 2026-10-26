@@ -1,0 +1,80 @@
+name: Build py3-none-any wheel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-x86_64-dll-files:
+    uses: ./.github/workflows/build-dll-windows_x86_64.yml
+    
+  build-arm64-dll-files:
+    uses: ./.github/workflows/build-dll-windows_arm64.yml
+
+  build-universal-dylib-files:
+    uses: ./.github/workflows/build-dylib-macos_universal.yml
+
+  build-x86_64-so-files:
+    uses: ./.github/workflows/build-so-manylinux2014_x86_64.yml
+
+  build-arm64-so-files:
+    uses: ./.github/workflows/build-so-manylinux2014_aarch64.yml
+
+  build-wheel:
+    needs: 
+      - build-x86_64-dll-files
+      - build-arm64-dll-files
+      - build-universal-dylib-files
+      - build-x86_64-so-files
+      - build-arm64-so-files
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download and extract win-dll-x86_64.zip
+        uses: actions/download-artifact@v8
+        with:
+          name: win-dll-x86_64
+          path: propakai/bin/win/x86_64/
+
+      - name: Download and extract win-dll-arm64.zip
+        uses: actions/download-artifact@v8
+        with:
+          name: win-dll-arm64
+          path: propakai/bin/win/arm64/
+
+      - name: Download and extract macos-dylibs-universal.zip
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-dylibs-universal
+          path: propakai/bin/macos/universal/
+
+      - name: Download and extract linux-so-x86_64.zip
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-so-x86_64
+          path: propakai/bin/linux/x86_64/
+
+      - name: Download and extract linux-so-arm64.zip
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-so-arm64
+          path: propakai/bin/linux/arm64/
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Build py3-none-any wheel
+        run: |
+            python -m pip install setuptools build wheel
+            python -m build --wheel --outdir dist
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: propakai-wheel
+          path: dist/*.whl

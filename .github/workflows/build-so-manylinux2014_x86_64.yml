@@ -1,0 +1,48 @@
+name: Build .so files for manylinux2014_x86_64
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build all .so files in manylinux2014 with devtoolset-10
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/io quay.io/pypa/manylinux2014_x86_64 \
+            bash -c "
+              source /opt/rh/devtoolset-10/enable &&
+              cd /io/cpp/propakai_cpp && make &&
+              cd /io/cpp/ntia_p528_5 && make &&
+              cd /io/cpp/ntia_p368_10 && make
+            "
+
+      - name: Run Python 3.10 unittests in manylinux_2_28_x86_64 after installing requirements
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/io quay.io/pypa/manylinux_2_28_x86_64 \
+            bash -c "
+              export PATH=/opt/python/cp310-cp310/bin:$PATH &&
+              cd /io &&
+              python -m pip install --upgrade pip &&
+              python -m pip install -r requirements-tests.txt &&
+              python -m unittest tests/tests/test_p1812_8_dso.py &&
+              python -m unittest tests/tests/test_p452_18_dso.py &&
+              python -m unittest tests/tests/test_p2108_1_dso.py &&
+              python -m unittest tests/tests/test_p2109_2_dso.py &&
+              python -m unittest tests/tests/test_p528_5_dso.py &&
+              python -m unittest tests/tests/test_p368_10_dso.py
+            "
+
+      - name: Upload all .so artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-so-x86_64
+          path: |
+            propakai/bin/linux/x86_64/propakai_cpp.so
+            propakai/bin/linux/x86_64/p528_5.so
+            propakai/bin/linux/x86_64/p368_10.so
