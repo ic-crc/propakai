@@ -1,0 +1,11 @@
+name: Build .dll files for Windows x86_64
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder step
+        run: echo "This is a placeholder on main. Run this from the dev branch!"
