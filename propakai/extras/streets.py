@@ -34,8 +34,8 @@ Typical workflow:
      function, may all be used for input parameters to propagation models such as those found in
      ITU-R P.1411.
 """
-from __future__ import annotations
-from typing import TYPE_CHECKING
+from __future__ import annotations # TODO keep ???
+from typing import TYPE_CHECKING, cast
 from math import degrees, atan2
 from .buildings import LatLonBox
 
@@ -71,7 +71,7 @@ class StreetGraph:
         """
         import osmnx as ox
 
-        if bounds is LatLonBox:
+        if isinstance(bounds, LatLonBox):
             min_lat, max_lat = bounds.min_lat, bounds.max_lat
             min_lon, max_lon = bounds.min_lon, bounds.max_lon
         else:
@@ -114,6 +114,7 @@ class StreetGraph:
         """
         import osmnx as ox
         import shapely as shp
+        import networkx as nx
 
         osmnx_major_ver = int(ox.__version__.split('.')[0])
         if osmnx_major_ver >= 2:
@@ -132,14 +133,17 @@ class StreetGraph:
         _, crs_utm = ox.projection.project_geometry(shp.Point(centre_lon, centre_lat),
                                                     crs='epsg:4326', to_crs=None, to_latlong=False)
         G_utm = ox.projection.project_graph(G=G, to_crs=crs_utm, to_latlong=False)
-        G_utm = ox.convert.to_undirected(G=G_utm) # radiowaves do not follow oneway signs
+
+        # radiowaves do not follow oneway signs
+        # G_utm is converted from directional (MultiDiGraph) to undirectional (MultiGraph)
+        G_utm = ox.convert.to_undirected(G=G_utm)
 
         gdf_edges = ox.convert.graph_to_gdfs(G=G_utm, nodes=False, edges=True, node_geometry=False,
                                     fill_edge_geometry=True) [['from', 'to', 'length', 'geometry']]
         gdf_nodes = ox.convert.graph_to_gdfs(G=G_utm, nodes=True, edges=False, node_geometry=False,
                                             fill_edge_geometry=False) [['x', 'y']]
 
-        self._osm_graph = G_utm # type networkx.MultiDiGraph
+        self._osm_graph = cast(nx.MultiDiGraph, G_utm) # use networkx.MultiGraph as a MultiDiGraph
         self._edges = gdf_edges # type geopandas.GeoDataFrame
         self._nodes = gdf_nodes # type geopandas.GeoDataFrame
 
@@ -251,6 +255,7 @@ class StreetCanyonRadioPath:
         simplified_ls_dd, _ = ox.projection.project_geometry(simplified_ls_m,
                                                              crs=self._projected_crs,
                                                              to_crs=None, to_latlong=True)
+        assert isinstance(simplified_ls_dd, shp.LineString)
         new_rp.lat_lon_path = _line_string_to_coord_tuples(simplified_ls_dd, True)
         new_rp._projected_coords_path = _line_string_to_coord_tuples(simplified_ls_m, False)
         new_rp.distances_m = _line_string_distances(simplified_ls_m)
@@ -364,13 +369,15 @@ def compute_street_canyon_radio_paths(graph: StreetGraph|None, latt: float, lont
 
     G_utm = graph._osm_graph # type networkx.MultiDiGraph
     crs_utm = graph._osm_graph.graph['crs']
-    tx_utm: shp.Point = ox.projection.project_geometry(shp.Point(lont, latt), crs='epsg:4326',
-                                                       to_crs=crs_utm, to_latlong=False)[0]
-    rx_utm: shp.Point = ox.projection.project_geometry(shp.Point(lonr, latr), crs='epsg:4326',
-                                                       to_crs=crs_utm, to_latlong=False)[0]
+    tx_utm = ox.projection.project_geometry(shp.Point(lont, latt), crs='epsg:4326',
+                                            to_crs=crs_utm, to_latlong=False)[0]
+    assert isinstance(tx_utm, shp.Point)
+    rx_utm = ox.projection.project_geometry(shp.Point(lonr, latr), crs='epsg:4326',
+                                            to_crs=crs_utm, to_latlong=False)[0]
+    assert isinstance(rx_utm, shp.Point)
 
-    tx_edge: tuple[float, float, float] # (nodeID, nodeID, 0)
-    rx_edge: tuple[float, float, float]
+    tx_edge: tuple[int, int, int] # (nodeID, nodeID, 0)
+    rx_edge: tuple[int, int, int]
     tx_edge = ox.distance.nearest_edges(G=G_utm, X=tx_utm.x, Y=tx_utm.y, return_dist=False)
     rx_edge = ox.distance.nearest_edges(G=G_utm, X=rx_utm.x, Y=rx_utm.y, return_dist=False)
 
@@ -416,16 +423,20 @@ def compute_street_canyon_radio_paths(graph: StreetGraph|None, latt: float, lont
             # the two.
             temp_ls = _edge_line_string(graph=graph, edge=(path[0], path[1], 0))
             ls_a, ls_b = _split_line_string(temp_ls, snapped_tx_utm)
-            try:
+            if ls_a is not None:
                 ls_c, ls_d = _split_line_string(ls_a, snapped_rx_utm)
-            except Exception as _:
+            elif ls_b is not None:
                 ls_c, ls_d = _split_line_string(ls_b, snapped_rx_utm)
+            else:
+                assert False
+            assert ls_c is not None
             ls_c_first = shp.Point(ls_c.coords[0])
             ls_c_last = shp.Point(ls_c.coords[-1])
             if snapped_tx_utm == ls_c_first or snapped_tx_utm == ls_c_last:
                 ls = ls_c
             else:
                 ls = ls_d
+            assert ls is not None
             if snapped_tx_utm != shp.Point(ls.coords[0]):
                 ls = ls.reverse()
             rp.is_intersection = [False for _ in range(1, len(ls.coords)-1)]
@@ -433,6 +444,7 @@ def compute_street_canyon_radio_paths(graph: StreetGraph|None, latt: float, lont
             first_ls = _edge_line_string(graph=graph, edge=(path[0], path[1], 0))
             _, first_ls = _split_line_string(first_ls, snapped_tx_utm)
             ls = first_ls
+            assert ls is not None
             rp.is_intersection = [False for _ in range(1, len(ls.coords)-1)]
             for i in range(1, len(path)-2):
                 temp_ls = _edge_line_string(graph=graph, edge=(path[i], path[i+1], 0))
@@ -452,6 +464,7 @@ def compute_street_canyon_radio_paths(graph: StreetGraph|None, latt: float, lont
 
         lonLatLinestring, _ = ox.projection.project_geometry(ls, crs=crs_utm, to_crs=None,
                                                              to_latlong=True)
+        assert isinstance(lonLatLinestring, shp.LineString)
         rp.lat_lon_path = _line_string_to_coord_tuples(lonLatLinestring, True)
         rp.distances_m = _line_string_distances(ls)
         rp.turn_angles_deg = _line_string_turn_angles_deg(ls)
@@ -521,10 +534,12 @@ def receiver_street_orientation(graph: StreetGraph|None, latt: float, lont: floa
 
     G_utm  = graph._osm_graph # type networkx.MultiDiGraph
     crs_utm = graph._osm_graph.graph['crs']
-    tx_utm: shp.Point = ox.projection.project_geometry(shp.Point(lont, latt), crs='epsg:4326',
-                                                       to_crs=crs_utm, to_latlong=False)[0]
-    rx_utm: shp.Point = ox.projection.project_geometry(shp.Point(lonr, latr), crs='epsg:4326',
-                                                       to_crs=crs_utm, to_latlong=False)[0]
+    tx_utm  = ox.projection.project_geometry(shp.Point(lont, latt), crs='epsg:4326',
+                                             to_crs=crs_utm, to_latlong=False)[0]
+    assert isinstance(tx_utm, shp.Point)
+    rx_utm = ox.projection.project_geometry(shp.Point(lonr, latr), crs='epsg:4326',
+                                            to_crs=crs_utm, to_latlong=False)[0]
+    assert isinstance(rx_utm, shp.Point)
 
     rx_edge: tuple[float, float, float] # (nodeID, nodeID, 0)
     rx_edge = ox.distance.nearest_edges(G=G_utm, X=rx_utm.x, Y=rx_utm.y, return_dist=False)
@@ -533,6 +548,7 @@ def receiver_street_orientation(graph: StreetGraph|None, latt: float, lont: floa
     ls: shp.LineString = _edge_line_string(graph=graph, edge=rx_edge)
     ls1, ls2 = _split_line_string(linestring=ls, splitter_point=snapped_rx_utm)
 
+    street_point = None
     if ls1 is not None:
         ls1_coords = list(ls1.coords)
         street_point = ls1_coords[-2]
@@ -540,6 +556,7 @@ def receiver_street_orientation(graph: StreetGraph|None, latt: float, lont: floa
                                        street_point[0])
         if dist_m == 0:
             street_point = None
+
     if street_point is None and ls2 is not None:
         ls2_coords = list(ls2.coords)
         street_point = ls2_coords[1]
@@ -547,6 +564,8 @@ def receiver_street_orientation(graph: StreetGraph|None, latt: float, lont: floa
                                        street_point[0])
         if dist_m == 0:
             raise RuntimeError('Failed to calculate rx street orientation.')
+
+    assert street_point is not None
 
     rx_street_orientation_deg = _turn_angle_deg(x1=tx_utm.x, y1=tx_utm.y,
                                                 x2=snapped_rx_utm.x, y2=snapped_rx_utm.y,
@@ -557,7 +576,7 @@ def receiver_street_orientation(graph: StreetGraph|None, latt: float, lont: floa
     return rx_street_orientation_deg
 
 
-def _ensure_edge_is_first_edge_of_path(path: list[int], edge: tuple[float, float, float]
+def _ensure_edge_is_first_edge_of_path(path: list[int], edge: tuple[int, int, int]
                                        ) -> list[int]:
     if len(path)==1:
         node = path[0]
@@ -587,7 +606,7 @@ def _ensure_edge_is_first_edge_of_path(path: list[int], edge: tuple[float, float
     return path
 
 
-def _ensure_edge_is_last_edge_of_path(path: list[int], edge: tuple[float, float, float]
+def _ensure_edge_is_last_edge_of_path(path: list[int], edge: tuple[int, int, int]
                                       ) -> list[int]:
     if len(path)==1:
         node = path[0]
@@ -617,43 +636,25 @@ def _ensure_edge_is_last_edge_of_path(path: list[int], edge: tuple[float, float,
     return path
 
 
-def _nearest_edge_node(graph: StreetGraph, point: 'shapely.Point', edge: tuple[float, float, float]
-                       ) -> int:
-    import osmnx as ox
-    pt_node1 = _node_point(graph=graph, node=edge[0])
-    pt_node2 = _node_point(graph=graph, node=edge[1])
-    dist1_m = ox.distance.euclidean(point.y, point.x, pt_node1.y, pt_node1.x)
-    dist2_m = ox.distance.euclidean(point.y, point.x, pt_node2.y, pt_node2.x)
-    if dist1_m < dist2_m:
-        return edge[0]
-    else:
-        return edge[1]
-
-
-def _nearest_edge_point(graph: StreetGraph, point: 'shapely.Point', edge: tuple[float, float, float]
+def _nearest_edge_point(graph: StreetGraph, point: 'shapely.Point', edge: tuple[int, int, int]
                         ) -> 'shapely.Point':
-    import shapely
-    ls: shapely.LineString = _edge_line_string(graph=graph, edge=edge)
-    pt = shapely.ops.nearest_points(ls, point)[0]
+    import shapely as shp
+    import shapely.ops as sops
+    ls: shp.LineString = _edge_line_string(graph=graph, edge=edge)
+    pt = sops.nearest_points(ls, point)[0]
     return pt
 
 
-def _node_point(graph: StreetGraph, node: int) -> 'shapely.Point':
+def _edge_line_string(graph: StreetGraph, edge: tuple[int, int, int]) -> 'shapely.LineString':
     # pylint: disable=protected-access
-    import shapely
-    query_result = graph._nodes.query(f'osmid=={node}')
-    coords = query_result.iloc[0, [graph._nodes.columns.get_loc('x'),
-                                   graph._nodes.columns.get_loc('y')]]
-    pt = shapely.Point(coords.x, coords.y)
-    return pt
-
-
-def _edge_line_string(graph: StreetGraph, edge: tuple[float, float, float]) -> 'shapely.Point':
-    # pylint: disable=protected-access
+    import shapely as shp
+    import numpy as np
     query_result = graph._edges.query(
         f'(u=={edge[0]} & v=={edge[1]}) | (u=={edge[1]} & v=={edge[0]})')
     ls = query_result.iloc[0, graph._edges.columns.get_loc('geometry')]
+    assert isinstance(ls, shp.LineString)
     from_node = query_result.iloc[0, graph._edges.columns.get_loc('from')]
+    assert isinstance(from_node, (int, np.integer))
     if from_node != edge[0]:
         ls = ls.reverse()
     return ls
@@ -696,30 +697,40 @@ def _turn_angle_deg(x1: float, y1: float, x2: float, y2: float, x3: float, y3: f
 
 def _merge_line_strings(ls1: 'shapely.LineString', ls2: 'shapely.LineString'
                         ) -> 'shapely.LineString':
-    import shapely
-    multi_line = shapely.MultiLineString([ls1, ls2])
+    import shapely as shp
+    multi_line = shp.MultiLineString([ls1, ls2])
     # if end points do not corresponds, line_merge returns a MultiLineString instead
     # of a LineString otherwise
-    merged_line = shapely.line_merge(line=multi_line, directed=True)
-    if shapely.get_type_id(merged_line) != 1: # 1 is LineString
+    merged_line = shp.line_merge(line=multi_line, directed=True)
+    if shp.get_type_id(merged_line) != 1: # 1 is LineString
         raise RuntimeError('Failed to merge LineStrings.')
+    assert isinstance(merged_line, shp.LineString)
     return merged_line
 
 
 def _split_line_string(linestring: 'shapely.LineString', splitter_point: 'shapely.Point'
-                       ) -> tuple['shapely.LineString', 'shapely.LineString']:
-    import shapely
-    linestring = shapely.ops.snap(g1=linestring, g2=splitter_point, tolerance=0.001)
-    geometry_collection = shapely.ops.split(geom=linestring, splitter=splitter_point)
+                       ) -> tuple['shapely.LineString|None', 'shapely.LineString|None']:
+    import shapely as shp
+    import shapely.ops as sops
+    linestring = sops.snap(g1=linestring, g2=splitter_point, tolerance=0.001)
+    geometry_collection = sops.split(geom=linestring, splitter=splitter_point)
     # "If the splitter does not split the geometry, a collection with a single geometry equal to
     # the input geometry is returned."
     if len(geometry_collection.geoms) == 2:
-        return (geometry_collection.geoms[0], geometry_collection.geoms[1])
+        ls0 = geometry_collection.geoms[0]
+        ls1 = geometry_collection.geoms[1]
+        assert isinstance(ls0, shp.LineString)
+        assert isinstance(ls1, shp.LineString)
+        return (ls0, ls1)
     elif len(geometry_collection.geoms) == 1:
-        if shapely.Point(linestring.coords[0]) == splitter_point:
-            return (None, geometry_collection.geoms[0])
-        elif shapely.Point(linestring.coords[-1]) == splitter_point:
-            return (geometry_collection.geoms[0], None)
+        if shp.Point(linestring.coords[0]) == splitter_point:
+            ls = geometry_collection.geoms[0]
+            assert isinstance(ls, shp.LineString)
+            return (None, ls)
+        elif shp.Point(linestring.coords[-1]) == splitter_point:
+            ls = geometry_collection.geoms[0]
+            assert isinstance(ls, shp.LineString)
+            return (ls, None)
     raise RuntimeError('Failed to split LineString.')
 
 
