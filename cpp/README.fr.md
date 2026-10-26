@@ -4,7 +4,7 @@
 
 Des fichiers de bibliothèque dynamique pour Windows (.dll), Linux (.so) et macOS (.dylib) sont
 inclus dans les roues Python disponibles depuis la page
-[Releases](https://github.com/mplussier/itupropag-sandbox/releases).
+[Releases](https://github.com/ic-crc/propakai/releases).
 
 Si vous le souhaitez, vous pouvez compiler les bibliothèques manuellement en suivant les étapes
 ci-dessous.

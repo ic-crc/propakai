@@ -21,7 +21,7 @@ standards, users must refer directly to the official ITU website
 ## How to Install
 
 To install or update the PropaKai package on your system, first download the latest wheel file
-(.whl) from the [Releases page](https://github.com/mplussier/itupropag-sandbox/releases).
+(.whl) from the [Releases page](https://github.com/ic-crc/propakai/releases).
 
 From the directory containing the .whl file, install the package with:
 ```bash

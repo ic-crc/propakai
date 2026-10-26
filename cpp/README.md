@@ -3,7 +3,7 @@
 ## Building the Dynamic Library Files
 
 Dynamic library files for Windows (.dll), Linux (.so), and macOS (.dylib) are already included in
-the Python wheels available in the [Releases page](https://github.com/mplussier/itupropag-sandbox/releases).
+the Python wheels available in the [Releases page](https://github.com/ic-crc/propakai/releases).
 
 If you prefer, you can rebuild the libraries manually by following these steps.
 
