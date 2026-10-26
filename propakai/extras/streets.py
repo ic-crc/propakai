@@ -7,21 +7,48 @@
 Additional streets related functionalities, using OpenStreetMap data, in support for using ITU-R P.
 recommendations.
 
-The streets module requires **shapely**, **osmnx** to be installed. If they are not already, you
-may do so with:
+The streets module requires **shapely**, **osmnx** and **networkx** to be installed. If they are
+not already, you may do so with:
 ```bash
-python -m pip install shapely osmnx
+python -m pip install shapely osmnx networkx
 ```
 
-Purpose:
+Warning: Data Licensing and Attribution Notice
+  The functions in this module download geospatial data from OpenStreetMap
+  using the `osmnx` library.
+
+  Please be aware that while this software package is licensed under the MIT
+  License, the *data* retrieved from OpenStreetMap is governed by the Open
+  Database License (ODbL).
+
+  If you use the data retrieved by this module publicly (e.g., in a web app,
+  printed map, academic paper, or redistributed dataset), you are required by
+  OpenStreetMap to provide clear attribution:
+
+  "© OpenStreetMap contributors"
+
+  For full terms and conditions regarding the data, please visit:
+  https://www.openstreetmap.org/copyright
+
+
+Quote: Academic Citation
+  If you use the data retrieval features of this module in published academic research, please also
+  cite the underlying `osmnx` package:
+
+    Boeing, G. (2017). OSMnx: New methods for acquiring, constructing,
+    analyzing, and visualizing complex street networks. Computers,
+    Environment and Urban Systems, 65, 126-139.
+    https://doi.org/10.1016/j.compenvurbsys.2017.05.004
+
+
+Purpose and Typical Workflow:
   This module aims at determining potential propagation paths for scenarios where antennas are
   below rooftops and the radio path is understood to occur mainly through street canyons. Typical
   usage is the obtention of input data for propagation models such as those found in ITU-R P.1411.
 
-Typical workflow:
   1. Create a new `StreetGraph` object for the area of interest. This will download relevant street
      data from OpenStreetMap. The `StreetGraph` object may then be visualized using its `display()`
-     method. 
+     method.
   2. Use the `compute_street_canyon_radio_paths()` function to compute the shortest path(s) along
      street lines from the transmitter to the receiver station. This function returns one or more
      `StreetCanyonRadioPath` objects. Their `to_geojson_file()` method may be used to visualize
@@ -34,14 +61,13 @@ Typical workflow:
      function, may all be used for input parameters to propagation models such as those found in
      ITU-R P.1411.
 """
-from __future__ import annotations # TODO keep ???
-from typing import TYPE_CHECKING, cast
+from typing import cast
 from math import degrees, atan2
+import osmnx as ox
+import networkx as nx
+import shapely as shp
+import shapely.ops as sops
 from .buildings import LatLonBox
-
-if TYPE_CHECKING:
-    # imports here are not performed at runtime, only when type-checking
-    import shapely
 
 
 __all__ = ['LatLonBox',
@@ -69,8 +95,6 @@ class StreetGraph:
             buffer_dist_m (float, optional): Extra buffer distance (meters) to extend the bounds
                 before data retrieval. Default is 250 meters.
         """
-        import osmnx as ox
-
         if isinstance(bounds, LatLonBox):
             min_lat, max_lat = bounds.min_lat, bounds.max_lat
             min_lon, max_lon = bounds.min_lon, bounds.max_lon
@@ -112,10 +136,6 @@ class StreetGraph:
             max_lon (float): Maximum longitude boundary for the OSM data download (degrees),
                 with -180 <= maxLon <= 180.
         """
-        import osmnx as ox
-        import shapely as shp
-        import networkx as nx
-
         osmnx_major_ver = int(ox.__version__.split('.')[0])
         if osmnx_major_ver >= 2:
             # bbox in (left, bottom, right, top) format
@@ -152,7 +172,6 @@ class StreetGraph:
         """
         Displays the street graph.
         """
-        import osmnx as ox
         ox.plot_graph(self._osm_graph)
 
 
@@ -202,7 +221,6 @@ class StreetCanyonRadioPath:
         Args:
             filepath (str): Absolute or relative path to the geojson file to create or overwrite.
         """
-        import shapely as shp
         features = []
 
         pt_str = shp.to_geojson(shp.Point(self.tx_lat_lon[1], self.tx_lat_lon[0]))
@@ -245,8 +263,6 @@ class StreetCanyonRadioPath:
             StreetCanyonRadioPath: A new street canyon radio path that is a simplified version of
                 the original.
         """
-        import shapely as shp
-        import osmnx as ox
         # pylint: disable=protected-access
         new_rp = StreetCanyonRadioPath()
         original_ls_m = shp.LineString(self._projected_coords_path)
@@ -361,9 +377,6 @@ def compute_street_canyon_radio_paths(graph: StreetGraph|None, latt: float, lont
         paths can be computed.
     """
     # pylint: disable=protected-access
-    import osmnx as ox
-    import shapely as shp
-
     if graph is None:
         graph = StreetGraph(bounds=[(latt, lont),(latr, lonr)])
 
@@ -526,9 +539,6 @@ def receiver_street_orientation(graph: StreetGraph|None, latt: float, lont: floa
             in degrees (0 to 90 inclusive).
     """
     # pylint: disable=protected-access
-    import osmnx as ox
-    import shapely as shp
-
     if graph is None:
         graph = StreetGraph(bounds=[(latr, lonr)])
 
@@ -636,32 +646,26 @@ def _ensure_edge_is_last_edge_of_path(path: list[int], edge: tuple[int, int, int
     return path
 
 
-def _nearest_edge_point(graph: StreetGraph, point: 'shapely.Point', edge: tuple[int, int, int]
-                        ) -> 'shapely.Point':
-    import shapely as shp
-    import shapely.ops as sops
+def _nearest_edge_point(graph: StreetGraph, point: shp.Point, edge: tuple[int, int, int]
+                        ) -> shp.Point:
     ls: shp.LineString = _edge_line_string(graph=graph, edge=edge)
     pt = sops.nearest_points(ls, point)[0]
     return pt
 
 
-def _edge_line_string(graph: StreetGraph, edge: tuple[int, int, int]) -> 'shapely.LineString':
+def _edge_line_string(graph: StreetGraph, edge: tuple[int, int, int]) -> shp.LineString:
     # pylint: disable=protected-access
-    import shapely as shp
-    import numpy as np
     query_result = graph._edges.query(
         f'(u=={edge[0]} & v=={edge[1]}) | (u=={edge[1]} & v=={edge[0]})')
     ls = query_result.iloc[0, graph._edges.columns.get_loc('geometry')]
     assert isinstance(ls, shp.LineString)
     from_node = query_result.iloc[0, graph._edges.columns.get_loc('from')]
-    assert isinstance(from_node, (int, np.integer))
-    if from_node != edge[0]:
+    if cast(int, from_node) != edge[0]:
         ls = ls.reverse()
     return ls
 
 
-def _line_string_distances(linestring: 'shapely.LineString') -> list[float]:
-    import osmnx as ox
+def _line_string_distances(linestring: shp.LineString) -> list[float]:
     distances = []
     for i in range(1, len(linestring.coords)):
         prev_coord = linestring.coords[i-1]
@@ -671,7 +675,7 @@ def _line_string_distances(linestring: 'shapely.LineString') -> list[float]:
     return distances
 
 
-def _line_string_turn_angles_deg(linestring: 'shapely.LineString') -> list[float]:
+def _line_string_turn_angles_deg(linestring: shp.LineString) -> list[float]:
     angles_deg = []
     if len(linestring.coords) < 3:
         return angles_deg
@@ -695,9 +699,7 @@ def _turn_angle_deg(x1: float, y1: float, x2: float, y2: float, x3: float, y3: f
     return angle_deg
 
 
-def _merge_line_strings(ls1: 'shapely.LineString', ls2: 'shapely.LineString'
-                        ) -> 'shapely.LineString':
-    import shapely as shp
+def _merge_line_strings(ls1: shp.LineString, ls2: shp.LineString) -> shp.LineString:
     multi_line = shp.MultiLineString([ls1, ls2])
     # if end points do not corresponds, line_merge returns a MultiLineString instead
     # of a LineString otherwise
@@ -708,10 +710,8 @@ def _merge_line_strings(ls1: 'shapely.LineString', ls2: 'shapely.LineString'
     return merged_line
 
 
-def _split_line_string(linestring: 'shapely.LineString', splitter_point: 'shapely.Point'
-                       ) -> tuple['shapely.LineString|None', 'shapely.LineString|None']:
-    import shapely as shp
-    import shapely.ops as sops
+def _split_line_string(linestring: shp.LineString, splitter_point: shp.Point
+                       ) -> tuple[shp.LineString|None, shp.LineString|None]:
     linestring = sops.snap(g1=linestring, g2=splitter_point, tolerance=0.001)
     geometry_collection = sops.split(geom=linestring, splitter=splitter_point)
     # "If the splitter does not split the geometry, a collection with a single geometry equal to
@@ -734,7 +734,7 @@ def _split_line_string(linestring: 'shapely.LineString', splitter_point: 'shapel
     raise RuntimeError('Failed to split LineString.')
 
 
-def _line_string_to_coord_tuples(linestring: 'shapely.LineString', invertxy: bool
+def _line_string_to_coord_tuples(linestring: shp.LineString, invertxy: bool
                                  ) -> list[tuple[float,float]]:
     tuple_list = []
     if invertxy is False:

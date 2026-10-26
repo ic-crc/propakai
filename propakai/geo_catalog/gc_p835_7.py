@@ -10,7 +10,7 @@ recommendation.
 
 https://br-geoportal.itu.int/ITU-R/BR-GeoCatalogue/BR-GeoApi/collections/rec-itu-r-p.835-7-202408
 
-WARNING:
+Bug: Warning
     The interpolation service for this recommendation does not appear to be functional (last
     check: 2026-04-22).
 """

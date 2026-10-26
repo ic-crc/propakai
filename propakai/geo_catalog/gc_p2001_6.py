@@ -114,8 +114,8 @@ def probability_of_rain_6h(lat: float, lon: float) -> float:
     Returns:
         Pr6 (float): Probability of rain in 6-hours slots.
 
-    Warning:
-        **-Critical-** As of Sept. 2026, there is a known bug in the ITU-R Geospatial Catalog API:
+    Bug:
+        As of Sept. 2026, there is a known bug in the ITU-R Geospatial Catalog API:
         `Esarain_Pr6` returns the value of `Esarain_Beta` and vice-versa.
         Be aware that this wrapper passes through the API response without correction.
     """
@@ -151,8 +151,8 @@ def beta_rain_ratio(lat: float, lon: float) -> float:
     Returns:
         βrain (float): Ratio between convective and total precipitation.
     
-    Warning:
-        **-Critical-** As of Sept. 2026, there is a known bug in the ITU-R Geospatial Catalog API:
+    Bug:
+        As of Sept. 2026, there is a known bug in the ITU-R Geospatial Catalog API:
         `Esarain_Beta` returns the value of `Esarain_Pr6` and vice-versa.
         Be aware that this wrapper passes through the API response without correction.
     """

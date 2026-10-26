@@ -187,6 +187,23 @@ def from_open_street_map(bounds: LatLonBox, avg_floor_height_m: float=3.0,
 
     Returns:
         list[Building]: A list of Building objects obtained from the OpenStreetMap.
+
+    Warning: Data License & Attribution (ODbL)
+        This function retrieves data from OpenStreetMap (OSM) via the ``osmnx`` package. While the
+        code in this package is licensed under the MIT License, the retrieved data is licensed
+        under the Open Database License (ODbL) by the OpenStreetMap Foundation. Any maps,
+        visualizations, or datasets you publish using this data must include the attribution:
+        *"© OpenStreetMap contributors"*.
+        See https://www.openstreetmap.org/copyright for details.
+
+    Quote: Academic Citation
+        If you use this function for academic research, please also cite the underlying ``osmnx``
+        library:
+
+        * Boeing, G. (2017). OSMnx: New methods for acquiring, constructing,
+          analyzing, and visualizing complex street networks. *Computers,
+          Environment and Urban Systems*, 65, 126-139.
+          https://doi.org/10.1016/j.compenvurbsys.2017.05.004
     """
     import osmnx
     import pandas as pd

@@ -12,7 +12,8 @@ requires-python = ">=3.10"
 dependencies = ["filelock", "platformdirs", "xlrd"]
 
 # For full propakai package functionality (incl. geo_catalog & extras sub-packages):
-optional-dependencies.full = ["geopandas", "shapely", "rasterio", "pyproj", "pyshp", "osmnx"]
+optional-dependencies.full = ["geopandas", "shapely", "rasterio", "pyproj", "pyshp", "osmnx",
+                              "networkx"]
 
 license = "MIT"
 license-files = ["LICENSE.txt"]
