@@ -1,5 +1,5 @@
 [project]
-site_url = "https://www.example.com/"
+site_url = "https://ic-crc.github.io/propakai/"
 site_name = "PropaKai"
 site_description = "Cohesive Python package for implementations of ITU-R P. recommendations."
 site_author = "Communications Research Centre Canada"

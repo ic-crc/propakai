@@ -1,6 +1,6 @@
 #  <!-- white space title to avoid "Home" being displayed -->
 <p align="center">
-  <img src="/assets/propakai_logo_name.png" alt="Project Logo" width="333"/>
+  <img src="./assets/propakai_logo_name.png" alt="Project Logo" width="333"/>
 </p>
 
 PropaKai is a cohesive Python package for implementations of ITU-R P. recommendations.
