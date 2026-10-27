@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.1511-3.
 
-P.1511 : Topography for Earth-space propagation modelling.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.1511/en
+    * **ITU-R Standard:** International Telecommunication Union (2024).
+      *Recommendation ITU-R P.1511-3: Topography for Earth-space propagation modelling*.
+      Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1511/en
 """
 
 from os.path import join

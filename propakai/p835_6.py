@@ -6,9 +6,13 @@
 
 """Implementation of ITU-R P.835-6.
 
-P.835 : Reference atmospheres.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.835/en
+    * **ITU-R Standard:** International Telecommunication Union (2017).
+      *Recommendation ITU-R P.835-6: Reference atmospheres*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.835/en
 """
 
 from enum import Enum

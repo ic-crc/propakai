@@ -6,10 +6,14 @@
 
 """Implementation of ITU-R P.1546-6.
 
-P.1546 : Method for point-to-area predictions for terrestrial services in the frequency range 30
-MHz to 4000 MHz.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.1546/en
+    * **ITU-R Standard:** International Telecommunication Union (2019).
+      *Recommendation ITU-R P.1546-6: Method for point-to-area predictions for terrestrial services
+      in the frequency range 30 MHz to 4000 MHz*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1546/en
 """
 
 from os.path import join

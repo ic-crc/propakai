@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.834-9.
 
-P.834 : Effects of tropospheric refraction on radiowave propagation.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.834/en
+    * **ITU-R Standard:** International Telecommunication Union (2017).
+      *Recommendation ITU-R P.834-9: Effects of tropospheric refraction on radiowave propagation*.
+      Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.834/en
 """
 
 from math import log10

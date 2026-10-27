@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.1057-7.
 
-P.1057 : Probability distributions relevant to radiowave propagation modelling.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.1057/en
+    * **ITU-R Standard:** International Telecommunication Union (2022).
+      *Recommendation ITU-R P.1057-7: Probability distributions relevant to radiowave propagation
+      modelling*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1057/en
 """
 
 from math import sqrt, log

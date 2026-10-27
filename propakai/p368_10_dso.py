@@ -6,12 +6,25 @@
 
 """Implementation of ITU-R P.368-10, dynamic shared object version (i.e. using a compiled binary).
 
-P.368 : Ground-wave propagation prediction method for frequencies between 10 kHz and 30 MHz.
+Info: Acknowledgment & Source
+    This module consists in a Python wrapper around the original C++ implementation developed by
+    the Institute for Telecommunication Sciences (ITS) at the National Telecommunications and
+    Information Administration (NTIA), U.S. Department of Commerce.
 
-https://www.itu.int/rec/R-REC-P.368/en
+    * **Source Repository:**  https://github.com/NTIA/LFMF
 
-NOTE: This module consists in a Python wrapper around the original NTIA/ITS C++ reference
-implementation.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite the following:
+
+    * **ITU-R Standard:** International Telecommunication Union (2022).
+      *Recommendation ITU-R P.368-10: Ground-wave propagation prediction method for frequencies
+      between 10 kHz and 30 MHz*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.368/en
+    * **Software Reference:** Kozma, W., Jr., & U.S. Department of Commerce, National
+      Telecommunications and Information Administration, Institute for Telecommunication Sciences.
+      *Low Frequency / Medium Frequency (LF/MF) Propagation Model*
+      (Version 1.1) [Computer software].
+      https://github.com/NTIA/LFMF
 """
 
 import ctypes as ct

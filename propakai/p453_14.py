@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.453-14.
 
-P.453 : The radio refractive index: its formula and refractivity data.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.453/en
+    * **ITU-R Standard:** International Telecommunication Union (2019).
+      *Recommendation ITU-R P.453-14: The radio refractive index: its formula and refractivity
+      data*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.453/en
 """
 
 from os.path import join

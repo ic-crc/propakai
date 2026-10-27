@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.838-3.
 
-P.838 : Specific attenuation model for rain for use in prediction methods.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.838/en
+    * **ITU-R Standard:** International Telecommunication Union (2005).
+      *Recommendation ITU-R P.838-3: Specific attenuation model for rain for use in prediction
+      methods*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.838/en
 """
 
 from math import log10, exp, radians, cos

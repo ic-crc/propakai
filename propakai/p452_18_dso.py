@@ -6,10 +6,15 @@
 
 """Implementation of ITU-R P.452-18, dynamic shared object version (i.e. using a compiled binary).
 
-P.452 : Prediction procedure for the evaluation of interference between stations on the surface of
-the Earth at frequencies above about 100 MHz.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.452/en
+    * **ITU-R Standard:** International Telecommunication Union (2023).
+      *Recommendation ITU-R P.452-18: Prediction procedure for the evaluation of interference
+      between stations on the surface of the Earth at frequencies above about 100 MHz*.
+      Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.452/en
 """
 
 from os.path import join

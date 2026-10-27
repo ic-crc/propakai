@@ -9,6 +9,15 @@
 P.1510 : Mean surface temperature.
 
 https://www.itu.int/rec/R-REC-P.1510/en
+
+
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
+
+    * **ITU-R Standard:** International Telecommunication Union (2017).
+      *Recommendation ITU-R P.1510-1: Mean surface temperature*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1510/en
 """
 
 from os.path import join

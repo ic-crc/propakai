@@ -6,9 +6,13 @@
 
 """Implementation of ITU-R P.2108-1.
 
-P.2108 : Prediction of clutter loss.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.2108/en
+    * **ITU-R Standard:** International Telecommunication Union (2021).
+      *Recommendation ITU-R P.2108-1: Prediction of clutter loss*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.2108/en
 """
 
 from enum import Enum

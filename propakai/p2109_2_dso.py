@@ -6,9 +6,13 @@
 
 """Implementation of ITU-R P.2109-2, dynamic shared object version (i.e. using a compiled binary).
 
-P.2109 : Prediction of building entry loss.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.2109/en
+    * **ITU-R Standard:** International Telecommunication Union (2023).
+      *Recommendation ITU-R P.2109-2: Prediction of building entry loss*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.2109/en
 """
 
 import ctypes as ct

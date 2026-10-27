@@ -6,10 +6,14 @@
 
 """Implementation of ITU-R P.530-18.
 
-P.530 : Propagation data and prediction methods required for the design of terrestrial
-line-of-sight systems.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.530/en
+    * **ITU-R Standard:** International Telecommunication Union (2021).
+      *Recommendation ITU-R P.530-18: Propagation data and prediction methods required for the
+      design of terrestrial line-of-sight systems*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.530/en
 """
 
 from os.path import join
@@ -401,7 +405,9 @@ def inverse_distribution(distrib_func: Callable[..., float], p_percent: float,
     Calculates the fading (dB) exceeded for the specified time percentage, or the enhancement (dB)
     not exceeded for the specified time percentage.
     
-    Note: Implemented algorithm is not part of the ITU recommendation, use with caution.
+    Warning:
+        This function is provided for convenience. It is not directly part of the ITU
+        recommendation, so please use it with caution
 
     Args:
         distrib_func (Callable[..., float]): Function, one of single_frequency_fading_distribution,

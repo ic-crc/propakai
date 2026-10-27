@@ -6,10 +6,15 @@
 
 """Implementation of ITU-R P.1812-8.
 
-P.1812 : A path-specific propagation prediction method for point-to-area terrestrial services in
-the frequency range 30 MHz to 6 GHz.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.1812/en
+    * **ITU-R Standard:** International Telecommunication Union (2025).
+      *Recommendation ITU-R P.1812-8: A path-specific propagation prediction method for
+      point-to-area terrestrial services in the frequency range 30 MHz to 6 GHz*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1812/en
+
 
 Notes:
     This module was converted from C++ to Python with the assistance of an AI tool (Claude by

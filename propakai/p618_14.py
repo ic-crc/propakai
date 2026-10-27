@@ -6,10 +6,14 @@
 
 """Implementation of ITU-R P.618-14.
 
-P.618 : Propagation data and prediction methods required for the design of Earth-space
-telecommunication systems.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.618/en
+    * **ITU-R Standard:** International Telecommunication Union (2023).
+      *Recommendation ITU-R P.618-14: Propagation data and prediction methods required for the
+      design of Earth-space telecommunication systems*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.618/en
 """
 
 from math import sin, cos, radians, sqrt, log10, log, atan2, exp, degrees

@@ -6,9 +6,13 @@
 
 """Implementation of ITU-R P.840-9.
 
-P.840 : Attenuation due to clouds and fog.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.840/en
+    * **ITU-R Standard:** International Telecommunication Union (2023).
+      *Recommendation ITU-R P.840-9: Attenuation due to clouds and fog*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.840/en
 """
 
 from os.path import join

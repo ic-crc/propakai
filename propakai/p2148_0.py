@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.2148-0.
 
-P.2148 : Digital maps related to surface wind speed statistics.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.2148/en
+    * **ITU-R Standard:** International Telecommunication Union (2022).
+      *Recommendation ITU-R P.2148-0: Digital maps related to surface wind speed statistics*.
+      Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.2148/en
 """
 
 from os.path import join

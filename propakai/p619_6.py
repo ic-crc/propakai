@@ -6,10 +6,14 @@
 
 """Implementation of ITU-R P.619-6.
 
-P.619 : Propagation data required for the evaluation of interference between stations in space and
-those on the surface of the Earth.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.619/en
+    * **ITU-R Standard:** International Telecommunication Union (2025).
+      *Recommendation ITU-R P.619-6: Propagation data required for the evaluation of interference
+      between stations in space and those on the surface of the Earth*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.619/en
 """
 
 from enum import Enum

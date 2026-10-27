@@ -6,13 +6,23 @@
 
 """Implementation of ITU-R P.528-5, dynamic shared object version (i.e. using a compiled binary).
 
-P.528 : A propagation prediction method for aeronautical mobile and radionavigation services using
-the VHF, UHF and SHF bands.
+Info: Acknowledgment & Source
+    This module consists in a Python wrapper around the original C++ implementation developed by
+    the Institute for Telecommunication Sciences (ITS) at the National Telecommunications and
+    Information Administration (NTIA), U.S. Department of Commerce.
 
-https://www.itu.int/rec/R-REC-P.528/en
+    * **Source Repository:** https://github.com/NTIA/p528
 
-NOTE: This module consists in a Python wrapper around the original NTIA/ITS C++ reference
-implementation.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite the following:
+
+    * **ITU-R Standard:** International Telecommunication Union (2021).
+      *Recommendation ITU-R P.528-5: A propagation prediction method for aeronautical mobile and
+      radionavigation services using the VHF, UHF and SHF bands*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.528/en
+    * **Software Reference:** Kozma, W., Jr. *Recommendation ITU-R P.528-5*
+      (Version 5.1.0) [Computer software].
+      https://doi.org/10.5281/zenodo.5911006
 """
 
 import ctypes as ct

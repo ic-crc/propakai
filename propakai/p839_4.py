@@ -6,9 +6,13 @@
 
 """Implementation of ITU-R P.839-4.
 
-P.839 : Rain height model for prediction methods.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.839/en
+    * **ITU-R Standard:** International Telecommunication Union (2013).
+      *Recommendation ITU-R P.839-4: Rain height model for prediction methods*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.839/en
 """
 
 from os.path import join

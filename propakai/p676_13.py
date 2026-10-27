@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.676-13.
 
-P.676 : Attenuation by atmospheric gases and related effects.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.676/en
+    * **ITU-R Standard:** International Telecommunication Union (2022).
+      *Recommendation ITU-R P.676-13: Attenuation by atmospheric gases and related effects*.
+      Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.676/en
 """
 
 

@@ -6,9 +6,14 @@
 
 """Implementation of ITU-R P.681-11.
 
-P.681 : Propagation data required for the design systems in the land mobile-satellite service.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.681/en
+    * **ITU-R Standard:** International Telecommunication Union (2019).
+      *Recommendation ITU-R P.681-11: Propagation data required for the design systems in the land
+      mobile-satellite service*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.681/en
 """
 
 from math import log as ln, exp, sqrt, sin, radians, cos, tan, atan, degrees, erf

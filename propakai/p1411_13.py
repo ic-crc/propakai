@@ -6,10 +6,15 @@
 
 """Implementation of ITU-R P.1411-13.
 
-P.1411 : Propagation data and prediction methods for the planning of short-range outdoor
-radiocommunication systems and radio local area networks in the frequency range 300 MHz to 300 GHz.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.1411/en
+    * **ITU-R Standard:** International Telecommunication Union (2025).
+      *Recommendation ITU-R P.1411-13: Propagation data and prediction methods for the planning of
+      short-range outdoor radiocommunication systems and radio local area networks in the frequency
+      range 300 MHz to 300 GHz*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1411/en
 """
 
 from enum import Enum, IntFlag

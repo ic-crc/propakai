@@ -6,10 +6,14 @@
 
 """Implementation of ITU-R P.1144-13.
 
-P.1144 : Guidelines for the application of numerical methods used in propagation methods of
-Radiocommunication Study Group 3.
+Quote: Standard & Citation
+    If you use this module in technical reports or academic research, please cite this software
+    package along with the underlying ITU-R standard:
 
-https://www.itu.int/rec/R-REC-P.1144/en
+    * **ITU-R Standard:** International Telecommunication Union (2025).
+      *Recommendation ITU-R P.1144-13: Guidelines for the application of numerical methods used in
+      propagation methods of Radiocommunication Study Group 3*. Geneva: ITU.
+      https://www.itu.int/rec/R-REC-P.1144/en
 """
 
 from array import array
