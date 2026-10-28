@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software in your research or technical reports, please cite it using the metadata below."
+type: software
+title: "PropaKai: Cohesive Python package for implementations of ITU-R P. recommendations"
+version: 1.0.0
+date-released: "2026-10-27"
+url: "https://ic-crc.github.io/propakai/"
+repository-code: "https://github.com/ic-crc/propakai"
+license: MIT
+authors:
+  - name: "Communications Research Centre Canada"
+keywords:
+  - "ITU-R"
+  - "radiowave propagation"
+  - "telecommunications"
+  - "python"

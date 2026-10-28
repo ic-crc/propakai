@@ -17,8 +17,7 @@ optional-dependencies.full = ["geopandas", "shapely", "rasterio", "pyproj", "pys
 
 license = "MIT"
 license-files = ["LICENSE.txt"]
-keywords = ["propagation", "pathloss", "radio", "frequency", "RF", "radiofrequency", "radiowave",
-            "recommendation", "prediction", "ITU"]
+keywords = ["ITU-R", "radiowave propagation", "telecommunications", "python"]
 classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering",
