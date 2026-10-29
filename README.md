@@ -88,6 +88,7 @@ interference prediction)_
 services using the VHF, UHF and SHF bands.
 - **ITU-R P.676-13:** Attenuation by atmospheric gases and related effects.
 - **ITU-R P.835-7:** Reference atmospheres. _(excludes Annex 3)_
+- **ITU-R P.837-8:** Characteristics of precipitation for propagation modelling. _(excludes Annex 2)_
 - **ITU-R P.838-3:** Specific attenuation model for rain for use in prediction methods.
 - **ITU-R P.839-4:** Rain height model for prediction methods.
 - **ITU-R P.840-9:** Attenuation due to clouds and fog.

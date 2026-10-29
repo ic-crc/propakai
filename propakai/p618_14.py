@@ -57,7 +57,8 @@ def rain_attenuation(f_ghz: float, theta_deg: float, p_percent: float,
             value is None.
         r001_mmh (float, optional): Point rainfall rate for the location for 0.01% of an average
             year (mm/h). When set to None, the value is automatically obtained from Recommendation
-            ITU-R P.837-8. Default value is None.
+            ITU-R P.837-8 (bi-linear interpolation of pre-computed values in the R001.txt digital
+            map). Default value is None.
 
     Returns:
         AR (float): Attenuation due to rain exceeded for p% of an average year (dB).
@@ -230,7 +231,8 @@ def cloud_attenuation(f_ghz: float, theta_deg: float, p_percent: float, lat: flo
 
 def total_atmospheric_attenuation(f_ghz: float, theta_deg: float, p_percent: float, lat: float,
                                   lon: float, tau_deg: float, d_m: float, eta: float=0.5,
-                                  hs_km: float|None=None, exclude_scintillation: bool=False
+                                  hs_km: float|None=None, exclude_scintillation: bool=False,
+                                  r001_mmh: float|None=None
                                   ) -> tuple[float, float, float, float, float]:
     """
     ITU-R P.618-14, Annex 1, Section 2.5.
@@ -256,6 +258,10 @@ def total_atmospheric_attenuation(f_ghz: float, theta_deg: float, p_percent: flo
         exclude_scintillation (bool, optional): Whether to exclude tropospheric scintillation from
             the total attenuation. Relevant in the context of sky noise temperature calculation.
             When set to True, parameters d_m and eta are unused. Default value is False.
+        r001_mmh (float, optional): Point rainfall rate for the location for 0.01% of an average
+            year (mm/h). When set to None, the value is automatically obtained from Recommendation
+            ITU-R P.837-8 (bi-linear interpolation of pre-computed values in the R001.txt digital
+            map). Default value is None.
     
     Returns:
         AT (float): Estimation of total attenuation (dB) due to multiple sources of
@@ -275,7 +281,7 @@ def total_atmospheric_attenuation(f_ghz: float, theta_deg: float, p_percent: flo
         AS = 0
 
     if p_percent <= 5:
-        AR = rain_attenuation(f_ghz, theta_deg, p_percent, lat, lon, tau_deg, hs_km)
+        AR = rain_attenuation(f_ghz, theta_deg, p_percent, lat, lon, tau_deg, hs_km, r001_mmh)
         AT = AG + sqrt(((AR+AC)*(AR+AC))+(AS*AS))
     else:
         AR = 0

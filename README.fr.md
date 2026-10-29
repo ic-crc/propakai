@@ -89,6 +89,7 @@ décimétriques et centimétriques pour le service mobile aéronautique et le se
 aéronautique.
 - **UIT-R P.676-13:** Affaiblissement dû aux gaz de l'atmosphère et effets associés.
 - **UIT-R P.835-7:** Atmosphère de référence. _(exclue l'Annexe 3)_
+- **UIT-R P.837-8:** Caractéristiques des précipitations pour la modélisation de la propagation. _(exclue l'Annexe 2)_
 - **UIT-R P.838-3:** Modèle d'affaiblissement linéique dû à la pluie destiné aux méthodes de
 prévision.
 - **UIT-R P.839-4:** Modèle d'altitude de pluie pour les méthodes de prévision.

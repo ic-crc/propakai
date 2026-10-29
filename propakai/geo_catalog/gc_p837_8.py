@@ -36,7 +36,7 @@ def annual_rainfall_rate_001(lat: float, lon: float) -> float:
 
 def total_monthly_mean_rainfall(lat: float, lon: float, month: int) -> float:
     """
-    ITU-R P.837-8, Annex 2.
+    ITU-R P.837-8, Annex 1.
 
     Total monthly mean rainfall, MT (mm).
 

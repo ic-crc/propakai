@@ -38,11 +38,14 @@ class Test_P618_14(unittest.TestCase):
                                         f_list, theta_list, tau_list, p_list, r001_list, Ap_list):
 
             # NOTE 1: The rainfall rate (R001) in the ITU Excel document is calculated using the
-            # method of Annex 1 from ITU-R P.837 (requires monthly data), while in our current
-            # implementation it is obtained from bi-linear interpolation of pre-computed values
-            # in the R001.txt digital map.
+            # method of Annex 1 from ITU-R P.837 (requires monthly data).
+            # p837_8.annual_rainfall_rate() uses this aforementioned method while
+            # p837_8.annual_rainfall_rate_001() uses a bi-linear interpolation of pre-computed
+            # values in the R001.txt digital map.
             digital_map_r001 = p837_8.annual_rainfall_rate_001(lat, lon)
             self.assertTrue(isclose(digital_map_r001, r001, rel_tol=1e-3))
+            computed_r001, _p0_annual = p837_8.annual_rainfall_rate(0.01, lat, lon)
+            self.assertTrue(isclose(computed_r001, r001, rel_tol=1e-5))
 
             Ap = p618_14.rain_attenuation(f, theta, p, lat, lon, tau, None, r001)
             self.assertTrue(isclose(Ap, expected_Ap))
@@ -89,10 +92,11 @@ class Test_P618_14(unittest.TestCase):
             expect_AT in zip(lat_list, lon_list, hs_list, f_list, theta_list, d_list, eta_list,
                              tau_list, p_list, AG_list, AC_list, AR_list, AS_list, AT_list):
 
-            AR1 = p618_14.rain_attenuation(f, theta, p, lat, lon, tau, None, None)
-            AR2 = p618_14.rain_attenuation(f, theta, p, lat, lon, tau, hs, None)
-            self.assertTrue(isclose(AR1, expect_AR, rel_tol=1e-3)) # see NOTE 1
-            self.assertTrue(isclose(AR2, expect_AR, rel_tol=1e-3)) # see NOTE 1
+            computed_r001, _p0_annual = p837_8.annual_rainfall_rate(0.01, lat, lon) # see NOTE 1
+            AR1 = p618_14.rain_attenuation(f, theta, p, lat, lon, tau, None, computed_r001)
+            AR2 = p618_14.rain_attenuation(f, theta, p, lat, lon, tau, hs, computed_r001)
+            self.assertTrue(isclose(AR1, expect_AR, rel_tol=1e-5))
+            self.assertTrue(isclose(AR2, expect_AR, rel_tol=1e-5))
 
             AC = p618_14.cloud_attenuation(f, theta, max(p,5),  lat, lon)
             self.assertTrue(isclose(AC, expect_AC, rel_tol=1e-7))
@@ -106,9 +110,9 @@ class Test_P618_14(unittest.TestCase):
             self.assertTrue(isclose(AS, expect_AS))
 
             AT, AR, AC, AG, AS = p618_14.total_atmospheric_attenuation(f, theta, p, lat, lon, tau,
-                                                                       d, eta, hs)
-            self.assertTrue(isclose(AT, expect_AT, rel_tol=1e-3))
-            self.assertTrue(isclose(AR, expect_AR, rel_tol=1e-3))
+                                                                d, eta, hs, False, computed_r001)
+            self.assertTrue(isclose(AT, expect_AT, rel_tol=1e-5))
+            self.assertTrue(isclose(AR, expect_AR, rel_tol=1e-5))
             self.assertTrue(isclose(AC, expect_AC, rel_tol=1e-7))
             self.assertTrue(isclose(AG, expect_AG))
             self.assertTrue(isclose(AS, expect_AS))
@@ -134,10 +138,11 @@ class Test_P618_14(unittest.TestCase):
         for p, expect_AG, expect_AC, expect_AR, expect_AS, expect_AT in zip(p_list, AG_list,
                                                         AC_list, AR_list, AS_list, AT_list):
 
+            # not specifying r001, will use digital map
             AT, AR, AC, AG, AS = p618_14.total_atmospheric_attenuation(f, theta, p, lat, lon, tau,
                                                                        d, eta, hs)
-            self.assertTrue(isclose(AT, expect_AT, rel_tol=1e-3))
-            self.assertTrue(isclose(AR, expect_AR, rel_tol=1e-3))
+            self.assertTrue(isclose(AT, expect_AT, rel_tol=1e-3)) # increased error from digital map usage
+            self.assertTrue(isclose(AR, expect_AR, rel_tol=1e-3)) # increased error from digital map usage
             self.assertTrue(isclose(AC, expect_AC, rel_tol=1e-7))
             self.assertTrue(isclose(AG, expect_AG))
             self.assertTrue(isclose(AS, expect_AS))
