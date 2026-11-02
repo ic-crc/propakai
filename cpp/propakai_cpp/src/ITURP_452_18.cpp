@@ -156,8 +156,8 @@ double ITURP_452_18::_DN50(double lat, double lon)
 // lat from +90 to -90, lon from 0 to 360 in _DN50 array
 const double latInterval = 1.5;
 const double lonInterval = 1.5;
-const int numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
-const int rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
+const size_t numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
+const size_t rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
 double r,c;
 
 	if( _DN50_Vect.size() != _DN50_SIZE )
@@ -167,7 +167,7 @@ double r,c;
 		lon += 360;
 	r = (90.0 - lat) / latInterval;
 	c = lon / lonInterval;
-	return ITURP_1144_13::SquareGridBilinearInterpolation(_DN50_Vect.data(), numRows, rowSize, r, c);
+	return ITURP_1144_13::SquareGridBilinearInterpolation(_DN50_Vect, numRows, rowSize, r, c);
 }
 
 // Get value from the N050 digital map.
@@ -180,8 +180,8 @@ double ITURP_452_18::_N050(double lat, double lon)
 // lat from +90 to -90, lon from 0 to 360 in _N050 array
 const double latInterval = 1.5;
 const double lonInterval = 1.5;
-const int numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
-const int rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
+const size_t numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
+const size_t rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
 double r,c;
 
 	if( _N050_Vect.size() != _N050_SIZE )
@@ -191,7 +191,7 @@ double r,c;
 		lon += 360;
 	r = (90.0 - lat) / latInterval;
 	c = lon / lonInterval;
-	return ITURP_1144_13::SquareGridBilinearInterpolation(_N050_Vect.data(), numRows, rowSize, r, c);
+	return ITURP_1144_13::SquareGridBilinearInterpolation(_N050_Vect, numRows, rowSize, r, c);
 }
 
 // n:                number of profile points

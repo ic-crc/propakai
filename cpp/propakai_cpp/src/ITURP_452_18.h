@@ -9,6 +9,7 @@
 #pragma once
 #include <limits>
 #include <vector>
+#include <cstddef>
 
 
 class ITURP_452_18
@@ -41,9 +42,9 @@ public:
 	                                            double dct=AUTO, double dcr=AUTO, double P=1013.25, double TC=15, double deltaN=AUTO, double N0=AUTO);
 
 protected:
-	static constexpr int _DN50_SIZE = 29161;
+	static constexpr size_t _DN50_SIZE = 29161;
 	static std::vector<double> _DN50_Vect;
-	static constexpr int _N050_SIZE = 29161;
+	static constexpr size_t _N050_SIZE = 29161;
 	static std::vector<double> _N050_Vect;
 
 	static double _DN50(double lat, double lon);

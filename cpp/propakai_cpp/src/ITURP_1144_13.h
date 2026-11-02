@@ -14,11 +14,11 @@
 class ITURP_1144_13
 {
 public:
-	static bool InitDigitalMap(std::vector<double>& digitalMapVect, int expectedSize, const char* pathname);
-	static double SquareGridBilinearInterpolation(const double* mapArray, int numRows, int rowSize, double r, double c);
+	static bool InitDigitalMap(std::vector<double>& digitalMapVect, size_t expectedSize, const char* pathname);
+	static double SquareGridBilinearInterpolation(const std::vector<double>& digitalMapVect, size_t numRows, size_t rowSize, double r, double c);
 
 protected:
-	static bool _ReadDigitalMapFile(double* mapArray, size_t mapArraySize, const char* pathname);
+	static bool ReadDigitalMapFile_(std::vector<double>& digitalMapVect, const char* pathname);
 
 private:
 	// Prevent instantiation
