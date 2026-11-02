@@ -17,6 +17,7 @@ Quote: Standard & Citation
 """
 
 from math import log10, exp, radians, cos
+from types import SimpleNamespace
 
 
 __all__ = ['rain_attenuation',
@@ -74,42 +75,22 @@ def coefficients(f_ghz: float, theta_deg: float, tau_deg: float) -> tuple[float,
 
 
 def _kH(f_ghz: float) -> float:
-    mk = -0.18961
-    ck = 0.71147
-    a = [-5.33980, -0.35351, -0.23789, -0.94158]
-    b = [-0.10008, 1.26970, 0.86036, 0.64552]
-    c = [1.13098, 0.45400, 0.15354, 0.16817]
-    return _k(f_ghz, a, b, c, mk, ck)
+    return _k(f_ghz, *_p838_3_shared.KH_COEFFS)
 
 
 def _kV(f_ghz: float) -> float:
-    mk = -0.16398
-    ck = 0.63297
-    a = [-3.80595, -3.44965, -0.39902, 0.50167]
-    b = [0.56934, -0.22911, 0.73042, 1.07319]
-    c = [0.81061, 0.51059, 0.11899, 0.27195]
-    return _k(f_ghz, a, b, c, mk, ck)
+    return _k(f_ghz, *_p838_3_shared.KV_COEFFS)
 
 
 def _alphaH(f_ghz: float) -> float:
-    ma = 0.67849
-    ca = -1.95537
-    a = [-0.14318, 0.29591, 0.32177, -5.37610, 16.1721]
-    b = [1.82442, 0.77564, 0.63773, -0.96230, -3.29980]
-    c = [-0.55187, 0.19822, 0.13164, 1.47828, 3.43990]
-    return _alpha(f_ghz, a, b, c, ma, ca)
+    return _alpha(f_ghz, *_p838_3_shared.AH_COEFFS)
 
 
 def _alphaV(f_ghz: float) -> float:
-    ma = -0.053739
-    ca = 0.83433
-    a = [-0.07771, 0.56727, -0.20238, -48.2991, 48.5833]
-    b = [2.33840, 0.95545, 1.14520, 0.791669, 0.791459]
-    c = [-0.76284, 0.54039, 0.26809, 0.116226, 0.116479]
-    return _alpha(f_ghz, a, b, c, ma, ca)
+    return _alpha(f_ghz, *_p838_3_shared.AV_COEFFS)
 
 
-def _k(f_ghz: float, a: list, b: list, c: list, mk: float, ck: float) -> float:
+def _k(f_ghz: float, a: tuple, b: tuple, c: tuple, mk: float, ck: float) -> float:
     log10_f = log10(f_ghz)
     sum_ = 0
     for j in range(0, 4, 1):
@@ -120,7 +101,7 @@ def _k(f_ghz: float, a: list, b: list, c: list, mk: float, ck: float) -> float:
     return k
 
 
-def _alpha(f_ghz: float, a: list, b: list, c: list, ma: float, ca: float) -> float:
+def _alpha(f_ghz: float, a: tuple, b: tuple, c: tuple, ma: float, ca: float) -> float:
     log10_f = log10(f_ghz)
     sum_ = 0
     for j in range(0, 5, 1):
@@ -128,3 +109,30 @@ def _alpha(f_ghz: float, a: list, b: list, c: list, ma: float, ca: float) -> flo
         sum_ += a[j]*exp(-(base*base))
     alpha = sum_+(ma*log10_f)+ca
     return alpha
+
+
+_p838_3_shared = SimpleNamespace(
+    KH_COEFFS = ((-5.33980, -0.35351, -0.23789, -0.94158), # aj
+                 (-0.10008, 1.26970, 0.86036, 0.64552),    # bj
+                 (1.13098, 0.45400, 0.15354, 0.16817),     # cj
+                 -0.18961,                                 # mk
+                 0.71147),                                 # ck
+
+    KV_COEFFS = ((-3.80595, -3.44965, -0.39902, 0.50167),
+                 (0.56934, -0.22911, 0.73042, 1.07319),
+                 (0.81061, 0.51059, 0.11899, 0.27195),
+                 -0.16398,
+                 0.63297),
+
+    AH_COEFFS = ((-0.14318, 0.29591, 0.32177, -5.37610, 16.1721),
+                 (1.82442, 0.77564, 0.63773, -0.96230, -3.29980),
+                 (-0.55187, 0.19822, 0.13164, 1.47828, 3.43990),
+                 0.67849,
+                 -1.95537),
+
+    AV_COEFFS = ((-0.07771, 0.56727, -0.20238, -48.2991, 48.5833),
+                 (2.33840, 0.95545, 1.14520, 0.791669, 0.791459),
+                 (-0.76284, 0.54039, 0.26809, 0.116226, 0.116479),
+                 -0.053739,
+                 0.83433)
+)
