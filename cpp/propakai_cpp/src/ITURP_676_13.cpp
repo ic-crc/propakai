@@ -18,7 +18,7 @@
 //           nitrogen and non-resonant Debye attenuation) (dB/km)
 double ITURP_676_13::AttenuationDueToDryAir(double f, double P, double TK, double rho)
 {
-	double yo = 0.1820*f*_NppOxygen(f, P, TK, rho); // eq. (1), (33)
+	double yo = 0.1820*f*NppOxygen(f, P, TK, rho); // eq. (1), (33)
 	return yo;
 }
 
@@ -29,7 +29,7 @@ double ITURP_676_13::AttenuationDueToDryAir(double f, double P, double TK, doubl
 // [return]: specific gaseous attenuation attributable to water vapour (dB/km)
 double ITURP_676_13::AttenuationDueToWaterVapour(double f, double P, double TK, double rho)
 {
-	double yw = 0.1820*f*_NppWaterVapour(f, P, TK, rho); // eq. (1), (36)
+	double yw = 0.1820*f*NppWaterVapour(f, P, TK, rho); // eq. (1), (36)
 	return yw;
 }
 
@@ -39,7 +39,7 @@ double ITURP_676_13::AttenuationDueToWaterVapour(double f, double P, double TK, 
 // TK:       temperature (K)
 // rho:      water vapour density (g/m3)
 // [return]: imaginary part of the complex refractivity attributable to oxygen
-double ITURP_676_13::_NppOxygen(double f, double P, double TK, double rho)
+double ITURP_676_13::NppOxygen(double f, double P, double TK, double rho)
 {
 static const int NUM_LINES = 44;
 double theta = 300.0/TK;
@@ -52,8 +52,8 @@ double prod3 = 1.0E-4*(P+e)*pow(theta,0.8);
 
 	for(int i=0 ; i<NUM_LINES ; i++)
 	{
-		double fi = _TABLE1[i][0];
-		const double* a = _TABLE1[i];
+		double fi = TABLE1_[i][0];
+		const double* a = TABLE1_[i];
 
 		double Si = a[1] * prod1 * exp(a[2]*(1.0-theta));
 
@@ -65,7 +65,7 @@ double prod3 = 1.0E-4*(P+e)*pow(theta,0.8);
 		
 		NppO += Si*Fi;
 	}
-	NppO += _NppD(f, P, TK, rho);
+	NppO += NppD(f, P, TK, rho);
 
 	return NppO;
 }
@@ -76,7 +76,7 @@ double prod3 = 1.0E-4*(P+e)*pow(theta,0.8);
 // TK:       temperature (K)
 // rho:      water vapour density (g/m3)
 // [return]: imaginary part of the complex refractivity attributable to water vapour
-double ITURP_676_13::_NppWaterVapour(double f, double P, double TK, double rho)
+double ITURP_676_13::NppWaterVapour(double f, double P, double TK, double rho)
 {
 static const int NUM_LINES = 35;
 double theta = 300.0/TK;
@@ -87,8 +87,8 @@ double prod1 = 1.0E-1*e*pow(theta, 3.5);
 
 	for(int i=0 ; i<NUM_LINES ; i++)
 	{
-		double fi = _TABLE2[i][0];
-		const double* b = _TABLE2[i];
+		double fi = TABLE2_[i][0];
+		const double* b = TABLE2_[i];
 
 		double Si = b[1] * prod1 * exp(b[2]*(1.0-theta));
 
@@ -108,7 +108,7 @@ double prod1 = 1.0E-1*e*pow(theta, 3.5);
 // TK:       temperature (K)
 // rho:      water vapour density (g/m3)
 // [return]: the dry continuum due to pressure-induced nitrogen absorption and the Debye spectrum 
-double ITURP_676_13::_NppD(double f, double P, double TK, double rho)
+double ITURP_676_13::NppD(double f, double P, double TK, double rho)
 {
 double theta = 300.0/TK;
 double e = rho*TK/216.7;
@@ -120,7 +120,7 @@ double NppD;
 	return NppD;
 }
 
-const double ITURP_676_13::_TABLE1[44][7]={
+const double ITURP_676_13::TABLE1_[44][7]={
 	{50.474214,0.975,9.651,6.690,0.0,2.566,6.850},
 	{50.987745,2.529,8.653,7.170,0.0,2.246,6.800},
 	{51.503360,6.193,7.709,7.640,0.0,1.947,6.729},
@@ -167,7 +167,7 @@ const double ITURP_676_13::_TABLE1[44][7]={
 	{834.145546,183.100,0.145,14.700,0.0,0.000,0.000}
 };
 
-const double ITURP_676_13::_TABLE2[35][7]={
+const double ITURP_676_13::TABLE2_[35][7]={
 	{22.235080,.1079,2.144,26.38,.76,5.087,1.00},
 	{67.803960,.0011,8.732,28.58,.69,4.930,.82},
 	{119.995940,.0007,8.353,29.48,.70,4.780,.79},

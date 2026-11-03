@@ -18,7 +18,7 @@ public:
 	static double SquareGridBilinearInterpolation(const std::vector<double>& digitalMapVect, size_t numRows, size_t rowSize, double r, double c);
 
 protected:
-	static bool ReadDigitalMapFile_(std::vector<double>& digitalMapVect, const char* pathname);
+	static bool ReadDigitalMapFile(std::vector<double>& digitalMapVect, const char* pathname);
 
 private:
 	// Prevent instantiation

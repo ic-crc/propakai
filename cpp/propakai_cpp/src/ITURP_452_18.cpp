@@ -16,19 +16,19 @@
 #include <vector>
 
 
-std::vector<double> ITURP_452_18::_DN50_Vect;
-std::vector<double> ITURP_452_18::_N050_Vect;
+std::vector<double> ITURP_452_18::DN50_Vect_;
+std::vector<double> ITURP_452_18::N050_Vect_;
 
 // Initialize from DN50.TXT ITU file
 bool ITURP_452_18::Init_DN50(const char* pathname)
 {
-	return ITURP_1144_13::InitDigitalMap(_DN50_Vect, _DN50_SIZE, pathname);
+	return ITURP_1144_13::InitDigitalMap(DN50_Vect_, DN50_SIZE_, pathname);
 }
 
 // Initialize from N050.TXT ITU file
 bool ITURP_452_18::Init_N050(const char* pathname)
 {
-	return ITURP_1144_13::InitDigitalMap(_N050_Vect, _N050_SIZE, pathname);
+	return ITURP_1144_13::InitDigitalMap(N050_Vect_, N050_SIZE_, pathname);
 }
 
 // f:          frequency (GHz) [0.1, 50.0]
@@ -106,42 +106,42 @@ double Lba; // Lba: the prediction of the basic transmission loss occurring duri
 double Lb; // Lbc: final basic transmission loss not exceeded for p% time (dB)
 
 	dn = d[n-1];
-	_gProfile(n, d, h, cc, rch, gVector);
+	GProfile(n, d, h, cc, rch, gVector);
 	g = gVector.data();
-	_LengthOfPathSectionsProfile(n, d, lopsVector);
+	LengthOfPathSectionsProfile(n, d, lopsVector);
 	lops = lopsVector.data();
-	omega = _OverWaterPercent(dn, n, rcz, lops);
+	omega = OverWaterPercent(dn, n, rcz, lops);
 	if( omega >= 0.75 ) // otherwise dct and dcr are not used
 	{
-		if( _IsAUTO(dct) )
-			dct = _Dct(n, rcz, lops);
-		if( _IsAUTO(dcr) )
-			dcr = _Dcr(n, rcz, lops);
+		if( IsAUTO(dct) )
+			dct = Dct(n, rcz, lops);
+		if( IsAUTO(dcr) )
+			dcr = Dcr(n, rcz, lops);
 	}
-	_LongestContinuousLand(dn, n, rcz, lops, dtm, dlm);
+	LongestContinuousLand(dn, n, rcz, lops, dtm, dlm);
     ITURP_2001_6::GreatCircleIntermediatePoint(latt, lont, latr, lonr, dn/2.0, centreLat, centreLon);
-	B0 = _B0(centreLat, dtm, dlm);
+	B0 = B0Calc(centreLat, dtm, dlm);
 
 	if( worstMonth )
-		p = _AnnualEquivalentTimePercent(p, centreLat, omega);
+		p = AnnualEquivalentTimePercent(p, centreLat, omega);
 	TK = TC + 273.15;
-	if( _IsAUTO(deltaN) )
-		deltaN = _DN50(centreLat, centreLon);
-	if( _IsAUTO(N0) )
-		N0 = _N050(centreLat, centreLon);
-	_EffectiveEarthRadius(deltaN, ae, aB);
+	if( IsAUTO(deltaN) )
+		deltaN = DN50(centreLat, centreLon);
+	if( IsAUTO(N0) )
+		N0 = N050(centreLat, centreLon);
+	EffectiveEarthRadius(deltaN, ae, aB);
 
 	hts = h[0] + htg;
 	hrs = h[n-1] + hrg;
 
-	_PathProfileParameters(f, htg, hrg, n, d, h, ae, dlt, dlr, thetat, thetar, theta, hstd, hsrd, hte, hre, hm);
+	PathProfileParameters(f, htg, hrg, n, d, h, ae, dlt, dlr, thetat, thetar, theta, hstd, hsrd, hte, hre, hm);
 
-	_LoSPropagationLoss(f, p, B0, hts, hrs, dn, dlt, dlr, omega, P, TK, /*out*/Lbfsg, /*out*/Lb0p, /*out*/Lb0B);
-	_DiffractionLoss(f, p, B0, hts, hrs, vpol, ae, aB, n, d, g, omega, hstd, hsrd, Lbfsg, Lb0p, /*out*/Ldp, /*out*/Lbd50, /*out*/Lbd);
-	Lbs = _TroposcatterLoss(f, p, Gt, Gr, dn, theta, N0, P, TK);
+	LoSPropagationLoss(f, p, B0, hts, hrs, dn, dlt, dlr, omega, P, TK, /*out*/Lbfsg, /*out*/Lb0p, /*out*/Lb0B);
+	DiffractionLoss(f, p, B0, hts, hrs, vpol, ae, aB, n, d, g, omega, hstd, hsrd, Lbfsg, Lb0p, /*out*/Ldp, /*out*/Lbd50, /*out*/Lbd);
+	Lbs = TroposcatterLoss(f, p, Gt, Gr, dn, theta, N0, P, TK);
 	Lbs = std::max(Lbs, Lbfsg);
-	Lba = _DuctingLayerReflectionLoss(f, p, ae, B0, dlm, dn, hts, hrs, dlt, dlr, thetat, thetar, hte, hre, hm, omega, dct, dcr, P, TK);
-	Lb =  _OverallPrediction(p, B0, dn, omega, hts, hrs, ae, n, d, h, Lb0p, Lb0B, Ldp, Lbd50, Lba, Lbd, Lbs);
+	Lba = DuctingLayerReflectionLoss(f, p, ae, B0, dlm, dn, hts, hrs, dlt, dlr, thetat, thetar, hte, hre, hm, omega, dct, dcr, P, TK);
+	Lb =  OverallPrediction(p, B0, dn, omega, hts, hrs, ae, n, d, h, Lb0p, Lb0B, Ldp, Lbd50, Lba, Lbd, Lbs);
 
 	return Lb;
 }
@@ -151,23 +151,23 @@ double Lb; // Lbc: final basic transmission loss not exceeded for p% time (dB)
 // lat:      latitude (degrees) [-90.0, 90.0] 
 // lon:      longitude (degrees) [-180.0, 180.0]
 // [return]: median annual radio-refractivity lapse-rate through the lowest 1 km of the atmosphere (N-units/km)
-double ITURP_452_18::_DN50(double lat, double lon)
+double ITURP_452_18::DN50(double lat, double lon)
 {
-// lat from +90 to -90, lon from 0 to 360 in _DN50 array
+// lat from +90 to -90, lon from 0 to 360 in DN50 array
 const double latInterval = 1.5;
 const double lonInterval = 1.5;
 const size_t numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
 const size_t rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
 double r,c;
 
-	if( _DN50_Vect.size() != _DN50_SIZE )
+	if( DN50_Vect_.size() != DN50_SIZE_ )
 		return 45.0; // use reasonable default value
 
 	if( lon < 0 )
 		lon += 360;
 	r = (90.0 - lat) / latInterval;
 	c = lon / lonInterval;
-	return ITURP_1144_13::SquareGridBilinearInterpolation(_DN50_Vect, numRows, rowSize, r, c);
+	return ITURP_1144_13::SquareGridBilinearInterpolation(DN50_Vect_, numRows, rowSize, r, c);
 }
 
 // Get value from the N050 digital map.
@@ -175,29 +175,29 @@ double r,c;
 // lat:      latitude (degrees) [-90.0, 90.0] 
 // lon:      longitude (degrees) [-180.0, 180.0]
 // [return]: median annual sea-level surface refractivity (N-units)
-double ITURP_452_18::_N050(double lat, double lon)
+double ITURP_452_18::N050(double lat, double lon)
 {
-// lat from +90 to -90, lon from 0 to 360 in _N050 array
+// lat from +90 to -90, lon from 0 to 360 in N050 array
 const double latInterval = 1.5;
 const double lonInterval = 1.5;
 const size_t numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
 const size_t rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
 double r,c;
 
-	if( _N050_Vect.size() != _N050_SIZE )
+	if( N050_Vect_.size() != N050_SIZE_ )
 		return 325.0; // use reasonable default value
 
 	if( lon < 0 )
 		lon += 360;
 	r = (90.0 - lat) / latInterval;
 	c = lon / lonInterval;
-	return ITURP_1144_13::SquareGridBilinearInterpolation(_N050_Vect, numRows, rowSize, r, c);
+	return ITURP_1144_13::SquareGridBilinearInterpolation(N050_Vect_, numRows, rowSize, r, c);
 }
 
 // n:                number of profile points
 // d:                distance from transmitter profile of n points (km)
 // [out] lopsVector: vector of n points containing the length of path sections (km)
-void ITURP_452_18::_LengthOfPathSectionsProfile(unsigned int n, const double* d, std::vector<double>& lopsVector)
+void ITURP_452_18::LengthOfPathSectionsProfile(unsigned int n, const double* d, std::vector<double>& lopsVector)
 {
 	lopsVector.reserve(n);
 	lopsVector.push_back((d[1]-d[0])/2.0);
@@ -211,7 +211,7 @@ void ITURP_452_18::_LengthOfPathSectionsProfile(unsigned int n, const double* d,
 // lops:     length of path sections profile of n points (km)
 // [return]: dct, distance of the transmitter from the coast in the direction of the receiver.
 //           For a terminal on a ship or sea platform the distance is zero (km)
-double ITURP_452_18::_Dct(unsigned int n, const RadioClimaticZone* rcz, const double* lops)
+double ITURP_452_18::Dct(unsigned int n, const RadioClimaticZone* rcz, const double* lops)
 {
 double dct = 0;
 
@@ -230,7 +230,7 @@ double dct = 0;
 // lops:     length of path sections profile of n points (km)
 // [return]: dcr, the distance of the receiver from the coast in the direction of the transmitter.
 //           For a terminal on a ship or sea platform the distance is zero (km)
-double ITURP_452_18::_Dcr(unsigned int n, const RadioClimaticZone* rcz, const double* lops)
+double ITURP_452_18::Dcr(unsigned int n, const RadioClimaticZone* rcz, const double* lops)
 {
 double dcr = 0;
 
@@ -248,7 +248,7 @@ double dcr = 0;
 // deltaN:   average radio-refractivity lapse-rate through the lowest 1 km of the atmosphere (N-units/km)
 // [out] ae: median value of effective Earth radius for specified path (km)
 // [out] aB: effective Earth radius exceeded for B0 time (km)
-void ITURP_452_18::_EffectiveEarthRadius(double deltaN, double& ae, double& aB)
+void ITURP_452_18::EffectiveEarthRadius(double deltaN, double& ae, double& aB)
 {
 double constexpr a = 6371.0;
 double k50;
@@ -263,7 +263,7 @@ double k50;
 // lat:      latitude of the path's centre point (degrees) 
 // omega:    the fraction of the total path over water
 // [return]: p, the annual equivalent time percentage of the worst-month time percentage
-double ITURP_452_18::_AnnualEquivalentTimePercent(double pw, double lat, double omega)
+double ITURP_452_18::AnnualEquivalentTimePercent(double pw, double lat, double omega)
 {
 constexpr double PI_ON_180 = 0.017453292519943295769;
 double p;
@@ -287,7 +287,7 @@ double GL;
 // dtm:      longest continuous land (inland + coastal) section of the great-circle path (km)
 // dlm:      longest continuous inland section of the great-circle path (km)
 // [return]: B0, the time percentage for which refractivity lapse-rates exceeding 100 N-units/km can be expected in the first 100 m of the lower atmosphere (%)
-double ITURP_452_18::_B0(double lat, double dtm, double dlm)
+double ITURP_452_18::B0Calc(double lat, double dtm, double dlm)
 {
 double B0;
 double abslat = fabs(lat);
@@ -316,8 +316,8 @@ double tau, u1, u4;
 // lops:      length of path sections profile of n points (km)
 // [out] dtm: longest continuous land (inland + coastal) section of the great-circle path (km)
 // [out] dlm: longest continuous inland section of the great-circle path (km)
-void ITURP_452_18::_LongestContinuousLand(double dn, unsigned int n, const RadioClimaticZone* rcz,
-                                          const double* lops, double &dtm, double& dlm)
+void ITURP_452_18::LongestContinuousLand(double dn, unsigned int n, const RadioClimaticZone* rcz,
+                                         const double* lops, double &dtm, double& dlm)
 {
 	dtm = 0;
 	dlm = 0;
@@ -365,7 +365,7 @@ void ITURP_452_18::_LongestContinuousLand(double dn, unsigned int n, const Radio
 // rcz:      radio climatic zone profile of n points (if set to nullptr, INLAND is assumed)
 // lops:     length of path sections profile of n points (km)
 // [return]: omega, the fraction of the total path over water [0, 1]
-double ITURP_452_18::_OverWaterPercent(double dn, unsigned int n, const RadioClimaticZone* rcz, const double* lops)
+double ITURP_452_18::OverWaterPercent(double dn, unsigned int n, const RadioClimaticZone* rcz, const double* lops)
 {
 double db = 0.0; // Aggregate length of the path sections over water (km)
 double omega;
@@ -400,7 +400,7 @@ unsigned int waterSectionCount = 0;
 // P:        atmospheric pressure (hPa)
 // TK:       temperature (K)
 // [return]: Ag, the total gaseous absorption (dB)
-double ITURP_452_18::_TotalGaseousAbsorption(double f, double hts, double hrs, double dn, double rho, double P, double TK)
+double ITURP_452_18::TotalGaseousAbsorption(double f, double hts, double hrs, double dn, double rho, double P, double TK)
 {
 double Ag;
 double dfs, dh;
@@ -430,8 +430,8 @@ double yo, yw;
 // [out] Lbfsg: basic transmission loss due to free-space propagation and attenuation by atmospheric gases (dB)
 // [out] Lb0p:  basic transmission loss not exceeded for time percentage, p%, due to LoS propagation (dB)
 // [out] Lb0B:  basic transmission loss not exceeded for time percentage, B0%, due to LoS propagation (dB)
-void ITURP_452_18::_LoSPropagationLoss(double f, double p, double B0, double hts, double hrs, double dn, double dlt, double dlr,
-                                       double omega, double P, double TK, double& Lbfsg, double& Lb0p, double& Lb0B)
+void ITURP_452_18::LoSPropagationLoss(double f, double p, double B0, double hts, double hrs, double dn, double dlt, double dlr,
+                                      double omega, double P, double TK, double& Lbfsg, double& Lb0p, double& Lb0B)
 {
 double dfs; // distance between the transmit and receive antennas (km)
 double deltah = (hts-hrs)/1000.0;
@@ -442,7 +442,7 @@ double rho = 7.5+(2.5*omega);
 double Ag;
 
 	dfs = sqrt(dn*dn + deltah*deltah); 
-	Ag = _TotalGaseousAbsorption(f, hts, hrs, dn, rho, P, TK);
+	Ag = TotalGaseousAbsorption(f, hts, hrs, dn, rho, P, TK);
 	Lbfsg = 92.4 + 20*log10(f) + 20*log10(dfs) + Ag;
 
 	Esp = Es * log10(p/50.0);
@@ -461,7 +461,7 @@ double Ag;
 // d:        distance from transmitter profile of n points (km)
 // g:        terrain height (m amsl) + representative clutter height (m) profile of n points
 // [return]: Bullington diffraction loss (dB)
-double ITURP_452_18::_BullingtonDiffractionLoss(double f, double htc, double hrc, double Ce, unsigned int n, const double* d, const double* g)
+double ITURP_452_18::BullingtonDiffractionLoss(double f, double htc, double hrc, double Ce, unsigned int n, const double* d, const double* g)
 {
 double Lbull;
 double dn = d[n-1];
@@ -516,7 +516,7 @@ double v;
 // htesph:   effective transmitting antenna height (m)
 // hresph:   effective receiving antenna height (m)
 // [return]: spherical Earth diffraction loss (dB)
-double ITURP_452_18::_SphericalEarthDiffractionLoss(double f, bool vpol, double dn, double ap, double omega, double htesph, double hresph)
+double ITURP_452_18::SphericalEarthDiffractionLoss(double f, bool vpol, double dn, double ap, double omega, double htesph, double hresph)
 {
 double Ldsph;
 double dlos;
@@ -524,7 +524,7 @@ double dlos;
 	dlos = sqrt(2*ap)*(sqrt(0.001*htesph)+sqrt(0.001*hresph));
 
 	if( dn >= dlos )
-		Ldsph = _FirstTermSphericalEarthDiffractionLoss(f, vpol, dn, ap, omega, htesph, hresph);
+		Ldsph = FirstTermSphericalEarthDiffractionLoss(f, vpol, dn, ap, omega, htesph, hresph);
 	else
 	{
 	constexpr double PI = 3.14159265358979323846;
@@ -549,7 +549,7 @@ double dlos;
 
 			x = dn/(sqrt(htesph)+sqrt(hresph));
 			aem = 500.0*x*x;
-			Ldft = _FirstTermSphericalEarthDiffractionLoss(f, vpol, dn, aem, omega, htesph, hresph);
+			Ldft = FirstTermSphericalEarthDiffractionLoss(f, vpol, dn, aem, omega, htesph, hresph);
 			if( Ldft < 0 )
 				Ldsph = 0;
 			else
@@ -569,16 +569,16 @@ double dlos;
 // htesph:   effective transmitting antenna height (m)
 // hresph:   effective receiving antenna height (m)
 // [return]: first term spherical Earth diffraction loss (dB)
-double ITURP_452_18::_FirstTermSphericalEarthDiffractionLoss(double f, bool vpol, double dn, double adft, double omega, double htesph, double hresph)
+double ITURP_452_18::FirstTermSphericalEarthDiffractionLoss(double f, bool vpol, double dn, double adft, double omega, double htesph, double hresph)
 {
 double Ldftland = 0;
 double Ldftsea = 0;
 double Ldft;
 
 	if( omega != 1.0 )
-		Ldftland = _FirstTermSubCalculation(f, vpol, dn, adft, 22.0, 0.003, htesph, hresph);
+		Ldftland = FirstTermSubCalculation(f, vpol, dn, adft, 22.0, 0.003, htesph, hresph);
 	if( omega != 0.0 )
-		Ldftsea = _FirstTermSubCalculation(f, vpol, dn, adft, 80.0, 5.0, htesph, hresph);
+		Ldftsea = FirstTermSubCalculation(f, vpol, dn, adft, 80.0, 5.0, htesph, hresph);
 	Ldft = omega*Ldftsea + (1.0-omega)*Ldftland;
 
 	return Ldft;
@@ -594,7 +594,7 @@ double Ldft;
 // htesph:   effective transmitting antenna height (m)
 // hresph:   effective receiving antenna height (m)
 // [return]: first term spherical Earth diffraction loss (dB)
-double ITURP_452_18::_FirstTermSubCalculation(double f, bool vpol, double dn, double adft, double perm, double conduct, double htesph, double hresph)
+double ITURP_452_18::FirstTermSubCalculation(double f, bool vpol, double dn, double adft, double perm, double conduct, double htesph, double hresph)
 {
 double Ldft;
 double K, K2, K4;
@@ -645,12 +645,12 @@ double X, Fx, Yt, Yr;
 // cc:            clutter category profile of n points
 // rch:           representative clutter height profile of n points (m)
 // [out] gVector: vector of terrain height (m amsl) + representative clutter height (m) of n elements
-void ITURP_452_18::_gProfile(unsigned int n, const double* d, const double* h, const ClutterCategory* cc,
-                             const double* rch, std::vector<double>& gVector)
+void ITURP_452_18::GProfile(unsigned int n, const double* d, const double* h, const ClutterCategory* cc,
+                            const double* rch, std::vector<double>& gVector)
 {
 double dn = d[n-1];
 double graceDistKm = 0.050;
-double openRuralRepHeight = _reprHeight(ClutterCategory::OPEN_RURAL);
+double openRuralRepHeight = ReprHeight(ClutterCategory::OPEN_RURAL);
 
 	gVector.reserve(n);
 	gVector.push_back(h[0]);
@@ -662,7 +662,7 @@ double openRuralRepHeight = _reprHeight(ClutterCategory::OPEN_RURAL);
 			if( rch != nullptr )
 				gi += rch[i];
 			else if( cc != nullptr )
-				gi += _reprHeight(cc[i]);
+				gi += ReprHeight(cc[i]);
 			else
 				gi += openRuralRepHeight;
 		}
@@ -672,7 +672,7 @@ double openRuralRepHeight = _reprHeight(ClutterCategory::OPEN_RURAL);
 }
 
 // ITU-R P.452-18, Annex 1, Section 3.2.1 (Step 4, TABLE 3)
-double ITURP_452_18::_reprHeight(ClutterCategory cc)
+double ITURP_452_18::ReprHeight(ClutterCategory cc)
 {
 	switch (cc)
 	{
@@ -705,19 +705,19 @@ double ITURP_452_18::_reprHeight(ClutterCategory cc)
 // hstd:     modified smooth-Earth surface at the transmitting station location (m amsl)
 // hsrd:     modified smooth-Earth surface at the receiving station location (m amsl)
 // [return]: Complete "delta-Bullington" diffraction loss (dB)
-double ITURP_452_18::_DeltaBullingtonDiffractionLoss(double f, double htc, double hrc, bool vpol, double ap, double Ce, unsigned int n, const double* d,
-                                                     const double* g, double omega, double hstd, double hsrd)
+double ITURP_452_18::DeltaBullingtonDiffractionLoss(double f, double htc, double hrc, bool vpol, double ap, double Ce, unsigned int n, const double* d,
+                                                    const double* g, double omega, double hstd, double hsrd)
 {
 double Lbulla, Lbulls, Ldsph, Ld;
 double htcPrime, hrcPrime;
 std::vector<double> g0Vector(n, 0.0);
 const double* g0 = g0Vector.data();
 
-	Lbulla = _BullingtonDiffractionLoss(f, htc, hrc, Ce, n, d, g);
+	Lbulla = BullingtonDiffractionLoss(f, htc, hrc, Ce, n, d, g);
 	htcPrime = htc - hstd;
 	hrcPrime = hrc - hsrd;
-	Lbulls = _BullingtonDiffractionLoss(f, htcPrime, hrcPrime, Ce, n, d, g0);
-	Ldsph = _SphericalEarthDiffractionLoss(f, vpol, d[n-1], ap, omega, htcPrime, hrcPrime);
+	Lbulls = BullingtonDiffractionLoss(f, htcPrime, hrcPrime, Ce, n, d, g0);
+	Ldsph = SphericalEarthDiffractionLoss(f, vpol, d[n-1], ap, omega, htcPrime, hrcPrime);
 	Ld = Lbulla + std::max(Ldsph-Lbulls, 0.0);
 	return Ld;
 }
@@ -742,12 +742,12 @@ const double* g0 = g0Vector.data();
 // [out] Ldp:   diffraction loss not exceeded for p% time (dB)
 // [out] Lbd50: median basic transmission loss associated with diffraction (dB)
 // [out] Lbd:   basic transmission loss associated with diffraction not exceeded for p% time (dB)
-void ITURP_452_18::_DiffractionLoss(double f, double p, double B0, double htc, double hrc, bool vpol, double ae, double aB, unsigned int n, const double* d,
-                                    const double* g, double omega, double hstd, double hsrd, double Lbfs, double Lb0p, double& Ldp, double& Lbd50, double& Lbd)
+void ITURP_452_18::DiffractionLoss(double f, double p, double B0, double htc, double hrc, bool vpol, double ae, double aB, unsigned int n, const double* d,
+                                   const double* g, double omega, double hstd, double hsrd, double Lbfs, double Lb0p, double& Ldp, double& Lbd50, double& Lbd)
 {
 double Ld50;
 
-	Ld50 = _DeltaBullingtonDiffractionLoss(f, htc, hrc, vpol, ae, 1.0/ae, n, d, g, omega, hstd, hsrd);
+	Ld50 = DeltaBullingtonDiffractionLoss(f, htc, hrc, vpol, ae, 1.0/ae, n, d, g, omega, hstd, hsrd);
 
 	if( p > 49.99 && p < 50.01 ) // if roughly evaluates to 50%
 		Ldp = Ld50;
@@ -755,9 +755,9 @@ double Ld50;
 	{
 	double LdB, Fi;
 
-		LdB = _DeltaBullingtonDiffractionLoss(f, htc, hrc, vpol, aB, 1.0/aB, n, d, g, omega, hstd, hsrd);
+		LdB = DeltaBullingtonDiffractionLoss(f, htc, hrc, vpol, aB, 1.0/aB, n, d, g, omega, hstd, hsrd);
 		if( p > B0 )
-			Fi = _I(p/100.0)/_I(B0/100.0);
+			Fi = I(p/100.0)/I(B0/100.0);
 		else
 			Fi = 1;
 		Ldp = Ld50 + (LdB-Ld50)*Fi;
@@ -779,7 +779,7 @@ double Ld50;
 // P:        atmospheric pressure (hPa)
 // TK:       temperature (K)
 // [return]: Lbs, basic transmission loss due to troposcatter (dB)
-double ITURP_452_18::_TroposcatterLoss(double f, double p, double Gt, double Gr, double dn, double theta, double N0, double P, double TK)
+double ITURP_452_18::TroposcatterLoss(double f, double p, double Gt, double Gr, double dn, double theta, double N0, double P, double TK)
 {
 double Lf, Lbs, Lc, Ag;
 
@@ -790,7 +790,7 @@ double Lf, Lbs, Lc, Ag;
 	//       for the line-of-sight propagation losses. It is not that clear from the recommendation
 	//       document itself whether hts and hrs should be used here ; in any case, the impact on the
 	//       overall result is negligible.
-	Ag = _TotalGaseousAbsorption(f, 0 /*hts*/, 0 /*hrs*/, dn, 3.0, P, TK);
+	Ag = TotalGaseousAbsorption(f, 0 /*hts*/, 0 /*hrs*/, dn, 3.0, P, TK);
 
 	Lbs = 190.0 + Lf + 20.0*log10(dn) + 0.573*theta - 0.15*N0 + Lc + Ag - 10.1*pow(-log10(p/50.0), 0.7);
 
@@ -819,9 +819,9 @@ double Lf, Lbs, Lc, Ag;
 // P:            atmospheric pressure (hPa)
 // TK:           temperature (K)
 // [return] Lba: basic transmission loss associated with ducting/layer-reflection not exceeded for p% time (dB)
-double ITURP_452_18::_DuctingLayerReflectionLoss(double f, double p, double ae, double B0, double dlm, double dn, double hts, double hrs,
-                                                 double dlt, double dlr, double thetat, double thetar, double hte, double hre, double hm,
-                                                 double omega, double dct, double dcr, double P, double TK)
+double ITURP_452_18::DuctingLayerReflectionLoss(double f, double p, double ae, double B0, double dlm, double dn, double hts, double hrs,
+                                                double dlt, double dlr, double thetat, double thetar, double hte, double hre, double hm,
+                                                double omega, double dct, double dcr, double P, double TK)
 {
 double thetaPPt, thetaPPr, Af, Adp, Alf, Ast, Asr, Act, Acr;
 double yd, Ap, gamma, thetaP, thetaPt, thetaPr, B, logB, tau, u2, u3, alpha;
@@ -880,7 +880,7 @@ double Lba;
 	//       document itself whether hts and hrs should be used here ; in any case, the impact on the
 	//       overall result is negligible.
 	rho = 7.5+(2.5*omega);
-	Ag = _TotalGaseousAbsorption(f, 0 /*hts*/, 0 /*hrs*/, dn, rho, P, TK);
+	Ag = TotalGaseousAbsorption(f, 0 /*hts*/, 0 /*hrs*/, dn, rho, P, TK);
 
 	Lba = Af + Adp + Ag;
 
@@ -906,9 +906,9 @@ double Lba;
 // Lbd:      basic transmission loss for diffraction not exceeded for p% time (dB)
 // Lbs:      basic transmission loss due to troposcatter (dB)
 // [return]: Lb, basic transmission loss not exceeded for p% time and 50% locations (dB)
-double ITURP_452_18::_OverallPrediction(double p, double B0, double dn, double omega, double htc, double hrc, double ae, 
-                                        unsigned int n, const double* d, const double* h, double Lb0p, double Lb0B, double Ldp,
-                                        double Lbd50, double Lba, double Lbd, double Lbs)
+double ITURP_452_18::OverallPrediction(double p, double B0, double dn, double omega, double htc, double hrc, double ae, 
+                                       unsigned int n, const double* d, const double* h, double Lb0p, double Lb0B, double Ldp,
+                                       double Lbd50, double Lba, double Lbd, double Lbs)
 {
 double Fj, Stim, Str;
 double Ce = 1.0/ae;
@@ -926,7 +926,7 @@ double Lminb0p, Lminbap, Lbda, Lbam, Lb;
 	else
 	{
 		if( p > B0 )
-			Fi = _I(p/100.0)/_I(B0/100.0);
+			Fi = I(p/100.0)/I(B0/100.0);
 		else
 			Fi = 1;
 		Lminb0p = Lbd50 + (Lb0B + (1.0-omega)*Ldp - Lbd50)*Fi;
@@ -967,9 +967,9 @@ double Lminb0p, Lminbap, Lbda, Lbam, Lb;
 // [out] hte:    effective height of the transmitting antenna for the ducting/layer-reflection model (m)
 // [out] hre:    effective height of the receiving antenna for the ducting/layer-reflection model (m)
 // [out] hm:     terrain roughness (m)
-void ITURP_452_18::_PathProfileParameters(double f, double htg, double hrg, unsigned int n,const double* d, const double* h, double ae,
-                                          double& dlt, double& dlr, double& thetat, double& thetar, double& theta, double& hstd, double& hsrd,
-                                          double& hte, double& hre, double& hm)
+void ITURP_452_18::PathProfileParameters(double f, double htg, double hrg, unsigned int n,const double* d, const double* h, double ae,
+                                         double& dlt, double& dlr, double& thetat, double& thetar, double& theta, double& hstd, double& hsrd,
+                                         double& hte, double& hre, double& hm)
 {
 double hts = h[0] + htg;
 double hrs = h[n-1] + hrg;
@@ -981,8 +981,8 @@ unsigned int ilr; // index of the profile point at distance dlr from the receive
 bool isLoS;
 double hst, hsr;
 
-	_MaxTxToTerrainElevationAngle(hts, n, d, h, ae, theta_max, theta_max_dist_index);
-	theta_td = _ElevationAngle(hts, hrs, dn, ae); // elevation angle from the transmit to the receive antenna (mrad)
+	MaxTxToTerrainElevationAngle(hts, n, d, h, ae, theta_max, theta_max_dist_index);
+	theta_td = ElevationAngle(hts, hrs, dn, ae); // elevation angle from the transmit to the receive antenna (mrad)
 	isLoS = !(theta_max > theta_td);
 	thetat = std::max(theta_max, theta_td);
 	if( isLoS == false )
@@ -991,27 +991,27 @@ double hst, hsr;
 	{
 	double Ce = 1.0/ae; // section 3.8 of Annex 1 mentions to use ae for the path profile analysis
 
-		ilt = _LoSMaxDiffractionDist(f, hts, hrs, n, d, h, Ce);
+		ilt = LoSMaxDiffractionDist(f, hts, hrs, n, d, h, Ce);
 	}
 	dlt = d[ilt];
 
 	if( isLoS == true )
 	{
-		thetar = _ElevationAngle(hrs, hts, dn, ae); // elevation angle from the receive to the transmit antenna (mrad)
+		thetar = ElevationAngle(hrs, hts, dn, ae); // elevation angle from the receive to the transmit antenna (mrad)
 		dlr = dn - dlt;
 		ilr = ilt;
 	}
 	else
 	{
-		_MaxRxToTerrainElevationAngle(hrs, n, d, h, ae, thetar, ilr);
+		MaxRxToTerrainElevationAngle(hrs, n, d, h, ae, thetar, ilr);
 		dlr = dn - d[ilr];
 	}
 
 	theta = (1000*dn/ae) + thetat + thetar;
 
-	_SmoothEarthHeights(n, d, h, hst, hsr);
-	_SmoothEarthHeightsForDiffractionModel(hts, hrs, n, d, h, hst, hsr, hstd, hsrd);
-	_EffectiveHeightsAndTerrainRoughness(htg, hrg, n, d, h, hst, hsr, ilt, ilr, hte, hre, hm);
+	SmoothEarthHeights(n, d, h, hst, hsr);
+	SmoothEarthHeightsForDiffractionModel(hts, hrs, n, d, h, hst, hsr, hstd, hsrd);
+	EffectiveHeightsAndTerrainRoughness(htg, hrg, n, d, h, hst, hsr, ilt, ilr, hte, hre, hm);
 }
 
 // ITU-R P.452-18, Attachment 2 to Annex 1, Section 4 & 5.1.3
@@ -1020,7 +1020,7 @@ double hst, hsr;
 // distKm:     great-circle path distance between the two aforementioned locations (km)
 // ae:         median effective Earth radius (km)
 // [return]:   elevation angle above local horizontal (mrad)
-double ITURP_452_18::_ElevationAngle(double hamsl_from, double hamsl_to, double distKm, double ae)
+double ITURP_452_18::ElevationAngle(double hamsl_from, double hamsl_to, double distKm, double ae)
 {
 double theta = 1000.0*atan(((hamsl_to-hamsl_from)/(1000.0*distKm))-(distKm/(2.0*ae)));
 
@@ -1036,14 +1036,14 @@ double theta = 1000.0*atan(((hamsl_to-hamsl_from)/(1000.0*distKm))-(distKm/(2.0*
 // [out] theta_max: physical horizon elevation angle as seen by the transmitting antenna (relative to the local horizontal) (mrad)
 //                  i.e. maximum elevation angle from transmitter antenna to terrain elements
 // [out] dindex:    index of distance to transmitter profile d for which theta_max was found.
-void ITURP_452_18::_MaxTxToTerrainElevationAngle(double hts, unsigned int n, const double* d, const double* h,
-                                                 double ae, double& theta_max, unsigned int& dindex)
+void ITURP_452_18::MaxTxToTerrainElevationAngle(double hts, unsigned int n, const double* d, const double* h,
+                                                double ae, double& theta_max, unsigned int& dindex)
 {
 	theta_max = std::numeric_limits<double>::lowest();
 	dindex = 0;
 	for(unsigned int i=1 ; i<n-1 ; i++) // excludes transmit and receive locations
 	{
-		double theta_i = _ElevationAngle(hts, h[i], d[i], ae);
+		double theta_i = ElevationAngle(hts, h[i], d[i], ae);
 		if( theta_i > theta_max )
 		{
 			theta_max = theta_i;
@@ -1061,7 +1061,7 @@ void ITURP_452_18::_MaxTxToTerrainElevationAngle(double hts, unsigned int n, con
 // h:        terrain height profile of n elements (m above mean sea level)
 // Ce:       effective Earth curvature (1/km)
 // [return]: index of distance to transmitter profile d for which the maximum diffraction parameter was calculated.
-unsigned int ITURP_452_18::_LoSMaxDiffractionDist(double f, double hts, double hrs, unsigned int n, const double* d, const double *h, double Ce)
+unsigned int ITURP_452_18::LoSMaxDiffractionDist(double f, double hts, double hrs, unsigned int n, const double* d, const double *h, double Ce)
 {
 double dn = d[n-1];
 double vmax = std::numeric_limits<double>::lowest();
@@ -1089,8 +1089,8 @@ double dindex = 0;
 // [out] theta_max: physical horizon elevation angle as seen by the receiving antenna (relative to the local horizontal) (mrad)
 //                  i.e. maximum elevation angle from receiving antenna to terrain elements
 // [out] dindex:    index of distance to transmitter profile d for which theta_max was found.
-void ITURP_452_18::_MaxRxToTerrainElevationAngle(double hrs, unsigned int n, const double* d, const double* h,
-                                                 double ae, double& theta_max, unsigned int& dindex)
+void ITURP_452_18::MaxRxToTerrainElevationAngle(double hrs, unsigned int n, const double* d, const double* h,
+                                                double ae, double& theta_max, unsigned int& dindex)
 {
 double dn = d[n-1];
 
@@ -1098,7 +1098,7 @@ double dn = d[n-1];
 	dindex = 0;
 	for(unsigned int j=1 ; j<n-1 ; j++) // excludes transmit and receive locations
 	{
-		double theta_j = _ElevationAngle(hrs, h[j], dn-d[j], ae);
+		double theta_j = ElevationAngle(hrs, h[j], dn-d[j], ae);
 		if( theta_j > theta_max )
 		{
 			theta_max = theta_j;
@@ -1113,7 +1113,7 @@ double dn = d[n-1];
 // h:         terrain height profile of n elements (m above mean sea level)
 // [out] hst: height of the smooth-Earth surface at the transmitting station location (m amsl)
 // [out] hsr: height of the smooth-Earth surface at the receiving station location (m amsl)
-void ITURP_452_18::_SmoothEarthHeights(unsigned int n, const double* d, const double* h, double& hst, double& hsr)
+void ITURP_452_18::SmoothEarthHeights(unsigned int n, const double* d, const double* h, double& hst, double& hsr)
 {
 double v1=0, v2=0;
 double dn = d[n-1];
@@ -1137,8 +1137,8 @@ double dn = d[n-1];
 // hsr:        height of the smooth-Earth surface at the receiving station location (m amsl)
 // [out] hstd: modified hst for the diffraction model (m amsl)
 // [out] hsrd: modified hsr for the diffraction model (m amsl)
-void ITURP_452_18::_SmoothEarthHeightsForDiffractionModel(double hts, double hrs, unsigned int n, const double* d, const double* h,
-                                                          double hst, double hsr, double& hstd, double& hsrd)
+void ITURP_452_18::SmoothEarthHeightsForDiffractionModel(double hts, double hrs, unsigned int n, const double* d, const double* h,
+                                                         double hst, double hsr, double& hstd, double& hsrd)
 {
 double htc = hts;
 double hrc = hrs;
@@ -1198,9 +1198,9 @@ double hstp, hsrp;
 // [out] hre: effective height of the receiving antenna for the ducting/layer-reflection model (m)
 // [out] hm:  terrain roughness (i.e. maximum height of the terrain above the smooth-Earth
 //            surface in the section of the path between, and including, the horizon points) (m)
-void ITURP_452_18::_EffectiveHeightsAndTerrainRoughness(double htg, double hrg, unsigned int n, const double* d, const double* h,
-                                                        double hst, double hsr, unsigned int ilt, unsigned int ilr, 
-                                                        double& hte, double& hre, double& hm)
+void ITURP_452_18::EffectiveHeightsAndTerrainRoughness(double htg, double hrg, unsigned int n, const double* d, const double* h,
+                                                       double hst, double hsr, unsigned int ilt, unsigned int ilr, 
+                                                       double& hte, double& hre, double& hm)
 {
 double h1 = h[0];
 double hn = h[n-1];
@@ -1222,7 +1222,7 @@ double m;
 
 // ITU-R P.452-18, Attachment 3 to Annex 1
 // [return]: an approximation to the inverse complementary cumulative normal distribution function
-double ITURP_452_18::_I(double x)
+double ITURP_452_18::I(double x)
 {
 constexpr double C0 = 2.515516698;
 constexpr double C1 = 0.802853;
@@ -1252,7 +1252,7 @@ constexpr double D3 = 0.001308;
 		return Xi(1.0-x) - T(1.0-x);
 }
 
-bool ITURP_452_18::_IsAUTO(double param)
+bool ITURP_452_18::IsAUTO(double param)
 {
 	return std::isnan(param);
 }

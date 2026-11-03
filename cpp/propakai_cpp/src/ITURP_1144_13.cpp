@@ -55,7 +55,7 @@ bool ITURP_1144_13::InitDigitalMap(std::vector<double>& digitalMapVect, size_t e
 		return false;
 	}
 
-    if (!ReadDigitalMapFile_(digitalMapVect, pathname))
+    if (!ReadDigitalMapFile(digitalMapVect, pathname))
 	{
         digitalMapVect.clear();
         return false;
@@ -64,7 +64,7 @@ bool ITURP_1144_13::InitDigitalMap(std::vector<double>& digitalMapVect, size_t e
     return true;
 }
 
-bool ITURP_1144_13::ReadDigitalMapFile_(std::vector<double>& digitalMapVect, const char* pathname)
+bool ITURP_1144_13::ReadDigitalMapFile(std::vector<double>& digitalMapVect, const char* pathname)
 {
     std::ifstream txtFile(pathname);
     if (!txtFile.is_open())

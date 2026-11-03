@@ -45,47 +45,47 @@ public:
 	static double FieldStrength(double f, double Lb);
 
 protected:
-	static constexpr size_t _DN50_SIZE = 29161;
-	static std::vector<double> _DN50_Vect;
-	static constexpr size_t _N050_SIZE = 29161;
-	static std::vector<double> _N050_Vect;
+	static constexpr size_t DN50_SIZE_ = 29161;
+	static std::vector<double> DN50_Vect_;
+	static constexpr size_t N050_SIZE_ = 29161;
+	static std::vector<double> N050_Vect_;
 
-	static double _DN50(double lat, double lon);
-	static double _N050(double lat, double lon);
-	static void _LengthOfPathSectionsProfile(unsigned int n, const double* d, std::vector<double>& lopsVector);
-	static double _Dct(unsigned int n, const RadioClimaticZone* rcz, const double* lops);
-	static double _Dcr(unsigned int n, const RadioClimaticZone* rcz, const double* lops);
-	static void _gProfile(unsigned int n, const double* h, const ClutterCategory* cc, const double* rch, const double* sh, std::vector<double>& gVector, double& R);
-	static double _reprHeight(ClutterCategory cc);
-	static void _LongestContinuousLand(double dn, unsigned int n, const RadioClimaticZone* rcz, const double* lops, double &dtm, double& dlm);
-	static double _B0(double lat, double dtm, double dlm);
-	static void _EffectiveEarthRadius(double deltaN, double& ae, double& aB);
-	static double _OverWaterPercent(double dn, unsigned int n, const RadioClimaticZone* rcz, const double* lops);
-	static void _LoSPropagationLoss(double f, double p, double B0, double hts, double hrs, double dn, double dlt, double dlr, double& Lbfs, double& Lb0p, double& Lb0B);
-	static double _BullingtonDiffractionLoss(double f, double htc, double hrc, double Ce, unsigned int n, const double* d, const double* g);
-	static double _SphericalEarthDiffractionLoss(double f, bool vpol, double dn, double ap, double omega, double htesph, double hresph);
-	static double _FirstTermSphericalEarthDiffractionLoss(double f, bool vpol, double dn, double adft, double omega, double htesph, double hresph);
-	static double _FirstTermSubCalculation(double f, bool vpol, double dn, double adft, double perm, double conduct, double htesph, double hresph);
-	static double _DeltaBullingtonDiffractionLoss(double f, double htc, double hrc, bool vpol, double ap, double Ce, unsigned int n, const double* d, const double* g, double omega, double hstd, double hsrd);
-	static void _DiffractionLoss(double f, double p, double B0, double htc, double hrc, bool vpol, double ae, double aB, unsigned int n, const double* d, const double* g, double omega, double hstd, double hsrd, double Lbfs, double Lb0p, double& Ldp, double& Lbd50, double& Lbd);
-	static double _TroposcatterLoss(double f, double p, double dn, double theta, double N0);
-	static double _DuctingLayerReflectionLoss(double f, double p, double ae, double B0, double dlm, double dn, double hts, double hrs, double dlt, double dlr, double thetat, double thetar, double hte, double hre, double hm, double omega, double dct, double dcr);
-	static double _50PLocBasicTransmissionLoss(double p, double B0, double dn, double theta, double omega, double Lb0p, double Lb0B, double Ldp, double Lbd50, double Lba, double Lbd, double Lbs);
-	static double _BasicTransmissionLoss(double f, double wa, double pL, double hrg, double R, double Lb0p, double Lbc);
-	static void _PathProfileParameters(double f, double htg, double hrg, unsigned int n, const double* d, const double* h, double ae, double& dlt, double& dlr, double& thetat, double& thetar, double& theta, double& hstd, double& hsrd, double& hte, double& hre, double& hm);
-	static double _ElevationAngle(double hamsl_from, double hamsl_to, double distKm, double ae);
-	static void _MaxTxToTerrainElevationAngle(double hts, unsigned int n, const double* d, const double* h, double ae, double& theta_max, unsigned int& dindex);
-	static unsigned int _LoSMaxDiffractionDist(double f, double hts, double hrs, unsigned int n, const double* d, const double* h, double Ce);
-	static void _MaxRxToTerrainElevationAngle(double hrs, unsigned int n, const double* d, const double* h, double ae, double& theta_max, unsigned int& dindex);
-	static void _SmoothEarthHeights(unsigned int n, const double* d, const double* h, double& hst, double& hsr);
-	static void _SmoothEarthHeightsForDiffractionModel(double hts, double hrs, unsigned int n, const double* d, const double* h, double hst, double hsr, double& hstd, double& hsrd);
-	static void _EffectiveHeightsAndTerrainRoughness(double htg, double hrg, unsigned int n, const double* d, const double* h, double hst, double hsr, unsigned int ilt, unsigned int ilr, double& hte, double& hre, double& hm);
-	static double _I(double x);
-	static bool _IsAUTO(double param);
+	static double DN50(double lat, double lon);
+	static double N050(double lat, double lon);
+	static void LengthOfPathSectionsProfile(unsigned int n, const double* d, std::vector<double>& lopsVector);
+	static double Dct(unsigned int n, const RadioClimaticZone* rcz, const double* lops);
+	static double Dcr(unsigned int n, const RadioClimaticZone* rcz, const double* lops);
+	static void GProfile(unsigned int n, const double* h, const ClutterCategory* cc, const double* rch, const double* sh, std::vector<double>& gVector, double& R);
+	static double ReprHeight(ClutterCategory cc);
+	static void LongestContinuousLand(double dn, unsigned int n, const RadioClimaticZone* rcz, const double* lops, double &dtm, double& dlm);
+	static double B0Calc(double lat, double dtm, double dlm);
+	static void EffectiveEarthRadius(double deltaN, double& ae, double& aB);
+	static double OverWaterPercent(double dn, unsigned int n, const RadioClimaticZone* rcz, const double* lops);
+	static void LoSPropagationLoss(double f, double p, double B0, double hts, double hrs, double dn, double dlt, double dlr, double& Lbfs, double& Lb0p, double& Lb0B);
+	static double BullingtonDiffractionLoss(double f, double htc, double hrc, double Ce, unsigned int n, const double* d, const double* g);
+	static double SphericalEarthDiffractionLoss(double f, bool vpol, double dn, double ap, double omega, double htesph, double hresph);
+	static double FirstTermSphericalEarthDiffractionLoss(double f, bool vpol, double dn, double adft, double omega, double htesph, double hresph);
+	static double FirstTermSubCalculation(double f, bool vpol, double dn, double adft, double perm, double conduct, double htesph, double hresph);
+	static double DeltaBullingtonDiffractionLoss(double f, double htc, double hrc, bool vpol, double ap, double Ce, unsigned int n, const double* d, const double* g, double omega, double hstd, double hsrd);
+	static void DiffractionLoss(double f, double p, double B0, double htc, double hrc, bool vpol, double ae, double aB, unsigned int n, const double* d, const double* g, double omega, double hstd, double hsrd, double Lbfs, double Lb0p, double& Ldp, double& Lbd50, double& Lbd);
+	static double TroposcatterLoss(double f, double p, double dn, double theta, double N0);
+	static double DuctingLayerReflectionLoss(double f, double p, double ae, double B0, double dlm, double dn, double hts, double hrs, double dlt, double dlr, double thetat, double thetar, double hte, double hre, double hm, double omega, double dct, double dcr);
+	static double Loc50BasicTransmissionLoss(double p, double B0, double dn, double theta, double omega, double Lb0p, double Lb0B, double Ldp, double Lbd50, double Lba, double Lbd, double Lbs);
+	static double BasicTransmissionLoss(double f, double wa, double pL, double hrg, double R, double Lb0p, double Lbc);
+	static void PathProfileParameters(double f, double htg, double hrg, unsigned int n, const double* d, const double* h, double ae, double& dlt, double& dlr, double& thetat, double& thetar, double& theta, double& hstd, double& hsrd, double& hte, double& hre, double& hm);
+	static double ElevationAngle(double hamsl_from, double hamsl_to, double distKm, double ae);
+	static void MaxTxToTerrainElevationAngle(double hts, unsigned int n, const double* d, const double* h, double ae, double& theta_max, unsigned int& dindex);
+	static unsigned int LoSMaxDiffractionDist(double f, double hts, double hrs, unsigned int n, const double* d, const double* h, double Ce);
+	static void MaxRxToTerrainElevationAngle(double hrs, unsigned int n, const double* d, const double* h, double ae, double& theta_max, unsigned int& dindex);
+	static void SmoothEarthHeights(unsigned int n, const double* d, const double* h, double& hst, double& hsr);
+	static void SmoothEarthHeightsForDiffractionModel(double hts, double hrs, unsigned int n, const double* d, const double* h, double hst, double hsr, double& hstd, double& hsrd);
+	static void EffectiveHeightsAndTerrainRoughness(double htg, double hrg, unsigned int n, const double* d, const double* h, double hst, double hsr, unsigned int ilt, unsigned int ilr, double& hte, double& hre, double& hm);
+	static double I(double x);
+	static bool IsAUTO(double param);
 
 private:
 	// Prevent instantiation
-	ITURP_1812_8() = delete;                               // Delete default constructor
+	ITURP_1812_8() = delete;                                 // Delete default constructor
 	ITURP_1812_8(const ITURP_1812_8&) = delete;              // Delete copy constructor
 	ITURP_1812_8(ITURP_1812_8&&) = delete;                   // Delete move constructor
 	ITURP_1812_8& operator=(const ITURP_1812_8&) = delete;   // Delete copy assignment

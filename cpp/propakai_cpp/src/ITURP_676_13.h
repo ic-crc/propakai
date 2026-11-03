@@ -16,12 +16,12 @@ public:
 	static double AttenuationDueToWaterVapour(double f, double P=1013.25, double TK=288.15, double rho=7.5);
 
 protected:
-	static double _NppOxygen(double f, double P, double TK, double rho);
-	static double _NppWaterVapour(double f, double P, double TK, double rho);
-	static double _NppD(double f, double P, double TK, double rho);
+	static double NppOxygen(double f, double P, double TK, double rho);
+	static double NppWaterVapour(double f, double P, double TK, double rho);
+	static double NppD(double f, double P, double TK, double rho);
 
-	static const double _TABLE1[44][7];
-	static const double _TABLE2[35][7];
+	static const double TABLE1_[44][7];
+	static const double TABLE2_[35][7];
 
 private:
 	// Prevent instantiation
