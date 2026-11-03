@@ -7,6 +7,7 @@ const cpp_sources = &.{
     "src/API_ITURP_2109_2.cpp",
     "src/ITURP_452_18.cpp",
     "src/ITURP_676_13.cpp",
+    "src/ITURP_838_3.cpp",
     "src/ITURP_1057_7.cpp",
     "src/ITURP_1144_13.cpp",
     "src/ITURP_1812_8.cpp",

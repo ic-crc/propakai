@@ -19,8 +19,8 @@
 // [return]:            building entry loss (dB)
 double ITURP_2109_2::BuildingEntryLoss(double f_GHz, double probability_percent, double elevAngle_degrees, bool thermally_efficient)
 {
-    constexpr double BLDG_COEFFS[2][9] = {{12.64, 3.72, 0.96, 9.6, 2.0, 9.1, -3.0, 4.5, -2.0},
-	                                      {28.19, -3.00, 8.48, 13.5, 3.8, 27.8, -2.9, 9.4, -2.1}};
+    static constexpr double BLDG_COEFFS[2][9] = {{12.64, 3.72, 0.96, 9.6, 2.0, 9.1, -3.0, 4.5, -2.0},
+	                                             {28.19, -3.00, 8.48, 13.5, 3.8, 27.8, -2.9, 9.4, -2.1}};
 	
 	int i = 0;
 	if( thermally_efficient == true )
