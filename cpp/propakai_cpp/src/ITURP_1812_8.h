@@ -10,6 +10,7 @@
 #include <limits>
 #include <vector>
 #include <cstddef>
+#include "DigitalMap.h"
 
 
 class ITURP_1812_8
@@ -34,9 +35,6 @@ public:
 		DENSE_URBAN         = 5
 	};
 
-	static bool Init_DN50(const char* pathname);
-	static bool Init_N050(const char* pathname);
-
 	static double BasicTransmissionloss(double f, double p, double pL, double latt, double lont, double latr, double lonr, 
 	                                    double htg, double hrg, bool vpol, unsigned int n, const double* d, const double* h,
 	                                    const ClutterCategory* cc=nullptr, const double* rch=nullptr, const double* sh=nullptr, const RadioClimaticZone* rcz=nullptr,
@@ -45,13 +43,9 @@ public:
 	static double FieldStrength(double f, double Lb);
 
 protected:
-	static constexpr size_t DN50_SIZE_ = 29161;
-	static std::vector<double> DN50_Vect_;
-	static constexpr size_t N050_SIZE_ = 29161;
-	static std::vector<double> N050_Vect_;
+	static const DigitalMap s_DN50_map;
+	static const DigitalMap s_N050_map;
 
-	static double DN50(double lat, double lon);
-	static double N050(double lat, double lon);
 	static void LengthOfPathSectionsProfile(unsigned int n, const double* d, std::vector<double>& lopsVector);
 	static double Dct(unsigned int n, const RadioClimaticZone* rcz, const double* lops);
 	static double Dcr(unsigned int n, const RadioClimaticZone* rcz, const double* lops);

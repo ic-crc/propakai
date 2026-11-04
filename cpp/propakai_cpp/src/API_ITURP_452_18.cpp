@@ -10,16 +10,6 @@
 #include "ITURP_452_18.h"
 
 
-PROPAKAI_API bool P452_18_Load_DN50_DigitalMap(const char* pathname)
-{
-	return ITURP_452_18::Init_DN50(pathname);
-}
-
-PROPAKAI_API bool P452_18_Load_N050_DigitalMap(const char* pathname)
-{
-	return ITURP_452_18::Init_N050(pathname);
-}
-
 PROPAKAI_API double P452_18_AUTO_CONSTANT()
 {
 	return ITURP_452_18::AUTO;
@@ -31,8 +21,10 @@ PROPAKAI_API double P452_18_ClearAirBasicTransmissionLoss(
 	const double* h, const int* cc, const double* rch, const int* rcz,
 	double dct, double dcr, double P, double TC, double deltaN, double N0)
 {
-	return ITURP_452_18::ClearAirBasicTransmissionLoss(
-		f, p, worstMonth, latt, lont, latr, lonr, htg, hrg, Gt, Gr, vpol, n, d, h,
-		reinterpret_cast<const ITURP_452_18::ClutterCategory*>(cc), rch,
-		reinterpret_cast<const ITURP_452_18::RadioClimaticZone*>(rcz), dct, dcr, P, TC, deltaN, N0);
+	return ExecuteSafely([&]() {
+		return ITURP_452_18::ClearAirBasicTransmissionLoss(
+			f, p, worstMonth, latt, lont, latr, lonr, htg, hrg, Gt, Gr, vpol, n, d, h,
+			reinterpret_cast<const ITURP_452_18::ClutterCategory*>(cc), rch,
+			reinterpret_cast<const ITURP_452_18::RadioClimaticZone*>(rcz), dct, dcr, P, TC, deltaN, N0);
+	});
 }

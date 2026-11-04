@@ -13,5 +13,7 @@
 PROPAKAI_API double P2109_2_BuildingEntryLoss(double f_GHz, double probability_percent,
                                               double elevAngle_degrees, bool thermally_efficient)
 {
-	return ITURP_2109_2::BuildingEntryLoss(f_GHz, probability_percent, elevAngle_degrees, thermally_efficient);
+    return ExecuteSafely([&]() {
+	    return ITURP_2109_2::BuildingEntryLoss(f_GHz, probability_percent, elevAngle_degrees, thermally_efficient);
+    });
 }

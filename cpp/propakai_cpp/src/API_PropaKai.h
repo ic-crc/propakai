@@ -40,3 +40,52 @@
 #ifndef __cplusplus
 #include <stdbool.h> // for 'bool' in C
 #endif
+
+
+// ============================================================================
+// Internal Helper Templates (Only visible when compiling the library itself)
+// Use them to avoid letting any exception escape the dll/so/dylib boundaries.
+// ============================================================================
+#if defined(__cplusplus) && defined(BUILDING_PROPAKAI)
+
+#include <iostream>
+#include <limits>
+#include <exception>
+
+// Clean, short alias for quiet_NaN
+constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
+
+// 1. Default version: defaults to returning NaN (double), 
+//    unless you pass something else like -1 (int) or false (bool).
+template <typename Func, typename FallbackType = double>
+FallbackType ExecuteSafely(Func&& calculation, FallbackType fallbackValue = NaN) noexcept 
+{
+    try {
+        return calculation();
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[PropaKai (DSO) Error] " << e.what() << '\n';
+        return fallbackValue;
+    }
+    catch (...) {
+        std::cerr << "[PropaKai (DSO) Error] Unknown internal exception.\n";
+        return fallbackValue;
+    }
+}
+
+// 2. For void functions
+template <typename Func>
+void ExecuteSafelyVoid(Func&& calculation) noexcept 
+{
+    try {
+        calculation();
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[PropaKai (DSO) Error] " << e.what() << '\n';
+    }
+    catch (...) {
+        std::cerr << "[PropaKai (DSO) Error] Unknown internal exception.\n";
+    }
+}
+
+#endif // defined(__cplusplus) && defined(BUILDING_PROPAKAI)

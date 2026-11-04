@@ -10,16 +10,6 @@
 #include "ITURP_1812_8.h"
 
 
-PROPAKAI_API bool P1812_8_Load_DN50_DigitalMap(const char* pathname)
-{
-	return ITURP_1812_8::Init_DN50(pathname);
-}
-
-PROPAKAI_API bool P1812_8_Load_N050_DigitalMap(const char* pathname)
-{
-	return ITURP_1812_8::Init_N050(pathname);
-}
-
 PROPAKAI_API double P1812_8_AUTO_CONSTANT()
 {
 	return ITURP_1812_8::AUTO;
@@ -31,12 +21,17 @@ PROPAKAI_API double P1812_8_BasicTransmissionloss(
 	const int* cc, const double* rch, const double* sh, const int* rcz,
 	double dct, double dcr, double deltaN, double N0, double wa)
 {
-	return ITURP_1812_8::BasicTransmissionloss(f, p, pL, latt, lont, latr, lonr, htg, hrg, vpol, n, d, h,
-	                                           reinterpret_cast<const ITURP_1812_8::ClutterCategory*>(cc), rch, sh,
-	                                           reinterpret_cast<const ITURP_1812_8::RadioClimaticZone*>(rcz), dct, dcr, deltaN, N0, wa);
+	return ExecuteSafely([&]() {
+		return ITURP_1812_8::BasicTransmissionloss(f, p, pL, latt, lont, latr, lonr, htg, hrg, vpol, n, d, h,
+		                                           reinterpret_cast<const ITURP_1812_8::ClutterCategory*>(cc), rch, sh,
+		                                           reinterpret_cast<const ITURP_1812_8::RadioClimaticZone*>(rcz), dct,
+												   dcr, deltaN, N0, wa);
+	});
 }
 
 PROPAKAI_API double P1812_8_FieldStrength(double f, double Lb)
 {
-	return ITURP_1812_8::FieldStrength(f, Lb);
+	return ExecuteSafely([&]() {
+		return ITURP_1812_8::FieldStrength(f, Lb);
+	});
 }

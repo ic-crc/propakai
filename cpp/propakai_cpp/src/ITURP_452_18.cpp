@@ -16,20 +16,9 @@
 #include <vector>
 
 
-std::vector<double> ITURP_452_18::DN50_Vect_;
-std::vector<double> ITURP_452_18::N050_Vect_;
+const DigitalMap ITURP_452_18::s_DN50_map("p1812_8/DN50.TXT", 90.0, 1.5, 121, 0.0, 1.5, 241, InterpolationType::Bilinear);
+const DigitalMap ITURP_452_18::s_N050_map("p1812_8/N050.TXT", 90.0, 1.5, 121, 0.0, 1.5, 241, InterpolationType::Bilinear);
 
-// Initialize from DN50.TXT ITU file
-bool ITURP_452_18::Init_DN50(const char* pathname)
-{
-	return ITURP_1144_13::InitDigitalMap(DN50_Vect_, DN50_SIZE_, pathname);
-}
-
-// Initialize from N050.TXT ITU file
-bool ITURP_452_18::Init_N050(const char* pathname)
-{
-	return ITURP_1144_13::InitDigitalMap(N050_Vect_, N050_SIZE_, pathname);
-}
 
 // f:          frequency (GHz) [0.1, 50.0]
 // p:          required time percentage(s) for which the calculated basic transmission loss is not exceeded (%) [0.001, 50]
@@ -126,9 +115,9 @@ double Lb; // Lbc: final basic transmission loss not exceeded for p% time (dB)
 		p = AnnualEquivalentTimePercent(p, centreLat, omega);
 	TK = TC + 273.15;
 	if( IsAUTO(deltaN) )
-		deltaN = DN50(centreLat, centreLon);
+		deltaN = s_DN50_map.GetValue(centreLat, centreLon);
 	if( IsAUTO(N0) )
-		N0 = N050(centreLat, centreLon);
+		N0 = s_N050_map.GetValue(centreLat, centreLon);
 	EffectiveEarthRadius(deltaN, ae, aB);
 
 	hts = h[0] + htg;
@@ -144,54 +133,6 @@ double Lb; // Lbc: final basic transmission loss not exceeded for p% time (dB)
 	Lb =  OverallPrediction(p, B0, dn, omega, hts, hrs, ae, n, d, h, Lb0p, Lb0B, Ldp, Lbd50, Lba, Lbd, Lbs);
 
 	return Lb;
-}
-
-// Get value from the DN50 digital map.
-// ITU-R P.452-18, Attachment 1 to Annex 1, Section 2
-// lat:      latitude (degrees) [-90.0, 90.0] 
-// lon:      longitude (degrees) [-180.0, 180.0]
-// [return]: median annual radio-refractivity lapse-rate through the lowest 1 km of the atmosphere (N-units/km)
-double ITURP_452_18::DN50(double lat, double lon)
-{
-// lat from +90 to -90, lon from 0 to 360 in DN50 array
-const double latInterval = 1.5;
-const double lonInterval = 1.5;
-const size_t numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
-const size_t rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
-double r,c;
-
-	if( DN50_Vect_.size() != DN50_SIZE_ )
-		return 45.0; // use reasonable default value
-
-	if( lon < 0 )
-		lon += 360;
-	r = (90.0 - lat) / latInterval;
-	c = lon / lonInterval;
-	return ITURP_1144_13::SquareGridBilinearInterpolation(DN50_Vect_, numRows, rowSize, r, c);
-}
-
-// Get value from the N050 digital map.
-// ITU-R P.452-18, Attachment 1 to Annex 1, Section 2
-// lat:      latitude (degrees) [-90.0, 90.0] 
-// lon:      longitude (degrees) [-180.0, 180.0]
-// [return]: median annual sea-level surface refractivity (N-units)
-double ITURP_452_18::N050(double lat, double lon)
-{
-// lat from +90 to -90, lon from 0 to 360 in N050 array
-const double latInterval = 1.5;
-const double lonInterval = 1.5;
-const size_t numRows = 121; // number of points from [-90, 90] latitude deg range, at 1.5 deg intervals: (180/1.5)+1
-const size_t rowSize = 241; // number of points from [0, 360] longitude deg range, at 1.5 deg intervals: (360/1.5)+1
-double r,c;
-
-	if( N050_Vect_.size() != N050_SIZE_ )
-		return 325.0; // use reasonable default value
-
-	if( lon < 0 )
-		lon += 360;
-	r = (90.0 - lat) / latInterval;
-	c = lon / lonInterval;
-	return ITURP_1144_13::SquareGridBilinearInterpolation(N050_Vect_, numRows, rowSize, r, c);
 }
 
 // n:                number of profile points

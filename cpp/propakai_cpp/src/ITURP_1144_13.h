@@ -9,22 +9,23 @@
 #pragma once
 #include <cstddef>
 #include <vector>
+#include <filesystem>
 
 
 class ITURP_1144_13
 {
 public:
-	static bool InitDigitalMap(std::vector<double>& digitalMapVect, size_t expectedSize, const char* pathname);
+	static void InitDigitalMap(std::vector<double>& digitalMapVect, size_t expectedSize, const std::filesystem::path& filePath);
 	static double SquareGridBilinearInterpolation(const std::vector<double>& digitalMapVect, size_t numRows, size_t rowSize, double r, double c);
 
 protected:
-	static bool ReadDigitalMapFile(std::vector<double>& digitalMapVect, const char* pathname);
+	static void ReadDigitalMapFile(std::vector<double>& digitalMapVect, const std::filesystem::path& filePath);
 
 private:
 	// Prevent instantiation
-	ITURP_1144_13() = delete;                                  // Delete default constructor
-	ITURP_1144_13(const ITURP_1144_13&) = delete;              // Delete copy constructor
-	ITURP_1144_13(ITURP_1144_13&&) = delete;                   // Delete move constructor
-	ITURP_1144_13& operator=(const ITURP_1144_13&) = delete;   // Delete copy assignment
-	ITURP_1144_13& operator=(ITURP_1144_13&&) = delete;        // Delete move assignment
+	ITURP_1144_13() = delete;
+	ITURP_1144_13(const ITURP_1144_13&) = delete;
+	ITURP_1144_13(ITURP_1144_13&&) = delete;
+	ITURP_1144_13& operator=(const ITURP_1144_13&) = delete;
+	ITURP_1144_13& operator=(ITURP_1144_13&&) = delete;
 };

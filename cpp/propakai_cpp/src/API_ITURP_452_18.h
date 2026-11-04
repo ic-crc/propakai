@@ -14,10 +14,6 @@
 extern "C" {
 #endif
 
-PROPAKAI_API bool P452_18_Load_DN50_DigitalMap(const char* pathname);
-
-PROPAKAI_API bool P452_18_Load_N050_DigitalMap(const char* pathname);
-
 PROPAKAI_API double P452_18_AUTO_CONSTANT();
 
 PROPAKAI_API double P452_18_ClearAirBasicTransmissionLoss(
