@@ -14,6 +14,7 @@ from math import isclose
 import unittest
 import csv
 from propakai import p452_18
+from propakai.geo_catalog import gc_p452_18
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
 
@@ -151,6 +152,17 @@ class Test_452_18(unittest.TestCase):
             auto_dn_n0_params = {**params, 'delta_n': None, 'n0': None}
             lb_db = p452_18.clear_air_basic_transmission_loss(**auto_dn_n0_params)
             self.assertTrue(isclose(lb_db, r.lb_db))
+
+
+    def test_digital_maps_reading(self):
+        coords = [(45.001, -75.001), (45.001, 75.001), (-45.001, 75.001), (-45.001, -75.001)]
+        for coord in coords:
+            dn_val = p452_18.dn50(coord[0], coord[1])
+            n0_val = p452_18.n050(coord[0], coord[1])
+            expected_dn = gc_p452_18.avg_refractivity_gradient_1km(coord[0], coord[1])
+            expected_n0 = gc_p452_18.avg_sea_level_surface_refractivity(coord[0], coord[1])
+            self.assertTrue(isclose(dn_val, expected_dn))
+            self.assertTrue(isclose(n0_val, expected_n0))
 
 
 if __name__ == '__main__':

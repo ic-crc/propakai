@@ -16,6 +16,7 @@ import csv
 import copy
 import operator
 from propakai import p1812_8_dso
+from propakai import p1812_8
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
 
@@ -155,6 +156,16 @@ class Test_1812_8_dso(unittest.TestCase):
                 fs_1kw_erp_dbuvm = p1812_8_dso.field_strength(i.f_ghz, lb_db)
                 fs_dbuvm = fs_1kw_erp_dbuvm + erp_dbkw
                 self.assertTrue(isclose(fs_dbuvm, i.fs_dbuvm, rel_tol=1e-8))
+
+                # test consistency between C++ and python versions when they are using digital maps
+                params['dct_km'] = None
+                params['dcr_km'] = None
+                params['delta_n'] = None
+                params['n0'] = None
+                dso_lb_db = p1812_8_dso.basic_transmission_loss(**params)
+                py_lb_db = p1812_8.basic_transmission_loss(**params)
+                self.assertTrue(isclose(dso_lb_db, py_lb_db))
+
 
 
 if __name__ == '__main__':

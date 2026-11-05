@@ -30,7 +30,7 @@ public:
 	static void SetBaseDirectory(const std::string& directoryPath);
 
 	// Constructor initializes all constant parameters
-	DigitalMap(std::string filePath,
+	DigitalMap(std::string filePath, // relative file path to the base directory
 				double firstLat, double latSpacing, std::size_t numRows,
 				double firstLon, double lonSpacing, std::size_t numCols,
 				InterpolationType interpType);

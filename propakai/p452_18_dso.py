@@ -17,14 +17,11 @@ Quote: Standard & Citation
       https://www.itu.int/rec/R-REC-P.452/en
 """
 
-from os.path import join
 import ctypes as ct
-from filelock import FileLock
 from propakai import _bin_utils as _bu
-from propakai import _download_utils as _du
 from propakai import types
 from propakai import _types_utils as _tu
-from propakai.p452_18 import RadioClimaticZone, ClutterCategory
+from propakai.p452_18 import RadioClimaticZone, ClutterCategory, _download_rec_data
 
 
 __all__ = ['RadioClimaticZone',
@@ -125,39 +122,15 @@ def clear_air_basic_transmission_loss(
     return lb_db
 
 
-def _download_rec_data(data_dir: str) -> None:
-    full_path_data_dir = join(_du.install_dir(), data_dir)
-    filenames = ['DN50.TXT', 'N050.TXT']
-    lock = FileLock(_du.get_lockfile_pathname(data_dir))
-    with lock:
-        if _du.files_all_exist(full_path_data_dir, filenames) is False:
-            url = 'https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.452-18-202310-I!!ZIP-E.zip'
-            zip_pathname = _du.download(url, full_path_data_dir)
-            _du.extract_files(zip_pathname, filenames, create_dirs=True, delete_zip_archive=True)
-            _du.print_notice()
-
-
 def _init_dynamic_library() -> ct.CDLL:
     lib = _bu.get_dynamic_library('propakai_cpp')
     _set_args_and_return_ctypes(lib)
-    data_dir = 'p452_18'
-    _download_rec_data(data_dir)
-    dn50_pathname = join(_du.install_dir(), data_dir, 'DN50.TXT')
-    n050_pathname = join(_du.install_dir(), data_dir, 'N050.TXT')
-    if lib.P452_18_Load_DN50_DigitalMap(dn50_pathname.encode()) is False:
-        print('Failed to load DN50.TXT')
-    if lib.P452_18_Load_N050_DigitalMap(n050_pathname.encode()) is False:
-        print('Failed to load N050.TXT')
+    # make sure digital maps are installed
+    _download_rec_data() # From p452_18.py
     return lib
 
 
 def _set_args_and_return_ctypes(lib):
-    lib.P452_18_Load_DN50_DigitalMap.argtypes = [ct.c_char_p]
-    lib.P452_18_Load_DN50_DigitalMap.restype = ct.c_bool
-
-    lib.P452_18_Load_N050_DigitalMap.argtypes = [ct.c_char_p]
-    lib.P452_18_Load_N050_DigitalMap.restype = ct.c_bool
-
     lib.P452_18_AUTO_CONSTANT.argtypes = []
     lib.P452_18_AUTO_CONSTANT.restype = ct.c_double
 

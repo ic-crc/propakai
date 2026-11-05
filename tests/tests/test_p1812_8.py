@@ -16,6 +16,7 @@ import csv
 import copy
 import operator
 from propakai import p1812_8
+from propakai.geo_catalog import gc_p1812_8
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
 
@@ -155,6 +156,17 @@ class Test_1812_8(unittest.TestCase):
                 fs_1kw_erp_dbuvm = p1812_8.field_strength(i.f_ghz, lb_db)
                 fs_dbuvm = fs_1kw_erp_dbuvm + erp_dbkw
                 self.assertTrue(isclose(fs_dbuvm, i.fs_dbuvm, rel_tol=1e-8))
+
+
+    def test_digital_maps_reading(self):
+        coords = [(45.001, -75.001), (45.001, 75.001), (-45.001, 75.001), (-45.001, -75.001)]
+        for coord in coords:
+            dn_val = p1812_8.dn50(coord[0], coord[1])
+            n0_val = p1812_8.n050(coord[0], coord[1])
+            expected_dn = gc_p1812_8.avg_refractivity_gradient_1km(coord[0], coord[1])
+            expected_n0 = gc_p1812_8.avg_sea_level_surface_refractivity(coord[0], coord[1])
+            self.assertTrue(isclose(dn_val, expected_dn))
+            self.assertTrue(isclose(n0_val, expected_n0))
 
 
 if __name__ == '__main__':

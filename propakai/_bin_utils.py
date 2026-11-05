@@ -15,6 +15,7 @@ from threading import Lock
 import ctypes
 from enum import Enum
 import shutil
+from propakai import _download_utils as _du
 
 
 __all__ = ['OperatingSystem',
@@ -149,6 +150,14 @@ def _load_dynamic_library(filename_no_ext: str) -> ctypes.CDLL:
     lib = ctypes.CDLL(lib_pathname)
     if lib is None:
         raise ImportError(f'Failed to load {lib_pathname} as dynamic library.')
+
+    if filename_no_ext == 'propakai_cpp':
+        lib.SetDigitalMapsBaseDirectory.argtypes = [ctypes.c_char_p]
+        lib.SetDigitalMapsBaseDirectory.restype = None
+        lib.SetDigitalMapsBaseDirectory(_du.install_dir().encode())
+        lib.Version.argtypes = []
+        lib.Version.restype = ctypes.c_char_p
+        #print(lib.Version().decode('utf-8'))
 
     return lib
 
