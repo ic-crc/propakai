@@ -32,9 +32,9 @@ jobs:
 
     - name: Check deployment targets
       run: |
-        otool -l cpp/propakai_cpp/build/release/propakai_cpp.dylib | grep -A 3 LC_VERSION_MIN_MACOSX
-        otool -l cpp/ntia_p528_5/build/release/p528_5.dylib | grep -A 3 LC_VERSION_MIN_MACOSX
-        otool -l cpp/ntia_p368_10/build/release/p368_10.dylib | grep -A 3 LC_VERSION_MIN_MACOSX
+        otool -l cpp/propakai_cpp/build/release/propakai_cpp.dylib | grep -E -A 4 "LC_VERSION_MIN_MACOSX|LC_BUILD_VERSION"
+        otool -l cpp/ntia_p528_5/build/release/p528_5.dylib | grep -E -A 4 "LC_VERSION_MIN_MACOSX|LC_BUILD_VERSION"
+        otool -l cpp/ntia_p368_10/build/release/p368_10.dylib | grep -E -A 4 "LC_VERSION_MIN_MACOSX|LC_BUILD_VERSION"
         lipo -info cpp/propakai_cpp/build/release/propakai_cpp.dylib
         lipo -info cpp/ntia_p528_5/build/release/p528_5.dylib
         lipo -info cpp/ntia_p368_10/build/release/p368_10.dylib
