@@ -72,7 +72,7 @@ void ITURP_1144_13::ReadDigitalMapFile(std::vector<double>& digitalMapVect, cons
 {
 	std::ifstream txtFile(filePath);
 	if (!txtFile.is_open())
-		throw std::runtime_error("Failed to open digital map file: " + filePath.string());
+		throw std::runtime_error("Failed to open digital map file: " + filePath.u8string());
 
 	// Ensure '.' is always the decimal separator
 	txtFile.imbue(std::locale::classic());
@@ -86,16 +86,16 @@ void ITURP_1144_13::ReadDigitalMapFile(std::vector<double>& digitalMapVect, cons
 	while (txtFile >> value) 
 	{
 		if (arrayIndex >= mapArraySize)
-			throw std::runtime_error("Digital map file contains more data than expected: " + filePath.string());
+			throw std::runtime_error("Digital map file contains more data than expected: " + filePath.u8string());
 		digitalMapVect[arrayIndex++] = value;
 	}
 
 	// If the loop terminated before EOF, it means it hit corrupted/non-numeric data
 	if (!txtFile.eof())
-		throw std::runtime_error("Corrupted or non-numeric data encountered in digital map file: " + filePath.string());
+		throw std::runtime_error("Corrupted or non-numeric data encountered in digital map file: " + filePath.u8string());
 
     if (arrayIndex != mapArraySize)
-        throw std::runtime_error("Digital map file contains less data than expected: " + filePath.string());
+        throw std::runtime_error("Digital map file contains less data than expected: " + filePath.u8string());
 
 	// Destructor closes txtFile automatically
 }

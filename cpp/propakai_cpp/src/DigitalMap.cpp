@@ -77,7 +77,9 @@ void DigitalMap::LoadData() const
 		baseDir = s_baseDirectory;
 	}
 
-	std::filesystem::path fullPath = std::filesystem::path(baseDir) / m_relativeFilePath;
+    // Use u8path() to safely convert UTF-8 strings (e.g., "C:/Users/René") 
+    // into Windows native wide-characters under the hood.
+    std::filesystem::path fullPath = std::filesystem::u8path(baseDir) / m_relativeFilePath;
 
 	ITURP_1144_13::InitDigitalMap(m_data, m_numRows*m_numCols, fullPath);
 }

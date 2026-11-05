@@ -14,19 +14,19 @@ jobs:
 
     - name: Build propakai_cpp.dylib
       run: |
-        export MACOSX_DEPLOYMENT_TARGET=10.13
+        export MACOSX_DEPLOYMENT_TARGET=10.15
         cd cpp/propakai_cpp
         make
 
     - name: Build p528_5.dylib
       run: |
-        export MACOSX_DEPLOYMENT_TARGET=10.13
+        export MACOSX_DEPLOYMENT_TARGET=10.15
         cd cpp/ntia_p528_5
         make
 
     - name: Build p368_10.dylib
       run: |
-        export MACOSX_DEPLOYMENT_TARGET=10.13
+        export MACOSX_DEPLOYMENT_TARGET=10.15
         cd cpp/ntia_p368_10
         make
 
