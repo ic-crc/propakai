@@ -16,8 +16,8 @@
 #include <vector>
 
 
-const DigitalMap ITURP_452_18::s_DN50_map("p1812_8/DN50.TXT", 90.0, 1.5, 121, 0.0, 1.5, 241, InterpolationType::Bilinear);
-const DigitalMap ITURP_452_18::s_N050_map("p1812_8/N050.TXT", 90.0, 1.5, 121, 0.0, 1.5, 241, InterpolationType::Bilinear);
+const DigitalMap ITURP_452_18::s_DN50_map("p1812_8/DN50.TXT", 90.0, -1.5, 121, 0.0, +1.5, 241, InterpolationType::Bilinear);
+const DigitalMap ITURP_452_18::s_N050_map("p1812_8/N050.TXT", 90.0, -1.5, 121, 0.0, +1.5, 241, InterpolationType::Bilinear);
 
 
 // f:          frequency (GHz) [0.1, 50.0]

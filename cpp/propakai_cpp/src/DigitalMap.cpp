@@ -52,7 +52,7 @@ double DigitalMap::GetValue(double latitude, double longitude) const
 
 	if( longitude < 0 && m_firstLon >= 0 )
 		longitude += 360;
-	const double r = (m_firstLat - latitude) / m_latSpacing;
+	const double r = (latitude - m_firstLat) / m_latSpacing;
 	const double c = (longitude - m_firstLon) / m_lonSpacing;
 
 	switch (m_interpType)
