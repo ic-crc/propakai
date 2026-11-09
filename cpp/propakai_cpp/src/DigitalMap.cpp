@@ -44,11 +44,16 @@ double DigitalMap::GetValue(double latitude, double longitude) const
         throw std::invalid_argument("Latitude must be in [-90, 90] and longitude in [-180, 180].");
 
     // Thread-safe Lazy Loading
-    // std::call_once guarantees that LoadData() is executed only once.
-    // If multiple threads hit this line at the same time, one will execute LoadData()
-    // and the others will wait until it finishes before proceeding.
-	// If LoadData() throws an exception, it will propagate up the chain.
-	std::call_once(m_loadFlag, &DigitalMap::LoadData, this);
+	// Double-Checked Locking pattern
+    if (!m_isLoaded.load(std::memory_order_acquire))
+	{
+        std::lock_guard<std::mutex> lock(m_loadMutex);
+        if (!m_isLoaded.load(std::memory_order_relaxed))
+		{
+            LoadData(); // If this throws, lock_guard ALWAYS unlocks m_loadMutex cleanly!
+            m_isLoaded.store(true, std::memory_order_release);
+        }
+    }
 
     // At this point, m_data is guaranteed to be populated and is only being read,
     // which is 100% thread-safe.

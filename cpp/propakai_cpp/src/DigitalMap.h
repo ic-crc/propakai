@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <atomic>
 #include <mutex>
 #include <cstddef>
 #include "ITURP_1144_13.h"
@@ -62,7 +63,8 @@ private:
 
 	// Lazy-loading state variables. 
 	// 'mutable' allows them to be modified inside the const GetValue() function.
-	mutable std::once_flag m_loadFlag;
+	mutable std::atomic<bool> m_isLoaded{false};
+	mutable std::mutex m_loadMutex;
 	mutable std::vector<double> m_data;
 
 	void LoadData() const;
