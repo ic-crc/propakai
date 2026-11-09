@@ -26,6 +26,7 @@ import _test_utils as _tu
 class Test_P1511_3(unittest.TestCase):
 
     def test_topo_height(self):
+        p1511_3._download_rec_data() # make sure rec data is present before running tests
         lib = _bu.get_dynamic_library('propakai_cpp')
         lib.P1511_3_TopographicHeight.argtypes = [ct.c_double, ct.c_double]
         lib.P1511_3_TopographicHeight.restype = ct.c_double
@@ -41,6 +42,7 @@ class Test_P1511_3(unittest.TestCase):
 
 
     def test_geoid_undulation(self):
+        p1511_3._download_rec_data() # make sure rec data is present before running tests
         lib = _bu.get_dynamic_library('propakai_cpp')
         lib.P1511_3_GeoidUndulation.argtypes = [ct.c_double, ct.c_double]
         lib.P1511_3_GeoidUndulation.restype = ct.c_double
@@ -57,5 +59,4 @@ class Test_P1511_3(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    p1511_3._download_rec_data() # make sure rec data is present before running tests
     unittest.main()
