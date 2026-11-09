@@ -15,10 +15,12 @@
 class ITURP_1144_13
 {
 public:
-	static void InitDigitalMap(std::vector<double>& digitalMapVect, size_t expectedSize, const std::filesystem::path& filePath);
-	static double SquareGridBilinearInterpolation(const std::vector<double>& digitalMapVect, size_t numRows, size_t rowSize, double r, double c);
+	static void InitDigitalMap(std::vector<double>& digitalMapVect, std::size_t expectedSize, const std::filesystem::path& filePath);
+	static double SquareGridBilinearInterpolation(const std::vector<double>& digitalMapVect, std::size_t numRows, std::size_t rowSize, double r, double c);
+	static double SquareGridBicubicInterpolation(const std::vector<double>& digitalMapVect, std::size_t numRows, std::size_t rowSize, double r, double c);
 
 protected:
+	static double K(double d);
 	static void ReadDigitalMapFile(std::vector<double>& digitalMapVect, const std::filesystem::path& filePath);
 
 private:

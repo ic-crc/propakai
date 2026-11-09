@@ -13,7 +13,7 @@
 #define MAKE_P1510_MAP(filename) \
     { filename, -90.0, +0.75, 241, -180.0, +0.75, 481, InterpolationType::Bilinear }
 
-const DigitalMap ITURP_1510_1::s_TAnnual_map(MAKE_P1510_MAP("p1510_1/T_Annual.TXT"));
+const DigitalMap ITURP_1510_1::s_TAnnual_map = MAKE_P1510_MAP("p1510_1/T_Annual.TXT");
 
 const std::array<DigitalMap, 12> ITURP_1510_1::s_TMonth_maps = {{
 	MAKE_P1510_MAP("p1510_1/T_Month01.TXT"),

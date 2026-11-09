@@ -3,6 +3,8 @@ const std = @import("std");
 const cpp_sources = &.{
     "src/API_Config.cpp",
     "src/API_ITURP_452_18.cpp",
+    "src/API_ITURP_1510_1.cpp",
+    "src/API_ITURP_1511_3.cpp",
     "src/API_ITURP_1812_8.cpp",
     "src/API_ITURP_2108_1.cpp",
     "src/API_ITURP_2109_2.cpp",
@@ -13,6 +15,8 @@ const cpp_sources = &.{
     "src/ITURP_838_3.cpp",
     "src/ITURP_1057_7.cpp",
     "src/ITURP_1144_13.cpp",
+    "src/ITURP_1510_1.cpp",
+    "src/ITURP_1511_3.cpp",
     "src/ITURP_1812_8.cpp",
     "src/ITURP_2001_6.cpp",
     "src/ITURP_2108_1.cpp",

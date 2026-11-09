@@ -40,6 +40,9 @@ DigitalMap::DigitalMap(std::string relativeFilePath,
 
 double DigitalMap::GetValue(double latitude, double longitude) const
 {
+    if (!(std::abs(latitude) <= 90.0 && std::abs(longitude) <= 180.0))
+        throw std::invalid_argument("Latitude must be in [-90, 90] and longitude in [-180, 180].");
+
     // Thread-safe Lazy Loading
     // std::call_once guarantees that LoadData() is executed only once.
     // If multiple threads hit this line at the same time, one will execute LoadData()
@@ -62,7 +65,7 @@ double DigitalMap::GetValue(double latitude, double longitude) const
 		case InterpolationType::Bilinear:
 			return ITURP_1144_13::SquareGridBilinearInterpolation(m_data, m_numRows, m_numCols, r, c);
 		case InterpolationType::Bicubic:
-			throw std::logic_error("Bicubic interpolation is not implemented yet.");
+			return ITURP_1144_13::SquareGridBicubicInterpolation(m_data, m_numRows, m_numCols, r, c);
 		default:
 			throw std::logic_error("Unexpected InterpolationType encountered in DigitalMap::GetValue.");
 	}
