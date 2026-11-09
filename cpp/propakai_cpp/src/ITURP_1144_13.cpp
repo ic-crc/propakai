@@ -137,7 +137,7 @@ void ITURP_1144_13::InitDigitalMap(std::vector<double>& digitalMapVect, std::siz
 		throw; 
 	}
 }
-
+#include <iostream>
 void ITURP_1144_13::ReadDigitalMapFile(std::vector<double>& digitalMapVect, const std::filesystem::path& filePath)
 {
     // Open in binary mode and jump to the end (ate) to get the exact file size
@@ -171,9 +171,9 @@ void ITURP_1144_13::ReadDigitalMapFile(std::vector<double>& digitalMapVect, cons
 			++ptr;
 
         // Parse the next double
-        #if defined(__APPLE__)
+        #if !defined(__cpp_lib_to_chars)
         char* nextPtr = nullptr;
-        double value = std::strtod(ptr, &nextPtr); // from_chars not available on older macOS
+        double value = std::strtod(ptr, &nextPtr); // from_chars may not be available on older linux, macOS
         if (ptr == nextPtr)
             throw std::runtime_error("Corrupted data in digital map file: " + filePath.u8string());
         #else

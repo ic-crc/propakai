@@ -30,12 +30,7 @@ jobs:
               cd /io &&
               python -m pip install --upgrade pip &&
               python -m pip install -r requirements-tests.txt &&
-              python -m unittest tests/tests/test_p1812_8_dso.py &&
-              python -m unittest tests/tests/test_p452_18_dso.py &&
-              python -m unittest tests/tests/test_p2108_1_dso.py &&
-              python -m unittest tests/tests/test_p2109_2_dso.py &&
-              python -m unittest tests/tests/test_p528_5_dso.py &&
-              python -m unittest tests/tests/test_p368_10_dso.py
+              python -m unittest discover -s tests/tests -p "test_*_dso.py" -v
             "
 
       - name: Upload all .so artifacts
