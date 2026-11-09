@@ -17,6 +17,7 @@ from math import isclose
 import unittest
 import ctypes as ct
 import pandas as pd
+from propakai import p1511_3
 from propakai import _bin_utils as _bu
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
@@ -56,4 +57,5 @@ class Test_P1511_3(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    p1511_3._download_rec_data() # make sure rec data is present before running tests
     unittest.main()

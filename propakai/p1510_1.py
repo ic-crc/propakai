@@ -102,8 +102,6 @@ def _download_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_data_dir)
             _du.extract_files(zip_pathname, filenames, create_dirs=True, delete_zip_archive=True)
             _du.print_notice()
-        else:
-            _du.print_already_installed(full_path_data_dir, filenames)
 
 
 _p1510_1_shared = {

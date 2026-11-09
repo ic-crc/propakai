@@ -20,6 +20,7 @@ from math import isclose
 import unittest
 import ctypes as ct
 import pandas as pd
+from propakai import p1510_1
 from propakai.geo_catalog import gc_p1510_1
 from propakai import _bin_utils as _bu
 sys.path.insert(0, dirname(abspath(__file__)))
@@ -76,4 +77,5 @@ class Test_P1510_1(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    p1510_1._download_rec_data() # make sure rec data is present before running tests
     unittest.main()

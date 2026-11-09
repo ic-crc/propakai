@@ -270,8 +270,6 @@ def _download_rec_data() -> None:
             _du.extract_files(zip_pathname3, ['EGM2008.txt'], create_dirs=True,
                               delete_zip_archive=True)
             _du.print_notice()
-        else:
-            _du.print_already_installed(full_path_data_dir, filenames)
 
 
 _p1511_3_shared = {
