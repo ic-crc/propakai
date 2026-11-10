@@ -74,16 +74,19 @@ have been updated while recommendation B continues to reference an earlier versi
 unexpected code breakage and accommodate such scenarios, PropaKai is **designed to support
 multiple versions of the same recommendation**.
 
-- ITU data files (such as digital maps and statistics) cannot be redistributed. To facilitate their
-use while complying with the ITU's terms, PropaKai **automatically downloads and stores the
-necessary ITU data files** locally when needed. The ITU has granted permission for these downloads
-as long as the following conditions are met:
+- ITU data files (such as digital maps) cannot be redistributed. To facilitate their use while
+complying with the ITU's terms, PropaKai **automatically downloads** them locally the first time
+they are needed. The ITU has granted permission for these downloads as long as the following
+conditions are met:
 
     >The download URLs from the ITU website are shown to the user.  
     >A notice informs the user that the files are for personal use only.  
     >Files must not be modified after downloading.
 
-- Python implementations are practical and can be easily run on many platforms. However,
+- Once available on disk, ITU data files are loaded into memory only when needed to minimize memory
+usage (via **thread-safe lazy loading**).
+
+- Python implementations are practical and easy to run and debug across many platforms. However,
 implementations in other programming languages may sometimes be needed to achieve higher execution
 speed. PropaKai **welcomes implementations of the same recommendation in both the Python and C/C++
 programming languages**, as long as appropriate Python bindings are provided. For example, a Python

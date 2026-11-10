@@ -8,17 +8,17 @@
 
 PropaKai est un paquet Python pour implémentations de recommandations UIT-R P.
 
-Ces recommandations, élaborées par le Groupe d’étude 3 du Secteur des radiocommunications de
-l’Union internationale des télécommunications (UIT-R), fournissent des normes et méthodes
+Ces recommandations, élaborées par le Groupe d'étude 3 du Secteur des radiocommunications de
+l'Union internationale des télécommunications (UIT-R), fournissent des normes et méthodes
 internationales pour la prévision de la propagation des ondes radio.
 
 #### Avertissement
 > Ce projet, PropaKai, est une implémentation logicielle indépendante et
-tierce de certaines recommandations ITU-R P. Ce projet n’est pas affilié, maintenu, autorisé,
-sponsorisé ni d’aucune manière officiellement lié à l’Union internationale des télécommunications
+tierce de certaines recommandations ITU-R P. Ce projet n'est pas affilié, maintenu, autorisé,
+sponsorisé ni d'aucune manière officiellement lié à l'Union internationale des télécommunications
 (UIT). Toute utilisation des acronymes « UIT » et « ITU » est faite uniquement à des fins
-descriptives et d’identification. Pour les textes et normes officiels, les utilisateurs doivent se
-référer directement au site officiel de l’UIT ([www.itu.int](www.itu.int)).
+descriptives et d'identification. Pour les textes et normes officiels, les utilisateurs doivent se
+référer directement au site officiel de l'UIT ([www.itu.int](www.itu.int)).
 
 
 ## Installation
@@ -34,7 +34,7 @@ suivante:
 # Omettez "[full]" pour une installation minimale incluant seulement les dépendances essentielles.
 python -m pip install propakai-x.y.z-py3-none-any.whl[full]
 ```
-_Remarque : selon votre système, il peut être nécessaire d’utiliser la commande `py` sous Windows
+_Remarque : selon votre système, il peut être nécessaire d'utiliser la commande `py` sous Windows
 ou `python3` sous macOS/Linux à la place de `python`._
 
 
@@ -47,7 +47,7 @@ from propakai import p1511_3 as p1511
 if __name__ == '__main__':
 
     # Le premier appel à topographic_height() téléchargera et installera
-    # la carte numérique UIT contenant les données d’altitude topographique.
+    # la carte numérique UIT contenant les données d'altitude topographique.
     # Tout appel suivant réutilisera le fichier de carte numérique installé.
     altitude_topo_m = p1511.topographic_height(lat=45.0, lon=-75.0)
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 ```
 
 
-## Documentation de l’API
+## Documentation de l'API
 
 https://ic-crc.github.io/propakai/
 
@@ -71,7 +71,7 @@ propakai-data-cleanup
 python -m pip uninstall propakai
 ```
 _Remarque: au lieu d'utiliser `propakai-data-cleanup`, vous pouvez aussi utiliser `propakai-info`
-afin d'obtenir le chemin d’installation des fichiers de données UIT, puis effectuer la suppression
+afin d'obtenir le chemin d'installation des fichiers de données UIT, puis effectuer la suppression
 manuellement selon vos besoins._
 
 
@@ -126,8 +126,8 @@ et de réseaux locaux hertziens dans la gamme de fréquences comprises entre 300
 Autres:
 
 - Le sous-paquet `propakai.geo_catalog` facilite l'accès au [catalogue géospatial de
-l’UIT-R](https://br-geoportal.itu.int/ITU-R/BR-GeoCatalogue/BR-GeoApi/).
-- Le sous-paquet `propakai.extras` comprend des outils additionnels pour l’utilisation des
+l'UIT-R](https://br-geoportal.itu.int/ITU-R/BR-GeoCatalogue/BR-GeoApi/).
+- Le sous-paquet `propakai.extras` comprend des outils additionnels pour l'utilisation des
 recommandations. par exemple pour l'extraction de profils de terrain.
 
 
@@ -140,41 +140,45 @@ de PropaKai.
 arrive parfois qu'une recommandation A soit modifiée alors qu'une recommandation B reste inchangée
 et continue de se référer à une version antérieure de A. Afin d'éviter toute confusion ou tout
 problème de codage inhérent, PropaKai a été **conçu de façon à prendre en charge plusieurs
-versions d’une même recommandation**.
+versions d'une même recommandation**.
 
-- Les fichiers de données de l’UIT (tels que les cartes numériques et les statistiques) ne peuvent
-être redistribués. Pour en faciliter l’usage tout en respectant les conditions d’utilisation de
-l’UIT, PropaKai **télécharge et sauvegarde automatiquement** ces fichiers, au besoin. Ces
-téléchargements ont été autorisés par l'UIT, sous réserve du respect des conditions suivantes :
-  - Les liens de téléchargement depuis le site de l’UIT sont affichés à l’utilisateur.
-  - Un avis informe l’utilisateur que ces fichiers sont destinés à un usage personnel uniquement.
+- Les fichiers de données de l'UIT (tels que les cartes numériques) ne peuvent être redistribués.
+Pour en faciliter l'usage tout en respectant les conditions d'utilisation de l'UIT, PropaKai
+**télécharge et sauvegarde automatiquement** ces fichiers, au besoin. Ces téléchargements ont été
+autorisés par l'UIT, sous réserve du respect des conditions suivantes :
+  - Les liens de téléchargement depuis le site de l'UIT sont affichés à l'utilisateur.
+  - Un avis informe l'utilisateur que ces fichiers sont destinés à un usage personnel uniquement.
   - Les fichiers ne doivent pas être modifiés après le téléchargement.
 
+- Une fois disponibles sur disque, les fichiers de données de l'UIT sont chargés en mémoire
+uniquement lorsque nécessaire, afin de réduire l'utilisation de la mémoire. (**chargement différé 
+"thread-safe"**).
+
 - Les implémentations en Python sont pratiques et peuvent être facilement utilisées sur de
-nombreuses plateformes. Cependant, l'utilisation d’autres langages de programmation peut parfois
-être nécessaire afin d'obtenir de meilleures performances d’exécution. PropaKai **permet la
-cohabitation de différentes implémentations d’une même recommandation en Python et en C/C++**, à
+nombreuses plateformes. Cependant, l'utilisation d'autres langages de programmation peut parfois
+être nécessaire afin d'obtenir de meilleures performances d'exécution. PropaKai **permet la
+cohabitation de différentes implémentations d'une même recommandation en Python et en C/C++**, à
 condition d'inclure les liaisons Python appropriées. Par exemple, un module Python implémentant la
-recommandation UIT-R P.2109-2 porterait le nom `p2109_2`, tandis qu’un module nommé `p2109_2_dso`
+recommandation UIT-R P.2109-2 porterait le nom `p2109_2`, tandis qu'un module nommé `p2109_2_dso`
 indiquerait l'utilisation sous-jacente d'un object partagé dynamique (dynamic shared object, ou
 DSO en anglais) d'un langage de programmation compilé. Le ou la programmeur·se peut alors choisir
-d’utiliser l’un ou l’autre, ou bien les deux selon ses besoins.
+d'utiliser l'un ou l'autre, ou bien les deux selon ses besoins.
 
 - **Chaque fonction est documentée en indiquant la section ou sous-section correspondante** de la
 recommandation de référence. Les paramètres des fonctions reprennent généralement les noms de
 variables utilisés dans les recommandations, tout en respectant la convention de nommage Python
 (snake_case).
 
-- Lorsque disponibles, **les fichiers de validation de l’UIT sont utilisés afin de vérifier la
+- Lorsque disponibles, **les fichiers de validation de l'UIT sont utilisés afin de vérifier la
 conformité des implémentations**.
 
 - PropaKai a été **conçu pour être sûr en contexte multithread (thread-safe)**. Dans la mesure du
-possible, les recommandations sont implémentées sous forme de fonctions pures, c’est-à-dire
-qu’elles ne dépendent que de leurs paramètres d’entrée et n’utilisent ni état externe ni variable
+possible, les recommandations sont implémentées sous forme de fonctions pures, c'est-à-dire
+qu'elles ne dépendent que de leurs paramètres d'entrée et n'utilisent ni état externe ni variable
 globale. Cette approche les rend naturellement adaptées à une utilisation parallèle. Lorsque cette
-approche n’est pas possible ou souhaitable (par exemple lors du téléchargement ou du chargement de
+approche n'est pas possible ou souhaitable (par exemple lors du téléchargement ou du chargement de
 fichiers de données en mémoire), PropaKai gère ces situations de façon à garantir la sécurité
-d’exécution en multithread.
+d'exécution en multithread.
 
   <details>
   <summary>Notes sur la concurrence en Python : Threads vs. Processus</summary>
@@ -182,8 +186,8 @@ d’exécution en multithread.
   >**CPython Standard (Majorité des utilisateurs):**  
   >_Dans la version standard de CPython, un mécanisme connu sous le nom de Verrou d'Interpréteur
   Global (GIL) empêche plusieurs threads de s'exécuter sur plus d'un cœur de processeur (CPU) à la
-  fois. Par conséquent, le multithreading n’apporte pas de bénéfices pour les tâches intensives en
-  calcul. Pour obtenir un véritable parallélisme, il est recommandé d’utiliser le multiprocessing
+  fois. Par conséquent, le multithreading n'apporte pas de bénéfices pour les tâches intensives en
+  calcul. Pour obtenir un véritable parallélisme, il est recommandé d'utiliser le multiprocessing
   (plutôt que le multithreading). Comme pour la plupart des packages Python, le multiprocessing
   fonctionne sans difficulté avec PropaKai, puisque chaque processus dispose de son propre ensemble
   indépendant de variables de module._
@@ -199,9 +203,9 @@ d’exécution en multithread.
 
 </details>
 
-- **Les contributions sont bienvenues !** Nul besoin d’implémenter une recommandation complète pour
-participer : même l’ajout d’une petite partie peut être utile à d’autres utilisateurs. Le projet
-actuel contient à la fois des implémentations complètes ou presque complètes, ainsi que d’autres où
+- **Les contributions sont bienvenues !** Nul besoin d'implémenter une recommandation complète pour
+participer : même l'ajout d'une petite partie peut être utile à d'autres utilisateurs. Le projet
+actuel contient à la fois des implémentations complètes ou presque complètes, ainsi que d'autres où
 seule une petite fraction a été complétée.
 
 
