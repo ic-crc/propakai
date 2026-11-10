@@ -12,6 +12,8 @@ const cpp_sources = &.{
     "src/DigitalMap.cpp",
     "src/ITURP_452_18.cpp",
     "src/ITURP_676_13.cpp",
+    "src/ITURP_835_6.cpp",
+    "src/ITURP_835_7.cpp",
     "src/ITURP_838_3.cpp",
     "src/ITURP_1057_7.cpp",
     "src/ITURP_1144_13.cpp",

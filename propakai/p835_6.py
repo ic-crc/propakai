@@ -37,11 +37,11 @@ class ReferenceAtmosphere(Enum):
     HIGH_LATITUDE_WINTER = 6  # higher than 45°
 
 
-def _geometric_to_geopentential_height(h_km: float) -> float:
+def _geometric_to_geopotential_height(h_km: float) -> float:
     """
     ITU-R P.835-6, Annex 1, Section 1.1.
 
-    Converts geopentential height (km) to geometric height (km).
+    Converts geometric height (km) to geopotential height (km).
 
     Args:
         h_km (float): Geometric height (km).
@@ -52,11 +52,11 @@ def _geometric_to_geopentential_height(h_km: float) -> float:
     return (6356.766*h_km)/(6356.766+h_km)
 
 
-def _geopentential_to_geometric_height(hp_km: float) -> float:
+def _geopotential_to_geometric_height(hp_km: float) -> float:
     """
     ITU-R P.835-6, Annex 1, Section 1.1.
 
-    Converts geometric height (km) to geopentential height (km).
+    Converts geopotential height (km) to geometric height (km).
 
     Args:
         hp_km (float): Geopotential height (km).
@@ -182,13 +182,15 @@ def water_vapour_density(h_km: float,
         rho = _summer_high_lat_water_vapour_density(h_km)
     elif atm == ReferenceAtmosphere.HIGH_LATITUDE_WINTER:
         rho = _winter_high_lat_water_vapour_density(h_km)
+    else:
+        raise ValueError('Invalid value for atm.')
 
     return rho
 
 
 def _magra_pressure(h: float) -> float:
     if h < 86:
-        hp = _geometric_to_geopentential_height(h)
+        hp = _geometric_to_geopotential_height(h)
         if hp <= 11:
             return 1013.25*pow(288.15/(288.15-6.5*hp), -34.1632/6.5)
         elif hp <= 20:
@@ -210,7 +212,7 @@ def _magra_pressure(h: float) -> float:
 
 def _magra_temperature(h: float) -> float:
     if h < 86:
-        hp = _geometric_to_geopentential_height(h)
+        hp = _geometric_to_geopotential_height(h)
         if hp <= 11:
             return 288.15-(6.5*hp)
         elif hp <= 20:

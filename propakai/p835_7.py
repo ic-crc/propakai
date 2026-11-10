@@ -36,11 +36,11 @@ class ReferenceAtmosphere(Enum):
 
 
 
-def _geometric_to_geopentential_height(z_km: float) -> float:
+def _geometric_to_geopotential_height(z_km: float) -> float:
     """
     ITU-R P.835-7, Annex 1, Section 1.1.
 
-    Converts geopentential height (km) to geometric height (km).
+    Converts geometric height (km) to geopotential height (km).
 
     Args:
         z_km (float): Geometric height (km).
@@ -51,11 +51,12 @@ def _geometric_to_geopentential_height(z_km: float) -> float:
     return (6356.766*z_km)/(6356.766+z_km)
 
 
-def _geopentential_to_geometric_height(h_km: float) -> float:
+def _geopotential_to_geometric_height(h_km: float) -> float:
     """
+
     ITU-R P.835-7, Annex 1, Section 1.1.
 
-    Converts geometric height (km) to geopentential height (km).
+    Converts geopotential height (km) to geometric height (km).
 
     Args:
         h_km (float): Geopotential height (km).
@@ -174,7 +175,7 @@ def _itur_temperature(z_km: float) -> float:
     Returns temperature (K) from geometric height (km).
     """
     if z_km < 86:
-        H = _geometric_to_geopentential_height(z_km)
+        H = _geometric_to_geopotential_height(z_km)
         if H <= 11:
             return 288.15-(6.5*H)
         elif H <= 20:
@@ -205,7 +206,7 @@ def _itur_pressure(z_km: float) -> float:
     """
     Z = z_km
     if Z < 86:
-        H = _geometric_to_geopentential_height(Z)
+        H = _geometric_to_geopotential_height(Z)
         if H <= 11:
             return 1013.25*pow(288.15/(288.15-6.5*H), -34.1632/6.5)
         elif H <= 20:
