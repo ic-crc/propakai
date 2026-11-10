@@ -7,7 +7,6 @@
  */
 
 #include "ITURP_835_7.h"
-#include "ITURP_835_7.h"
 #include <cmath>
 #include <stdexcept>
 
