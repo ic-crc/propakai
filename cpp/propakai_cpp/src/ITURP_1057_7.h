@@ -12,14 +12,26 @@
 class ITURP_1057_7
 {
 public:
+	/**
+	 * @brief Approximation for the inverse complementary cumulative distribution function, with
+	 *        0 < p < 1.
+	 *
+	 * ITU-R P.1057-7, Annex 1, Section 3.
+	 */
 	static double Qinv(double p);
+
+	/**
+	 * @brief Approximation for the inverse cumulative distribution function, with 0 < p < 1.
+	 *
+	 * ITU-R P.1057-7, Annex 1, Section 3.
+	 */
 	static double Finv(double p);
 
 private:
 	// Prevent instantiation
-	ITURP_1057_7() = delete;                                 // Delete default constructor
-	ITURP_1057_7(const ITURP_1057_7&) = delete;              // Delete copy constructor
-	ITURP_1057_7(ITURP_1057_7&&) = delete;                   // Delete move constructor
-	ITURP_1057_7& operator=(const ITURP_1057_7&) = delete;   // Delete copy assignment
-	ITURP_1057_7& operator=(ITURP_1057_7&&) = delete;        // Delete move assignment
+	ITURP_1057_7() = delete;
+	ITURP_1057_7(const ITURP_1057_7&) = delete;
+	ITURP_1057_7(ITURP_1057_7&&) = delete;
+	ITURP_1057_7& operator=(const ITURP_1057_7&) = delete;
+	ITURP_1057_7& operator=(ITURP_1057_7&&) = delete;
 };

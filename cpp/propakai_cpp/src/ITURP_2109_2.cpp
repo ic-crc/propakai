@@ -11,13 +11,7 @@
 #include <cmath>
 
 
-// ITU-R P.2109-2, Annex 1, Section 3
-// f_GHz:               frequency (GHz) [~0.08, 100]
-// probability_percent: the probability with which the loss is not exceeded (%) ]0, 100[
-// elevAngle_degrees:   elevation angle of the path at the building façade (degrees above the horizontal) ]-90, 90[
-// thermally_efficient: is building type thermally efficient or not (traditional)
-// [return]:            building entry loss (dB)
-double ITURP_2109_2::BuildingEntryLoss(double f_GHz, double probability_percent, double elevAngle_degrees, bool thermally_efficient)
+double ITURP_2109_2::BuildingEntryLoss(double f_GHz, double p_percent, double theta_deg, bool thermally_efficient)
 {
     static constexpr double BLDG_COEFFS[2][9] = {{12.64, 3.72, 0.96, 9.6, 2.0, 9.1, -3.0, 4.5, -2.0},
 	                                             {28.19, -3.00, 8.48, 13.5, 3.8, 27.8, -2.9, 9.4, -2.1}};
@@ -38,12 +32,12 @@ double ITURP_2109_2::BuildingEntryLoss(double f_GHz, double probability_percent,
 	const double C = -3.0;
 	const double logf = log10(f_GHz);
 	const double Lh = r + s*logf + t*logf*logf;
-	const double Le = 0.212*std::abs(elevAngle_degrees);
+	const double Le = 0.212*std::abs(theta_deg);
 	const double mu1 = Lh + Le;
 	const double mu2 = w + x*logf;
 	const double sigma1 = u + v*logf;
 	const double sigma2 = y + z*logf;
-	const double FinvP = ITURP_1057_7::Finv(probability_percent/100.0);
+	const double FinvP = ITURP_1057_7::Finv(p_percent/100.0);
 	const double AP = FinvP*sigma1 + mu1;
 	const double BP = FinvP*sigma2 + mu2;
 

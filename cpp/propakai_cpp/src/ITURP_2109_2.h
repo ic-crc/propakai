@@ -12,14 +12,27 @@
 class ITURP_2109_2
 {
 public:
-	static double BuildingEntryLoss(double f_GHz, double probability_percent, double elevAngle_degrees, bool thermally_efficient);
+	/**
+	 * @brief Gets the building entry loss (dB).
+	 *
+	 * ITU-R P.2109-2, Annex 1, Section 3.
+	 *
+	 * @param f_GHz     Frequency (GHz), with 0.08 <= f_GHz <= 100.
+	 * @param p_percent Probability that loss is not exceeded (%), with 1 <= p_percent <= 99.
+	 * @param theta_deg Elevation angle of the path at the building façade (degrees above the
+	 *                  horizontal), with -90 <= theta_deg <= 90.
+	 * @param thermally_efficient Is building type thermally efficient or not (traditional).
+	 *
+	 * @return Building entry loss (dB).
+	 */
+	static double BuildingEntryLoss(double f_GHz, double p_percent, double theta_deg, bool thermally_efficient);
 
 
 private:
 	// Prevent instantiation
-	ITURP_2109_2() = delete;                                 // Delete default constructor
-	ITURP_2109_2(const ITURP_2109_2&) = delete;              // Delete copy constructor
-	ITURP_2109_2(ITURP_2109_2&&) = delete;                   // Delete move constructor
-	ITURP_2109_2& operator=(const ITURP_2109_2&) = delete;   // Delete copy assignment
-	ITURP_2109_2& operator=(ITURP_2109_2&&) = delete;        // Delete move assignment
+	ITURP_2109_2() = delete;
+	ITURP_2109_2(const ITURP_2109_2&) = delete;
+	ITURP_2109_2(ITURP_2109_2&&) = delete;
+	ITURP_2109_2& operator=(const ITURP_2109_2&) = delete;
+	ITURP_2109_2& operator=(ITURP_2109_2&&) = delete;
 };

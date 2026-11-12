@@ -11,8 +11,7 @@
 #include <stdexcept>
 
 
-// ITU-R P.1057-7, Section 3
-// inverse complementary cumulative distribution function
+
 double ITURP_1057_7::Qinv(double p)
 {
 	constexpr double a0 = 2.506628277459239;
@@ -63,8 +62,7 @@ double ITURP_1057_7::Qinv(double p)
 		return Uinv;
 }
 
-// ITU-R P.1057-7, Section 3
-// inverse cumulative distribution function
+
 double ITURP_1057_7::Finv(double p)
 {
 	return Qinv(1.0-p);
