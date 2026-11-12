@@ -36,12 +36,15 @@ public:
 				double firstLon, double lonSpacing, std::size_t numCols,
 				InterpolationType interpType);
 
-	// Delete copy and move constructors/assignments because std::once_flag 
-	// is neither copyable nor movable.
+	// Delete copy constructor and copy/move assignments because std::mutex and std::atomic
+	// are neither copyable nor movable.
 	DigitalMap(const DigitalMap&) = delete;
 	DigitalMap& operator=(const DigitalMap&) = delete;
-	DigitalMap(DigitalMap&&) = delete;
 	DigitalMap& operator=(DigitalMap&&) = delete;
+
+	// Custom move constructor (noexcept is important for std::vector).
+	// Ok since will only be used during static initialization.
+	DigitalMap(DigitalMap&& other) noexcept;
 
 	// Thread-safe method to get the interpolated value at a given lat/lon.
 	// Marked 'const' because logically it doesn't change the map's representation.

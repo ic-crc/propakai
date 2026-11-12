@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <utility> // for std::move
 
 
 // Initialize static members
@@ -35,6 +36,21 @@ DigitalMap::DigitalMap(std::string relativeFilePath,
 		m_lonSpacing(lonSpacing),
 		m_numCols(numCols),
 		m_interpType(interpType) 
+{
+}
+
+DigitalMap::DigitalMap(DigitalMap&& other) noexcept
+	: m_relativeFilePath(std::move(other.m_relativeFilePath)),
+		m_firstLat(other.m_firstLat),
+		m_latSpacing(other.m_latSpacing),
+		m_numRows(other.m_numRows),
+		m_firstLon(other.m_firstLon),
+		m_lonSpacing(other.m_lonSpacing),
+		m_numCols(other.m_numCols),
+		m_interpType(other.m_interpType),
+		m_isLoaded(other.m_isLoaded.load()), // Read the atomic boolean value
+		m_loadMutex(),                       // Default-construct a fresh, unlocked mutex
+		m_data(std::move(other.m_data))      // Move the vector data
 {
 }
 

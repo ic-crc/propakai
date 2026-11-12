@@ -10,34 +10,32 @@
 #include <stdexcept>
 
 
-#define MAKE_P1510_MAP(filename) \
-    { filename, -90.0, +0.75, 241, -180.0, +0.75, 481, InterpolationType::Bilinear }
+DigitalMap make_p1510_1_map(const std::string& filename)
+{
+    return { filename, -90.0, +0.75, 241, -180.0, +0.75, 481, InterpolationType::Bilinear };
+}
 
-const DigitalMap ITURP_1510_1::s_TAnnual_map = MAKE_P1510_MAP("p1510_1/T_Annual.TXT");
+const DigitalMap ITURP_1510_1::s_TAnnual_map = make_p1510_1_map("p1510_1/T_Annual.TXT");
 
-const std::array<DigitalMap, 12> ITURP_1510_1::s_TMonth_maps = {{
-	MAKE_P1510_MAP("p1510_1/T_Month01.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month02.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month03.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month04.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month05.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month06.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month07.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month08.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month09.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month10.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month11.TXT"),
-	MAKE_P1510_MAP("p1510_1/T_Month12.TXT")
-}};
+const std::vector<DigitalMap> ITURP_1510_1::s_TMonth_maps = []()
+{
+	std::vector<DigitalMap> maps;
+	maps.reserve(12);
 
-#undef MAKE_P1510_MAP
+	for (int month = 1; month <= 12; ++month)
+	{
+		char filename[64];
+		std::snprintf(filename, sizeof(filename), "p1510_1/T_Month%02d.TXT", month);
+		maps.push_back(make_p1510_1_map(filename));
+	}
 
+	return maps;
+}(); // () to execute the lambda immediately
 
 double ITURP_1510_1::AnnualMeanSurfaceTemperature(double lat, double lon)
 {
 	return s_TAnnual_map.GetValue(lat, lon);
 }
-
 
 double ITURP_1510_1::MonthlyMeanSurfaceTemperature(double lat, double lon, int month)
 {

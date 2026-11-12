@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include <array>
+#include <vector>
 #include "DigitalMap.h"
 
 
@@ -39,13 +39,13 @@ public:
 
 protected:
 	static const DigitalMap s_TAnnual_map;
-	static const std::array<DigitalMap, 12> s_TMonth_maps;
+	static const std::vector<DigitalMap> s_TMonth_maps;
 
 private:
 	// Prevent instantiation
-	ITURP_1510_1() = delete;                                 // Delete default constructor
-	ITURP_1510_1(const ITURP_1510_1&) = delete;              // Delete copy constructor
-	ITURP_1510_1(ITURP_1510_1&&) = delete;                   // Delete move constructor
-	ITURP_1510_1& operator=(const ITURP_1510_1&) = delete;   // Delete copy assignment
-	ITURP_1510_1& operator=(ITURP_1510_1&&) = delete;        // Delete move assignment
+	ITURP_1510_1() = delete;
+	ITURP_1510_1(const ITURP_1510_1&) = delete;
+	ITURP_1510_1(ITURP_1510_1&&) = delete;
+	ITURP_1510_1& operator=(const ITURP_1510_1&) = delete;
+	ITURP_1510_1& operator=(ITURP_1510_1&&) = delete;
 };
