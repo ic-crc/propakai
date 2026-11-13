@@ -30,7 +30,7 @@ double ITURP_2109_2::BuildingEntryLoss(double f_GHz, double p_percent, double th
 	const double z = BLDG_COEFFS[i][8];
 
 	const double C = -3.0;
-	const double logf = log10(f_GHz);
+	const double logf = std::log10(f_GHz);
 	const double Lh = r + s*logf + t*logf*logf;
 	const double Le = 0.212*std::abs(theta_deg);
 	const double mu1 = Lh + Le;
@@ -41,7 +41,7 @@ double ITURP_2109_2::BuildingEntryLoss(double f_GHz, double p_percent, double th
 	const double AP = FinvP*sigma1 + mu1;
 	const double BP = FinvP*sigma2 + mu2;
 
-	const double LomniBEL = 10.0*log10(pow(10.0, 0.1*AP) + pow(10.0, 0.1*BP) + pow(10.0, 0.1*C));
+	const double LomniBEL = 10.0*std::log10(pow(10.0, 0.1*AP) + std::pow(10.0, 0.1*BP) + std::pow(10.0, 0.1*C));
 
 	return LomniBEL;
 }
