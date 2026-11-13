@@ -167,7 +167,8 @@ def log_normal_approx_to_stat_cloud_attenuation(f_ghz: float, theta_deg: float, 
     Args:
         f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 200.
         theta_deg (float): Elevation angle (degrees).
-        p_percent (float): Exceedance probability (CCDF) of interest, in %, with 0.01 <= p <= 100.
+        p_percent (float): Exceedance probability (CCDF) of interest, in %,
+            with 0.01 <= p_percent <= 100.
         lat (float): Latitude of the desired location (degrees), with -90 <= lat <= 90.
         lon (float): Longitude of the desired location (degrees), with -180 <= lon <= 180.
 
@@ -315,8 +316,8 @@ def _download_annual_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_annual_data_dir)
             _du.extract_all(zip_pathname, delete_zip_archive=True)
             _du.print_notice()
-        else:
-            _du.print_already_installed(full_path_annual_data_dir, filenames)
+        #else:
+        #    _du.print_already_installed(full_path_annual_data_dir, filenames)
 
     filenames = ['mL.TXT', 'PL.TXT', 'sL.TXT']
     with lock:
@@ -326,8 +327,8 @@ def _download_annual_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_annual_data_dir)
             _du.extract_all(zip_pathname, delete_zip_archive=True)
             _du.print_notice()
-        else:
-            _du.print_already_installed(full_path_annual_data_dir, filenames)
+        #else:
+        #    _du.print_already_installed(full_path_annual_data_dir, filenames)
 
 
 def _download_monthly_rec_data(month: int) -> None:
@@ -352,8 +353,8 @@ def _download_monthly_rec_data(month: int) -> None:
             zip_pathname = _du.download(url, full_path_monthly_data_dir)
             _du.extract_all(zip_pathname, delete_zip_archive=True)
             _du.print_notice()
-        else:
-            _du.print_already_installed(full_path_monthly_data_dir, filenames)
+        #else:
+        #    _du.print_already_installed(full_path_monthly_data_dir, filenames)
 
 
 _p840_9_shared = {
