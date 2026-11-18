@@ -51,7 +51,7 @@ def height_gain_terminal_correction(f_ghz: float, h_m: float, clut: ClutterType,
         Ah (float): Additional loss (dB).
     """
     if r_m is None:
-        r_m = 0.0 # indicates to use default TABLE 3 values in cpp version
+        r_m = float('nan') # indicates to use default TABLE 3 values in cpp version
     cdll = _p2108_1_dso_shared['cdll']
     return cdll.P2108_1_HeightGainTerminalCorrection(f_ghz, h_m, clut.value, r_m, ws_m)
 
@@ -90,7 +90,7 @@ def earth_space_clutter_loss(f_ghz: float, theta_deg: float, p_percent: float) -
         p_percent (float): Percentage of locations (%), with 0 < p_percent < 100.
     
     Returns:
-        Lces (float): Additonal clutter loss (dB), "which can be added to the basic transmission
+        Lces (float): Additional clutter loss (dB), "which can be added to the basic transmission
             loss of a path calculated. "
     """
     cdll = _p2108_1_dso_shared['cdll']

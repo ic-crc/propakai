@@ -136,7 +136,7 @@ def earth_space_clutter_loss(f_ghz: float, theta_deg: float, p_percent: float) -
         p_percent (float): Percentage of locations (%), with 0 < p_percent < 100.
     
     Returns:
-        Lces (float): Additonal clutter loss (dB), "which can be added to the basic transmission
+        Lces (float): Additional clutter loss (dB), "which can be added to the basic transmission
             loss of a path calculated. "
     """
     A1 = 0.05
