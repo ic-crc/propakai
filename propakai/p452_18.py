@@ -15,12 +15,6 @@ Quote: Standard & Citation
       between stations on the surface of the Earth at frequencies above about 100 MHz*.
       Geneva: ITU.
       https://www.itu.int/rec/R-REC-P.452/en
-
-
-Notes:
-    This module was converted from C++ to Python with the assistance of an AI tool (Claude by
-    Anthropic). The converted code has been reviewed and validated against ITU validation
-    examples.
 """
 
 from os.path import join

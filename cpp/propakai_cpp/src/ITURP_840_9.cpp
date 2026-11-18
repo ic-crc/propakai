@@ -36,18 +36,18 @@ const std::array<std::string, 12> ITURP_840_9::s_MONTH_FOLDERS = {
 
 DigitalMap make_p840_9_map(const std::string& filename)
 {
-    return { filename, -90.0, +0.25, 721, -180.0, +0.25, 1441, InterpolationType::Bilinear };
+	return { filename, -90.0, +0.25, 721, -180.0, +0.25, 1441, InterpolationType::Bilinear };
 }
 
 const std::unordered_map<std::string, DigitalMap> ITURP_840_9::s_Annual_maps = []()
 {
 	std::unordered_map<std::string, DigitalMap> annual_maps;
 
-    for (const PFile& pfile : s_ANNUAL_P_FILES)
+	for (const PFile& pfile : s_ANNUAL_P_FILES)
 	{
-        std::string path = "p840_9/annual/" + pfile.filenameNoExt + ".TXT";
-        annual_maps.emplace(pfile.filenameNoExt, make_p840_9_map(path));
-    }
+		std::string path = "p840_9/annual/" + pfile.filenameNoExt + ".TXT";
+		annual_maps.emplace(pfile.filenameNoExt, make_p840_9_map(path));
+	}
 
 	annual_maps.emplace("L_mean", make_p840_9_map("p840_9/annual/L_mean.TXT"));
 	annual_maps.emplace("L_std", make_p840_9_map("p840_9/annual/L_std.TXT"));
@@ -62,19 +62,19 @@ const std::unordered_map<std::string, DigitalMap> ITURP_840_9::s_Monthly_maps = 
 {
 	std::unordered_map<std::string, DigitalMap> monthly_maps;
 
-	for (std::string_view month : s_MONTH_FOLDERS) 
+	for (const std::string& month : s_MONTH_FOLDERS)
 	{
 		for (const PFile& pfile : s_MONTHLY_P_FILES)
 		{
-			std::string key = std::string(month) + pfile.filenameNoExt;
+			std::string key = month + pfile.filenameNoExt;
 			std::string path = "p840_9/monthly/" + key + ".TXT";
 			monthly_maps.emplace(key, make_p840_9_map(path));
 		}
 
-		std::string mean_key = std::string(month) + "L_mean";
+		std::string mean_key = month + "L_mean";
 		monthly_maps.emplace(mean_key, make_p840_9_map("p840_9/monthly/" + mean_key + ".TXT"));
 
-		std::string std_key = std::string(month) + "L_std";
+		std::string std_key = month + "L_std";
 		monthly_maps.emplace(std_key, make_p840_9_map("p840_9/monthly/" + std_key + ".TXT"));
 	}
 

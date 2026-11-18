@@ -29,17 +29,17 @@ double ITURP_1144_13::SquareGridBilinearInterpolation(const std::vector<double>&
 	if (!std::isfinite(r) || !std::isfinite(c))
 		throw std::invalid_argument("Interpolation coordinates (r, c) must be finite numbers.");
 
-	double maxR = static_cast<double>(numRows-2);
-	double maxC = static_cast<double>(rowSize-2);
+	const double maxR = static_cast<double>(numRows-2);
+	const double maxC = static_cast<double>(rowSize-2);
 
-	std::size_t R = static_cast<std::size_t>(std::clamp(r, 0.0, maxR));
-	std::size_t C = static_cast<std::size_t>(std::clamp(c, 0.0, maxC));
+	const std::size_t R = static_cast<std::size_t>(std::clamp(r, 0.0, maxR));
+	const std::size_t C = static_cast<std::size_t>(std::clamp(c, 0.0, maxC));
 
-	double I00 = digitalMapVect[ R    * rowSize +  C   ];
-	double I10 = digitalMapVect[(R+1) * rowSize +  C   ];
-	double I01 = digitalMapVect[ R    * rowSize + (C+1)];
-	double I11 = digitalMapVect[(R+1) * rowSize + (C+1)];
-	double irc = I00*((R+1-r)*(C+1-c)) + I10*((r-R)*(C+1-c)) + I01*((R+1-r)*(c-C)) + I11*((r-R)*(c-C));
+	const double I00 = digitalMapVect[ R    * rowSize +  C   ];
+	const double I10 = digitalMapVect[(R+1) * rowSize +  C   ];
+	const double I01 = digitalMapVect[ R    * rowSize + (C+1)];
+	const double I11 = digitalMapVect[(R+1) * rowSize + (C+1)];
+	const double irc = I00*((R+1-r)*(C+1-c)) + I10*((r-R)*(C+1-c)) + I01*((R+1-r)*(c-C)) + I11*((r-R)*(c-C));
 
 	return irc;
 }
@@ -57,11 +57,11 @@ double ITURP_1144_13::SquareGridBicubicInterpolation(const std::vector<double>& 
 	if (!std::isfinite(r) || !std::isfinite(c))
 		throw std::invalid_argument("Interpolation coordinates (r, c) must be finite numbers.");	
 
-	double maxR = static_cast<double>(numRows-4);
-	double maxC = static_cast<double>(rowSize-4);
+	const double maxR = static_cast<double>(numRows-4);
+	const double maxC = static_cast<double>(rowSize-4);
 
-    std::size_t R = static_cast<std::size_t>(std::clamp(std::trunc(r)-1.0, 0.0, maxR));
-    std::size_t C = static_cast<std::size_t>(std::clamp(std::trunc(c)-1.0, 0.0, maxC));
+    const std::size_t R = static_cast<std::size_t>(std::clamp(std::trunc(r)-1.0, 0.0, maxR));
+    const std::size_t C = static_cast<std::size_t>(std::clamp(std::trunc(c)-1.0, 0.0, maxC));
 
 	// original un-optimized code
 	/*
@@ -88,8 +88,8 @@ double ITURP_1144_13::SquareGridBicubicInterpolation(const std::vector<double>& 
     double I = 0.0;
     for (std::size_t ri_index=0; ri_index<4; ++ri_index) // fused loop
 	{
-        std::size_t X = R + ri_index;
-        std::size_t row_offset = X * rowSize;
+        const std::size_t X = R + ri_index;
+        const std::size_t row_offset = X * rowSize;
         
         double ri_val = 0.0;
         for (std::size_t j_index=0; j_index<4; ++j_index)
@@ -104,7 +104,7 @@ double ITURP_1144_13::SquareGridBicubicInterpolation(const std::vector<double>& 
 double ITURP_1144_13::K(double d)
 {
 	constexpr double a = -0.5;
-	double abs_d = std::abs(d);
+	const double abs_d = std::abs(d);
 
 	if (abs_d >= 2.0)
 		return 0.0;
@@ -137,7 +137,7 @@ void ITURP_1144_13::InitDigitalMap(std::vector<double>& digitalMapVect, std::siz
 		throw; 
 	}
 }
-#include <iostream>
+
 void ITURP_1144_13::ReadDigitalMapFile(std::vector<double>& digitalMapVect, const std::filesystem::path& filePath)
 {
     // Open in binary mode and jump to the end (ate) to get the exact file size

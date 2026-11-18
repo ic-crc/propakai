@@ -15,6 +15,7 @@ py -m venv venv
 python -m pip install -r requirements-docs.txt
 
 # Générer et servir la documentation
+zensical build --clean
 zensical serve
 
 # Une fois le travail sur la documentation terminé
@@ -34,6 +35,7 @@ source venv/bin/activate
 python -m pip install -r requirements-docs.txt
 
 # Générer et servir la documentation
+zensical build --clean
 zensical serve
 
 # Une fois le travail sur la documentation terminé
