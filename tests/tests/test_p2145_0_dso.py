@@ -19,7 +19,7 @@ sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
 
 
-class Test_P2145_0(unittest.TestCase):
+class Test_P2145_0_dso(unittest.TestCase):
 
     def test_annual_stats(self):
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)

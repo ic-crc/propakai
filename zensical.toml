@@ -38,6 +38,7 @@ nav = [
       { "p838_3" = "api_reference/p838_3.md" },
       { "p839_4" = "api_reference/p839_4.md" },
       { "p840_9" = "api_reference/p840_9.md" },
+      { "p840_9_dso" = "api_reference/p840_9_dso.md" },
       { "p1057_7" = "api_reference/p1057_7.md" },
       { "p1144_13" = "api_reference/p1144_13.md" },
       { "p1411_13" = "api_reference/p1411_13.md" },

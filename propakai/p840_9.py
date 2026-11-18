@@ -302,7 +302,7 @@ def _thread_safe_get_digital_map_array(month: int|None, filename: str) -> array:
     return map_array
 
 
-def _download_annual_rec_data() -> None:
+def _download_annual_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p840_9_shared['DATA_DIR']
     annual_data_dir = join(data_dir, 'annual')
     full_path_annual_data_dir = join(_du.install_dir(), annual_data_dir)
@@ -316,8 +316,8 @@ def _download_annual_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_annual_data_dir)
             _du.extract_all(zip_pathname, delete_zip_archive=True)
             _du.print_notice()
-        #else:
-        #    _du.print_already_installed(full_path_annual_data_dir, filenames)
+        elif warn_if_already_installed:
+            _du.print_already_installed(full_path_annual_data_dir, filenames)
 
     filenames = ['mL.TXT', 'PL.TXT', 'sL.TXT']
     with lock:
@@ -327,17 +327,19 @@ def _download_annual_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_annual_data_dir)
             _du.extract_all(zip_pathname, delete_zip_archive=True)
             _du.print_notice()
-        #else:
-        #    _du.print_already_installed(full_path_annual_data_dir, filenames)
+        elif warn_if_already_installed:
+            _du.print_already_installed(full_path_annual_data_dir, filenames)
 
 
-def _download_monthly_rec_data(month: int) -> None:
+def _download_monthly_rec_data(month: int, warn_if_already_installed: bool=True) -> None:
     """
     Downloads monthly data files.
 
     Args:
         month (int): 1 <= month <= 12.
     """
+    if month < 1 or month > 12:
+        raise ValueError('Month must be between 1 and 12.')
     month_num_str = f'{month:02d}'
     part_num_str = f'{month+1:02d}'
     data_dir = _p840_9_shared['DATA_DIR']
@@ -353,8 +355,8 @@ def _download_monthly_rec_data(month: int) -> None:
             zip_pathname = _du.download(url, full_path_monthly_data_dir)
             _du.extract_all(zip_pathname, delete_zip_archive=True)
             _du.print_notice()
-        #else:
-        #    _du.print_already_installed(full_path_monthly_data_dir, filenames)
+        elif warn_if_already_installed:
+            _du.print_already_installed(full_path_monthly_data_dir, filenames)
 
 
 _p840_9_shared = {

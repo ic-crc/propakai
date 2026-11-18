@@ -5,8 +5,6 @@
 # See LICENSE file in the project root for full license text.
 """
 Test module for p840_9_dso.py.
-NOTE: There is no Python wrapper yet for the C++ class for P.840-9, but this test class will allow
-us to easily test the C++ implementation.
 
 Uses ITU validation examples file CG-3M3J-13-ValEx-Rev8.3.0.xlsx from
 https://www.itu.int/en/ITU-R/study-groups/rsg3/rwp3m/Pages/digprod.aspx (Validation Examples tab)
@@ -16,23 +14,15 @@ from os.path import dirname, abspath
 from os import environ
 from math import isclose
 import unittest
-import ctypes as ct
 import pandas as pd
-from propakai import p840_9
-from propakai import _bin_utils as _bu
+from propakai import p840_9_dso
 sys.path.insert(0, dirname(abspath(__file__)))
 import _test_utils as _tu
 
 
-class Test_P839_4(unittest.TestCase):
+class Test_P839_4_dso(unittest.TestCase):
 
     def test_slant_path_statistical_cloud_attenuation(self):
-        p840_9._download_annual_rec_data()
-        lib = _bu.get_dynamic_library('propakai_cpp')
-        lib.P840_9_SlantPathStatisticalCloudAttenuation.argtypes = [ct.c_double, ct.c_double,
-                                            ct.c_double, ct.c_double, ct.c_double, ct.c_int]
-        lib.P840_9_SlantPathStatisticalCloudAttenuation.restype = ct.c_double
-
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P.840-9 A_Clouds', header=None)
         lat_list = df.iloc[20:52, 2].to_list()
@@ -43,17 +33,12 @@ class Test_P839_4(unittest.TestCase):
         Ac_list = df.iloc[20:52, 12].to_list()
         for lat, lon, p, f, theta, expected_Ac in zip(lat_list, lon_list, p_list, f_list,
                                                       theta_list, Ac_list):
-            Ac = lib.P840_9_SlantPathStatisticalCloudAttenuation(f, theta, p, lat, lon, -1)
+            Ac = p840_9_dso.slant_path_statistical_cloud_attenuation(f_ghz=f, theta_deg=theta,
+                                                    p_percent=p, lat=lat, lon=lon, month=None)
             self.assertTrue(isclose(Ac, expected_Ac))
 
 
     def test_log_normal_approx_to_stat_cloud_attenuation(self):
-        p840_9._download_annual_rec_data()
-        lib = _bu.get_dynamic_library('propakai_cpp')
-        lib.P840_9_LogNormalApproxToStatCloudAttenuation.argtypes = [ct.c_double, ct.c_double,
-                                                        ct.c_double, ct.c_double, ct.c_double]
-        lib.P840_9_LogNormalApproxToStatCloudAttenuation.restype = ct.c_double
-
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P.840-9 A_Clouds', header=None)
         lat_list = df.iloc[20:52, 14].to_list()
@@ -64,17 +49,12 @@ class Test_P839_4(unittest.TestCase):
         Ac_list = df.iloc[20:52, 25].to_list()
         for lat, lon, p, f, theta, expected_Ac in zip(lat_list, lon_list, p_list, f_list,
                                                       theta_list, Ac_list):
-            Ac = lib.P840_9_LogNormalApproxToStatCloudAttenuation(f, theta, p, lat, lon)
+            Ac = p840_9_dso.log_normal_approx_to_stat_cloud_attenuation(f_ghz=f, theta_deg=theta,
+                                                                    p_percent=p, lat=lat, lon=lon)
             self.assertTrue(isclose(Ac, expected_Ac, rel_tol=1e-8))
 
 
     def test_integrated_cloud_liquid_water_content_annual(self):
-        p840_9._download_annual_rec_data()
-        lib = _bu.get_dynamic_library('propakai_cpp')
-        lib.P840_9_IntegratedCloudLiquidWaterContent.argtypes = [ct.c_double, ct.c_double,
-                                                                    ct.c_double, ct.c_int]
-        lib.P840_9_IntegratedCloudLiquidWaterContent.restype = ct.c_double
-
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P840_9_L', header=None)
         lat_list = df.iloc[23:59, 2].to_list()
@@ -82,22 +62,14 @@ class Test_P839_4(unittest.TestCase):
         p_list = df.iloc[23:59, 4].to_list()
         L_list = df.iloc[23:59, 6].to_list()
         for lat, lon, p, expected_L in zip(lat_list, lon_list, p_list, L_list):
-            L = lib.P840_9_IntegratedCloudLiquidWaterContent(p, lat, lon, -1)
+            L = p840_9_dso.integrated_cloud_liquid_water_content(p_percent=p, lat=lat, lon=lon,
+                                                                 month=None)
             self.assertTrue(isclose(L, expected_L))
 
 
     @unittest.skipUnless(environ.get('NO_SKIP'),
                          "Optional, requires about 0.5 GB of monthly stats")
     def test_integrated_cloud_liquid_water_content_monthly(self):
-        p840_9._download_monthly_rec_data(2)
-        p840_9._download_monthly_rec_data(5)
-        p840_9._download_monthly_rec_data(8)
-        p840_9._download_monthly_rec_data(11)
-        lib = _bu.get_dynamic_library('propakai_cpp')
-        lib.P840_9_IntegratedCloudLiquidWaterContent.argtypes = [ct.c_double, ct.c_double,
-                                                                    ct.c_double, ct.c_int]
-        lib.P840_9_IntegratedCloudLiquidWaterContent.restype = ct.c_double
-
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P840_9_L', header=None)
         lat_list = df.iloc[23:59, 11].to_list()
@@ -109,10 +81,14 @@ class Test_P839_4(unittest.TestCase):
         L_nov_list = df.iloc[23:59, 18].to_list()
         for lat, lon, p, expect_L_feb, expect_L_may, expect_L_aug, expect_L_nov, in zip(lat_list,
             lon_list, p_list, L_feb_list, L_may_list, L_aug_list, L_nov_list):
-            L_feb = lib.P840_9_IntegratedCloudLiquidWaterContent(p, lat, lon, 2)
-            L_may = lib.P840_9_IntegratedCloudLiquidWaterContent(p, lat, lon, 5)
-            L_aug = lib.P840_9_IntegratedCloudLiquidWaterContent(p, lat, lon, 8)
-            L_nov = lib.P840_9_IntegratedCloudLiquidWaterContent(p, lat, lon, 11)
+            L_feb = p840_9_dso.integrated_cloud_liquid_water_content(p_percent=p, lat=lat, lon=lon,
+                                                                     month=2)
+            L_may = p840_9_dso.integrated_cloud_liquid_water_content(p_percent=p, lat=lat, lon=lon,
+                                                                     month=5)
+            L_aug = p840_9_dso.integrated_cloud_liquid_water_content(p_percent=p, lat=lat, lon=lon,
+                                                                     month=8)
+            L_nov = p840_9_dso.integrated_cloud_liquid_water_content(p_percent=p, lat=lat, lon=lon,
+                                                                     month=11)
             self.assertTrue(isclose(L_feb, expect_L_feb, rel_tol=1e-7))
             self.assertTrue(isclose(L_may, expect_L_may, rel_tol=1e-7))
             self.assertTrue(isclose(L_aug, expect_L_aug, rel_tol=1e-7))
