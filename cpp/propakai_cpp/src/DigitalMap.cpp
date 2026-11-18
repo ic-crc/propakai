@@ -56,23 +56,23 @@ DigitalMap::DigitalMap(DigitalMap&& other) noexcept
 
 double DigitalMap::GetValue(double latitude, double longitude) const
 {
-    if (!(std::abs(latitude) <= 90.0 && std::abs(longitude) <= 180.0))
-        throw std::invalid_argument("Latitude must be in [-90, 90] and longitude in [-180, 180].");
+	if (!(std::abs(latitude) <= 90.0 && std::abs(longitude) <= 180.0))
+		throw std::invalid_argument("Latitude must be in [-90, 90] and longitude in [-180, 180].");
 
-    // Thread-safe Lazy Loading
+	// Thread-safe Lazy Loading
 	// Double-Checked Locking pattern
-    if (!m_isLoaded.load(std::memory_order_acquire))
+	if (!m_isLoaded.load(std::memory_order_acquire))
 	{
-        std::lock_guard<std::mutex> lock(m_loadMutex);
-        if (!m_isLoaded.load(std::memory_order_relaxed))
+		std::lock_guard<std::mutex> lock(m_loadMutex);
+		if (!m_isLoaded.load(std::memory_order_relaxed))
 		{
-            LoadData(); // If this throws, lock_guard ALWAYS unlocks m_loadMutex cleanly!
-            m_isLoaded.store(true, std::memory_order_release);
-        }
-    }
+			LoadData(); // If this throws, lock_guard ALWAYS unlocks m_loadMutex cleanly!
+			m_isLoaded.store(true, std::memory_order_release);
+		}
+	}
 
-    // At this point, m_data is guaranteed to be populated and is only being read,
-    // which is 100% thread-safe.
+	// At this point, m_data is guaranteed to be populated and is only being read,
+	// which is 100% thread-safe.
 
 	if( longitude < 0 && m_firstLon >= 0 )
 		longitude += 360;
@@ -92,6 +92,23 @@ double DigitalMap::GetValue(double latitude, double longitude) const
 	}
 }
 
+double DigitalMap::GetValueFromIndex(std::size_t index) const
+{
+	// Thread-safe Lazy Loading
+	// Double-Checked Locking pattern
+	if (!m_isLoaded.load(std::memory_order_acquire))
+	{
+		std::lock_guard<std::mutex> lock(m_loadMutex);
+		if (!m_isLoaded.load(std::memory_order_relaxed))
+		{
+			LoadData(); // If this throws, lock_guard ALWAYS unlocks m_loadMutex cleanly!
+			m_isLoaded.store(true, std::memory_order_release);
+		}
+	}
+
+	return m_data.at(index); // will throw std::out_of_range if index is invalid
+}
+
 void DigitalMap::LoadData() const
 {
 	// Safely read the base directory
@@ -101,9 +118,9 @@ void DigitalMap::LoadData() const
 		baseDir = s_baseDirectory;
 	}
 
-    // Use u8path() to safely convert UTF-8 strings (e.g., "C:/Users/René") 
-    // into Windows native wide-characters under the hood.
-    std::filesystem::path fullPath = std::filesystem::u8path(baseDir) / m_relativeFilePath;
+	// Use u8path() to safely convert UTF-8 strings (e.g., "C:/Users/René") 
+	// into Windows native wide-characters under the hood.
+	std::filesystem::path fullPath = std::filesystem::u8path(baseDir) / m_relativeFilePath;
 
 	ITURP_1144_13::InitDigitalMap(m_data, m_numRows*m_numCols, fullPath);
 }

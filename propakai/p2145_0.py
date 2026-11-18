@@ -377,8 +377,8 @@ def weibull_parameters(lat: float, lon: float, h_mamsl: float|None=None) -> tupl
             ITU-R P.1511. Default value is None.
 
     Returns:
-        k_VS (float): The Weibull integrated water vapour content shape parameters.
-        lambda_VS (float): The Weibull integrated water vapour content scale parameters.
+        k_VS (float): The Weibull integrated water vapour content shape parameter.
+        lambda_VS (float): The Weibull integrated water vapour content scale parameter.
     """
     weibull_dir = 'Weibull_Annual'
 
@@ -636,7 +636,7 @@ def _thread_safe_get_digital_map_array(month: int|None, relname: str) -> array:
     return map_array
 
 
-def _download_annual_rec_data() -> None:
+def _download_annual_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p2145_0_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     percents = [p[1] for p in _p2145_0_shared['ANNUAL_P']]
@@ -671,7 +671,7 @@ def _download_annual_rec_data() -> None:
             for zip_pathname in zip_pathname_list:
                 _du.extract_all(zip_pathname, delete_zip_archive=True, create_new_dir=True)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(p_dir, p_filenames)
             _du.print_already_installed(rho_dir, rho_filenames)
             _du.print_already_installed(t_dir, t_filenames)
@@ -689,17 +689,19 @@ def _download_annual_rec_data() -> None:
                                               create_dirs=True, delete_zip_archive=True)[0]
             _du.extract_all(zip_pathname2, delete_zip_archive=True, create_new_dir=True)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(weibull_dir, weibull_filenames)
 
 
-def _download_monthly_rec_data(month: int) -> None:
+def _download_monthly_rec_data(month: int, warn_if_already_installed: bool=True) -> None:
     """
     Downloads monthly data files.
 
     Args:
         month (int): 1 <= month <= 12.
     """
+    if month < 1 or month > 12:
+        raise ValueError('Month must be between 1 and 12.')
     data_dir = _p2145_0_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     percents = [p[1] for p in _p2145_0_shared['MONTHLY_P']]
@@ -738,7 +740,7 @@ def _download_monthly_rec_data(month: int) -> None:
             for zip_pathname in zip_pathname_list:
                 _du.extract_all(zip_pathname, delete_zip_archive=True, create_new_dir=True)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(p_dir, p_filenames)
             _du.print_already_installed(rho_dir, rho_filenames)
             _du.print_already_installed(t_dir, t_filenames)

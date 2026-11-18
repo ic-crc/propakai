@@ -50,6 +50,9 @@ public:
 	// Marked 'const' because logically it doesn't change the map's representation.
 	double GetValue(double latitude, double longitude) const;
 
+	// Thread-safe method to get the value at specified index
+	double GetValueFromIndex(std::size_t index) const;
+
 private:
 	// Shared across all instances of DigitalMap
 	static std::string s_baseDirectory;

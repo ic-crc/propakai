@@ -11,6 +11,7 @@ const cpp_sources = &.{
     "src/API_ITURP_1812_8.cpp",
     "src/API_ITURP_2108_1.cpp",
     "src/API_ITURP_2109_2.cpp",
+    "src/API_ITURP_2145_0.cpp",
     "src/API_Version.cpp",
     "src/DigitalMap.cpp",
     "src/ITURP_452_18.cpp",
@@ -29,6 +30,7 @@ const cpp_sources = &.{
     "src/ITURP_2001_6.cpp",
     "src/ITURP_2108_1.cpp",
     "src/ITURP_2109_2.cpp",
+    "src/ITURP_2145_0.cpp",
 };
 
 const cpp_flags = &.{

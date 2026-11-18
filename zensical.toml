@@ -52,6 +52,7 @@ nav = [
       { "p2109_2" = "api_reference/p2109_2.md" },
       { "p2109_2_dso" = "api_reference/p2109_2_dso.md" },
       { "p2145_0" = "api_reference/p2145_0.md" },
+      { "p2145_0_dso" = "api_reference/p2145_0_dso.md" },
       { "p2148_0" = "api_reference/p2148_0.md" },
       { "types" = "api_reference/types.md" },
 
