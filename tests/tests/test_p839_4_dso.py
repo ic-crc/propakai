@@ -26,7 +26,7 @@ import _test_utils as _tu
 class Test_P839_4(unittest.TestCase):
 
     def test_h0_hr(self):
-        p839_4._download_rec_data() # make sure rec data is present before running tests
+        p839_4._download_rec_data(warn_if_already_installed=False)
         lib = _bu.get_dynamic_library('propakai_cpp')
         lib.P839_4_MeanAnnual0CIsothermHeight.argtypes = [ct.c_double, ct.c_double]
         lib.P839_4_MeanAnnual0CIsothermHeight.restype = ct.c_double

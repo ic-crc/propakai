@@ -92,7 +92,7 @@ def _thread_safe_get_h0_array() -> array:
     return arr
 
 
-def _download_rec_data() -> None:
+def _download_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p839_4_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     filenames = ['h0.txt']
@@ -103,7 +103,7 @@ def _download_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_data_dir)
             _du.extract_files(zip_pathname, filenames, create_dirs=True, delete_zip_archive=True)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(full_path_data_dir, filenames)
 
 

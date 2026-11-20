@@ -345,13 +345,12 @@ double ITURP_452_18::TotalGaseousAbsorption(double f, double hts, double hrs, do
 {
 double Ag;
 double dfs, dh;
-double yo, yw;
+double gamma;
 
 	dh = (hts-hrs)/1000.0;
 	dfs = sqrt(dn*dn + dh*dh);
-	yo = ITURP_676_13::AttenuationDueToDryAir(f, P, TK, rho);
-	yw = ITURP_676_13::AttenuationDueToWaterVapour(f, P, TK, rho);
-	Ag = (yo+yw)*dfs;
+	gamma = ITURP_676_13::GaseousAttenuation(f, P, TK, rho);
+	Ag = gamma*dfs;
 
 	return Ag;
 }

@@ -77,7 +77,7 @@ def _thread_safe_get_nwet_annual_50_array() -> array:
     return arr
 
 
-def _download_rec_data() -> None:
+def _download_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p453_14_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     filenames = ['NWET_Annual_50.TXT']
@@ -92,7 +92,7 @@ def _download_rec_data() -> None:
                                               create_dirs=True, delete_zip_archive=True)[0]
             _du.extract_files(zip_pathname3, filenames, create_dirs=True, delete_zip_archive=True)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(full_path_data_dir, filenames)
 
 

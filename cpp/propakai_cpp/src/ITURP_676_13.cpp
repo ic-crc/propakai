@@ -8,93 +8,99 @@
 
 #include "ITURP_676_13.h"
 #include <cmath>
+#include <algorithm>
 
 
-// f:        frequency (GHz) [1, 1000]
-// P:        atmospheric pressure (hPa)
-// TK:       temperature (K)
-// rho:      water vapour density (g/m3)
-// [return]: specific gaseous attenuation attributable to dry air (oxygen, pressure-induced 
-//           nitrogen and non-resonant Debye attenuation) (dB/km)
-double ITURP_676_13::AttenuationDueToDryAir(double f, double P, double TK, double rho)
+double ITURP_676_13::GaseousAttenuation(double f_GHz, double p_hPa/*=1013.25*/, double T_K/*=288.15*/, double rho_gm3/*=7.5*/)
 {
-	double yo = 0.1820*f*NppOxygen(f, P, TK, rho); // eq. (1), (33)
-	return yo;
+    const double gamma_o = DryAirGaseousAttenuation(f_GHz, p_hPa, T_K, rho_gm3);
+    const double gamma_w = WaterVapourGaseousAttenuation(f_GHz, p_hPa, T_K, rho_gm3);
+    return gamma_o+gamma_w;
 }
 
-// f:        frequency (GHz) [1, 1000]
-// P:        atmospheric pressure (hPa)
-// TK:       temperature (K)
-// rho:      water vapour density (g/m3)
-// [return]: specific gaseous attenuation attributable to water vapour (dB/km)
-double ITURP_676_13::AttenuationDueToWaterVapour(double f, double P, double TK, double rho)
+double ITURP_676_13::DryAirGaseousAttenuation(double f_GHz, double p_hPa/*=1013.25*/, double T_K/*=288.15*/, double rho_gm3/*=7.5*/)
 {
-	double yw = 0.1820*f*NppWaterVapour(f, P, TK, rho); // eq. (1), (36)
-	return yw;
+	return 0.1820*f_GHz*NppOxygen(f_GHz, p_hPa, T_K, rho_gm3);
 }
 
-// ITU-R P.676-13, Annex 1, Section 1 - N''Oxygen
-// f:        frequency (GHz) [1, 1000]
-// P:        atmospheric pressure (hPa)
-// TK:       temperature (K)
-// rho:      water vapour density (g/m3)
-// [return]: imaginary part of the complex refractivity attributable to oxygen
-double ITURP_676_13::NppOxygen(double f, double P, double TK, double rho)
+double ITURP_676_13::WaterVapourGaseousAttenuation(double f_GHz, double p_hPa/*=1013.25*/, double T_K/*=288.15*/, double rho_gm3/*=7.5*/)
 {
-static const int NUM_LINES = 44;
-double theta = 300.0/TK;
-double e = rho*TK/216.7;
-double NppO = 0.0;
+	return 0.1820*f_GHz*NppWaterVapour(f_GHz, p_hPa, T_K, rho_gm3);
+}
 
-double prod1 = 1.0E-7*P*theta*theta*theta;
-double prod2 = 1.1*e*theta;
-double prod3 = 1.0E-4*(P+e)*pow(theta,0.8);
+// ITU-R P.676-13, Annex 1, Section 1.
+// 
+// N''Oxygen.
+// 
+// f_GHz: Frequency (GHz), with 1 <= f_GHz <= 1000.
+// p_hPa: Atmospheric pressure (hPa).
+// T_K: Temperature (K).
+// rho_gm3: Water vapour density (g/m3).
+// Returns: Imaginary part of the complex refractivity attributable to oxygen.
+double ITURP_676_13::NppOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3)
+{
+	constexpr int NUM_LINES = 44;
+	const double theta = 300.0/T_K;
+	const double e = rho_gm3*T_K/216.7;
+	double NppO = 0.0;
 
-	for(int i=0 ; i<NUM_LINES ; i++)
+	const double prod1 = 1.0E-7*p_hPa*theta*theta*theta;
+	const double prod2 = 1.1*e*theta;
+	const double prod3 = 1.0E-4*(p_hPa+e)*std::pow(theta,0.8);
+
+	for(int i=0 ; i<NUM_LINES ; ++i)
 	{
-		double fi = TABLE1_[i][0];
-		const double* a = TABLE1_[i];
+		const double fi = s_TABLE_1[i][0];
+		const double* a = s_TABLE_1[i];
 
-		double Si = a[1] * prod1 * exp(a[2]*(1.0-theta));
+		const double Si = a[1] * prod1 * std::exp(a[2]*(1.0-theta));
 
-		double df = a[3]*1.0E-4*((P*pow(theta,0.8-a[4]))+prod2);
-		df = sqrt((df*df)+2.25E-6);
-		double delta = (a[5]+(a[6]*theta))*prod3;
+		const double df_ = a[3]*1.0E-4*((p_hPa*std::pow(theta,0.8-a[4]))+prod2);
+		const double df = std::sqrt((df_*df_)+2.25E-6);
+		const double delta = (a[5]+(a[6]*theta))*prod3;
 
-		double Fi = (f/fi)*( ((df-(delta*(fi-f)))/(((fi-f)*(fi-f))+(df*df))) + ((df-(delta*(fi+f)))/(((fi+f)*(fi+f))+(df*df))) );
+		const double Fi = (f_GHz/fi)*( ((df-(delta*(fi-f_GHz)))/(((fi-f_GHz)*(fi-f_GHz))+(df*df))) +
+		                  ((df-(delta*(fi+f_GHz)))/(((fi+f_GHz)*(fi+f_GHz))+(df*df))) );
 		
 		NppO += Si*Fi;
 	}
-	NppO += NppD(f, P, TK, rho);
+
+	const double d = 5.6E-4*(p_hPa+e)*std::pow(theta, 0.8);
+	const double NppD = f_GHz*p_hPa*theta*theta*( (6.14E-5/(d*(1.0+((f_GHz*f_GHz)/(d*d))))) +
+	                    ((1.4E-12*p_hPa*std::pow(theta,1.5))/(1.0+(1.9E-5*std::pow(f_GHz,1.5)))) );
+	NppO += NppD;
 
 	return NppO;
 }
 
-// ITU-R P.676-13, Annex 1, Section 1 - N''Water Vapour
-// f:        frequency (GHz) [1, 1000]
-// P:        atmospheric pressure (hPa)
-// TK:       temperature (K)
-// rho:      water vapour density (g/m3)
-// [return]: imaginary part of the complex refractivity attributable to water vapour
-double ITURP_676_13::NppWaterVapour(double f, double P, double TK, double rho)
+// ITU-R P.676-13, Annex 1, Section 1.
+// 
+// N''Water Vapour.
+// 
+// f_GHz: Frequency (GHz), with 1 <= f_GHz <= 1000.
+// p_hPa: Atmospheric pressure (hPa).
+// T_K: Temperature (K).
+// rho_gm3: Water vapour density (g/m3).
+// Returns: Imaginary part of the complex refractivity attributable to water vapour.
+double ITURP_676_13::NppWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3)
 {
-static const int NUM_LINES = 35;
-double theta = 300.0/TK;
-double e = rho*TK/216.7;
-double NppWV = 0.0;
+	constexpr int NUM_LINES = 35;
+	const double theta = 300.0/T_K;
+	const double e = rho_gm3*T_K/216.7;
+	double NppWV = 0.0;
 
-double prod1 = 1.0E-1*e*pow(theta, 3.5);
+	const double prod1 = 1.0E-1*e*std::pow(theta, 3.5);
 
 	for(int i=0 ; i<NUM_LINES ; i++)
 	{
-		double fi = TABLE2_[i][0];
-		const double* b = TABLE2_[i];
+		const double fi = s_TABLE_2[i][0];
+		const double* b = s_TABLE_2[i];
 
-		double Si = b[1] * prod1 * exp(b[2]*(1.0-theta));
+		const double Si = b[1] * prod1 * std::exp(b[2]*(1.0-theta));
 
-		double df = b[3]*1.0E-4*((P*pow(theta,b[4])) + (b[5]*e*pow(theta,b[6])));
-		df = 0.535*df + sqrt((0.217*df*df)+(2.1316E-12*fi*fi/theta));
-		double Fi = (f/fi)*( (df/(((fi-f)*(fi-f))+(df*df))) + (df/(((fi+f)*(fi+f))+(df*df))) );
+		const double df_ = b[3]*1.0E-4*((p_hPa*std::pow(theta,b[4])) + (b[5]*e*std::pow(theta,b[6])));
+		const double df = 0.535*df_ + std::sqrt((0.217*df_*df_)+(2.1316E-12*fi*fi/theta));
+		const double Fi = (f_GHz/fi)*( (df/(((fi-f_GHz)*(fi-f_GHz))+(df*df))) + (df/(((fi+f_GHz)*(fi+f_GHz))+(df*df))) );
 		
 		NppWV += Si*Fi;
 	}
@@ -102,25 +108,245 @@ double prod1 = 1.0E-1*e*pow(theta, 3.5);
 	return NppWV;
 }
 
-// ITU-R P.676-13, Annex 1, Section 1 - N''D
-// f:        frequency (GHz) [1, 1000]
-// P:        atmospheric pressure (hPa)
-// TK:       temperature (K)
-// rho:      water vapour density (g/m3)
-// [return]: the dry continuum due to pressure-induced nitrogen absorption and the Debye spectrum 
-double ITURP_676_13::NppD(double f, double P, double TK, double rho)
+// ITU-R P.676-13, Annex 1, Section 2.2.1.
+// 
+// Calculates the atmospheric radio refractive index at any height for Earth-satellite paths.
+// 
+// h_km: Height in km, with h_km >= 0.
+// atm: (Optional) A reference atmosphere from ITU-R P.835-6.
+//      Default value is MEAN_ANNUAL_GLOBAL.
+// rho0_gm3: (Optional) Ground-level water vapour density (g/m3). Only applies when atm
+//           is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+// Returns: The radio refractive index, n, at height h_km (for Earth-satellite paths).
+double ITURP_676_13::RefractiveIndex(double h_km, Atm atm, double rho0_gm3)
 {
-double theta = 300.0/TK;
-double e = rho*TK/216.7;
-double d;
-double NppD;
+	// Outer space conventionally starts at 100 km above sea level.
+	// See Section 2.2.3 of Annex 1 from ITU-R P.676-13.
+	if (h_km > 100.0)
+		return 1.0;
 
-	d = 5.6E-4*(P+e)*pow(theta, 0.8);
-	NppD = f*P*theta*theta*( (6.14E-5/(d*(1.0+((f*f)/(d*d))))) + ((1.4E-12*P*pow(theta,1.5))/(1.0+(1.9E-5*pow(f,1.5)))) );
-	return NppD;
+	// Extract from ITU-R P.453-14:
+	// "For Earth-satellite paths, the refractive index at any height is obtained using equations
+	// (1), (2) and (10) above, together with the appropriate values for the parameters given in
+	// Recommendation ITU-R P.835, Annex 1."
+
+	const double P = ITURP_835_6::Pressure(h_km, atm); // total atmospheric pressure (hPa)
+	const double T = ITURP_835_6::Temperature(h_km, atm);
+	const double rho = ITURP_835_6::WaterVapourDensity(h_km, atm, rho0_gm3);
+	const double e = rho * T / 216.7; // water vapour pressure, in hPa. eq. (10) of P.453-14
+	const double Pd = P - e; // dry atmospheric pressure (hPa). eq. (5) of P.453-14
+	const double N = (77.6 * Pd / T) + (72.0 * e / T) + (3.75E5 * e / (T * T)); // eq. (2) of P.453-14
+	const double n = 1.0 + (N * 1E-6); // eq. (1) of P.453-14
+	return n;
 }
 
-const double ITURP_676_13::TABLE1_[44][7]={
+// ITU-R P.676-13, Section 2.2.1 of Annex 1
+std::pair<int, int> ITURP_676_13::LayerIndices(double h_lower, double h_upper)
+{
+	h_lower = std::max(0.0, h_lower);
+	h_upper = std::min(100.0, h_upper);
+
+	const double exp_term = std::expm1(0.01); // does "std::exp(0.01) - 1.0" avoiding precision loss
+
+	int i_lower = static_cast<int>(std::floor(100.0 * std::log(1E4 * h_lower * exp_term + 1.0) + 1.0));
+	int i_upper = static_cast<int>(std::ceil(100.0 * std::log(1E4 * h_upper * exp_term + 1.0) + 1.0));
+
+	return {i_lower, i_upper};
+}
+
+// ITU-R P.676-13, Section 2.2.1 of Annex 1
+double ITURP_676_13::LayerThickness(int i, int i_lower, int i_upper, double h_lower, double h_upper)
+{
+	double delta_i_km;
+
+	if (h_lower == 0.0 && h_upper > 100.0)
+		delta_i_km = 0.0001 * std::exp((i - 1) / 100.0);
+	else
+	{
+		double m = ((std::exp(0.02) - std::exp(0.01)) / 
+		            (std::exp(i_upper / 100.0) - std::exp(i_lower / 100.0))) * (h_upper - h_lower);
+		delta_i_km = m * std::exp((i - 1) / 100.0);
+	}
+
+	return delta_i_km;
+}
+
+// ITU-R P.676-13, Section 2.2.1 of Annex 1
+double ITURP_676_13::LayerBottomHeight(int i, int i_lower, int i_upper, double h_lower, double h_upper)
+{
+	double h_i_km;
+
+	if (h_lower == 0.0 && h_upper > 100.0)
+		h_i_km = 0.0001 * ((std::exp((i - 1) / 100.0) - 1.0) / (std::exp(0.01) - 1.0));
+	else
+	{
+		double m = ((std::exp(0.02) - std::exp(0.01)) / 
+					(std::exp(i_upper / 100.0) - std::exp(i_lower / 100.0))) * (h_upper - h_lower);
+		h_i_km = h_lower + m * ((std::exp((i - 1) / 100.0) - std::exp((i_lower - 1) / 100.0)) / 
+								(std::exp(0.01) - 1.0));
+	}
+
+	return h_i_km;
+}
+
+// ITU-R P.676-13, Annex 1, Section 2.2.1 (Non-negative apparent elevation angles).
+// 
+// Calculates the Earth-space slant path gaseous attenuation for an ascending path between a
+// location on or near the surface of the Earth and a location above the surface of the Earth or
+// in space.
+// 
+// f_GHz: Frequency in GHz, with 1 <= f_GHz <= 1000.
+// h1_km: Height of the first station (km), with 0 <= h1_km < h2_km.
+// h2_km: Height of the second station (km), with 0 <= h1_km < h2_km.
+// phi1_deg: The local apparent elevation angle at height h1_km, in degrees, with
+//           phi1_deg >= 0 deg. 0 deg=horizon, +90 deg=zenith.
+// atm: (Optional) A reference atmosphere from ITU-R P.835-6.
+//      Default value is MEAN_ANNUAL_GLOBAL.
+// rho0_gm3: (Optional) Ground-level water vapour density (g/m3). Only applies when atm
+//           is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+// Returns: The slant path gaseous attenuation, Agas (dB).
+double ITURP_676_13::NonNegElevAnglSlantPathGaseousAtt(double f_GHz, double h1_km, double h2_km, 
+                                                       double phi1_deg, Atm atm, double rho0_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+	constexpr double Re = 6371.0;
+
+	double Agas = 0.0;
+	double r_1 = 0.0;
+	double n_1 = 0.0;
+	double beta_1_deg = 90.0 - phi1_deg;
+	double sin_beta_1 = std::sin(beta_1_deg * (PI / 180.0));
+
+	double h_lower = h1_km;
+	double h_upper = h2_km;
+	std::pair<int, int> indices = LayerIndices(h_lower, h_upper);
+	int i_lower = indices.first;
+	int i_upper = indices.second;
+
+	for (int i = i_lower; i < i_upper; ++i)
+	{
+		double h_i_bot = LayerBottomHeight(i, i_lower, i_upper, h_lower, h_upper);
+		double delta_i = LayerThickness(i, i_lower, i_upper, h_lower, h_upper);
+		double h_i_mid = h_i_bot + (delta_i / 2.0);
+		double n_i = RefractiveIndex(h_i_mid, atm, rho0_gm3);
+		double r_i = Re + h_i_bot;
+
+		if (i == i_lower)
+		{
+			r_1 = r_i;
+			n_1 = n_i;
+		}
+
+		double beta_i_rad = std::asin(((n_1 * r_1) / (n_i * r_i)) * sin_beta_1);
+		double cos_beta_i = std::cos(beta_i_rad);
+		double a_i = (-r_i * cos_beta_i) + std::sqrt((r_i * r_i * cos_beta_i * cos_beta_i) + 
+													 (2.0 * r_i * delta_i) + (delta_i * delta_i));
+
+		double T = ITURP_835_6::Temperature(h_i_mid, atm);
+		double P = ITURP_835_6::Pressure(h_i_mid, atm);
+		double rho = ITURP_835_6::WaterVapourDensity(h_i_mid, atm, rho0_gm3);
+		double e = rho * T / 216.7; // water vapour pressure, in hPa
+		double Pdry = P - e; // eq. (5) of P.453-14
+
+		// examples from CG-3M3J-13-ValEx-Rev8.3.0.xlsx use dry pressure
+		double y_i = GaseousAttenuation(f_GHz, Pdry, T, rho);
+		Agas += a_i * y_i;
+	}
+
+	return Agas;
+}
+
+// ITU-R P.676-13, Annex 1, Section 2.2.2 (Negative apparent elevation angles).
+// 
+// Calculates the Earth-space slant path gaseous attenuation for an ascending path between a
+// location on or near the surface of the Earth and a location above the surface of the Earth or
+// in space.
+// 
+// f_GHz: Frequency in GHz, with 1 <= f_GHz <= 1000.
+// h1_km: Height of the first station (km), with 0 <= h1_km < h2_km.
+// h2_km: Height of the second station (km), with 0 <= h1_km < h2_km.
+// phi1_deg: The local apparent elevation angle at height h1_km, in degrees, with
+//           phi1_deg < 0 deg. 0 deg=horizon, -90 deg=nadir.
+// atm: (Optional) A reference atmosphere from ITU-R P.835-6.
+//      Default value is MEAN_ANNUAL_GLOBAL.
+// rho0_gm3: (Optional) Ground-level water vapour density (g/m3). Only applies when atm
+//           is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+// Returns: The slant path gaseous attenuation, Agas (dB).
+double ITURP_676_13::NegElevAnglSlantPathGaseousAtt(double f_GHz, double h1_km, double h2_km, 
+                                                    double phi1_deg, Atm atm, double rho0_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+	constexpr double Re = 6371.0;
+
+	double beta_1_deg = 90.0 - phi1_deg;
+	double sin_beta_1 = std::sin(beta_1_deg * (PI / 180.0));
+	double n_h1 = RefractiveIndex(h1_km, atm, rho0_gm3);
+
+	double hG_low = 0.0;
+	double hG_high = h2_km;
+	double hG = ((hG_high - hG_low) / 2.0) + hG_low;
+
+	for (int iter = 1; iter < 24; ++iter)
+	{
+		double n_hG = RefractiveIndex(hG, atm, rho0_gm3);
+		double gazing_test = (n_hG * (Re + hG)) - (n_h1 * (Re + h1_km) * sin_beta_1);
+		if (gazing_test > 0.0)
+			hG_high = hG;
+		else
+			hG_low = hG;
+		hG = ((hG_high - hG_low) / 2.0) + hG_low;
+	}
+
+	double Agas1 = NonNegElevAnglSlantPathGaseousAtt(f_GHz, hG, h1_km, 0.0, atm, rho0_gm3);
+	double Agas2 = NonNegElevAnglSlantPathGaseousAtt(f_GHz, hG, h2_km, 0.0, atm, rho0_gm3);
+
+	return Agas1 + Agas2;
+}
+
+double ITURP_676_13::SlantPathGaseousAttenuation(double f_GHz, double h1_km, double h2_km, 
+                                                 double phi1_deg, Atm atm, double rho0_gm3)
+{
+	if (phi1_deg >= 0.0)
+		return NonNegElevAnglSlantPathGaseousAtt(f_GHz, h1_km, h2_km, phi1_deg, atm, rho0_gm3);
+	else
+		return NegElevAnglSlantPathGaseousAtt(f_GHz, h1_km, h2_km, phi1_deg, atm, rho0_gm3);
+}
+
+double ITURP_676_13::SpaceBasedStationApparentElevAngle(double he_km, double hs_km, double phie_deg, 
+                                                        Atm atm, double rho0_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+	constexpr double Re = 6371.0;
+
+	double phie_rad = phie_deg * (PI / 180.0);
+	double rs = Re + hs_km;
+	double ns = RefractiveIndex(hs_km, atm, rho0_gm3);
+	double re = Re + he_km;
+	double ne = RefractiveIndex(he_km, atm, rho0_gm3);
+	double phis_rad = -std::acos(((re * ne) / (rs * ns)) * std::cos(phie_rad));
+	double phis_deg = phis_rad * (180.0 / PI);
+
+	return phis_deg;
+}
+
+double ITURP_676_13::EarthBasedStationApparentElevAngle(double he_km, double hs_km, double phis_deg, 
+                                                        Atm atm, double rho0_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+	constexpr double Re = 6371.0;
+
+	double phis_rad = phis_deg * (PI / 180.0);
+	double rs = Re + hs_km;
+	double ns = RefractiveIndex(hs_km, atm, rho0_gm3);
+	double re = Re + he_km;
+	double ne = RefractiveIndex(he_km, atm, rho0_gm3);
+	double phie_rad = std::acos(((rs * ns) / (re * ne)) * std::cos(phis_rad));
+	double phie_deg = phie_rad * (180.0 / PI);
+
+	return phie_deg;
+}
+
+const double ITURP_676_13::s_TABLE_1[44][7]={
 	{50.474214,0.975,9.651,6.690,0.0,2.566,6.850},
 	{50.987745,2.529,8.653,7.170,0.0,2.246,6.800},
 	{51.503360,6.193,7.709,7.640,0.0,1.947,6.729},
@@ -167,7 +393,7 @@ const double ITURP_676_13::TABLE1_[44][7]={
 	{834.145546,183.100,0.145,14.700,0.0,0.000,0.000}
 };
 
-const double ITURP_676_13::TABLE2_[35][7]={
+const double ITURP_676_13::s_TABLE_2[35][7]={
 	{22.235080,.1079,2.144,26.38,.76,5.087,1.00},
 	{67.803960,.0011,8.732,28.58,.69,4.930,.82},
 	{119.995940,.0007,8.353,29.48,.70,4.780,.79},

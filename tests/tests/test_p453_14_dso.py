@@ -26,7 +26,7 @@ import _test_utils as _tu
 class Test_P453_14(unittest.TestCase):
 
     def test_median_annual_nwet(self):
-        p453_14._download_rec_data() # make sure rec data is present before running tests
+        p453_14._download_rec_data(warn_if_already_installed=False)
         lib = _bu.get_dynamic_library('propakai_cpp')
         lib.P453_14_MedianAnnualNWet.argtypes = [ct.c_double, ct.c_double]
         lib.P453_14_MedianAnnualNWet.restype = ct.c_double
