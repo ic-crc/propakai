@@ -25,7 +25,13 @@ from propakai import p835_6
 __all__ = ['gaseous_attenuation',
            'dry_air_gaseous_attenuation',
            'water_vapour_gaseous_attenuation',
-           'slant_path_gaseous_attenuation']
+           'slant_path_gaseous_attenuation',
+           'space_based_station_apparent_elev_angle',
+           'earth_based_station_apparent_elev_angle',
+           'phase_dispersion',
+           'downwelling_microwave_brightness_temperature',
+           'upwelling_microwave_brightness_temperature',
+           'slant_path_instant_oxygen_gaseous_att']
 
 
 def gaseous_attenuation(f_ghz: float, p_hpa: float=1013.25, t_k: float=288.15,
@@ -144,7 +150,7 @@ def space_based_station_apparent_elev_angle(he_km: float, hs_km: float, phie_deg
         phis_deg (float): Apparent elevation angle at the space-based station (degrees).
     """
     return _p676_13_dso_shared.cdll.P676_13_SpaceBasedStationApparentElevAngle(he_km, hs_km,
-                                                                    phie_deg, atm, rho0_gm3)
+                                                                phie_deg, atm.value, rho0_gm3)
 
 
 def earth_based_station_apparent_elev_angle(he_km: float, hs_km: float, phis_deg: float,
@@ -175,7 +181,111 @@ def earth_based_station_apparent_elev_angle(he_km: float, hs_km: float, phis_deg
         phie_deg (float): Reciprocal apparent elevation angle at the Earth-based station (degrees).
     """
     return _p676_13_dso_shared.cdll.P676_13_EarthBasedStationApparentElevAngle(he_km, hs_km,
-                                                                    phis_deg, atm, rho0_gm3)
+                                                                    phis_deg, atm.value, rho0_gm3)
+
+
+def phase_dispersion(f_ghz: float, p_hpa: float=1013.25, t_k: float=288.15,
+                     rho_gm3: float=7.5) -> float:
+    """
+    ITU-R P.676-13, Annex 1, Section 3.
+
+    Calculates the gaseous phase dispersion (deg/km).
+
+    Args:
+        f_ghz (float): Frequency (GHz), with 1 <= f_ghz <= 1000.
+        p_hpa (float, optional): Atmospheric pressure (hPa). Defaults to 1013.25.
+        t_k (float, optional): Temperature (K). Defaults to 288.15.
+        rho_gm3 (float, optional): Water vapour density (g/m3). Defaults to 7.5.
+
+    Returns:
+        phi (float): The gaseous phase dispersion (deg/km).
+    """
+    return _p676_13_dso_shared.cdll.P676_13_PhaseDispersion(f_ghz, p_hpa, t_k, rho_gm3)
+
+
+def downwelling_microwave_brightness_temperature(f_ghz: float, phi1_deg: float,
+                                                 h1_km: float=0, hk_km=100.1,
+                                                 atm: p835_6.ReferenceAtmosphere=
+                                                    p835_6.ReferenceAtmosphere.MEAN_ANNUAL_GLOBAL,
+                                                 rho0_gm3: float=7.5) -> float:
+    """
+    ITU-R P.676-13, Annex 1, Section 4.1.
+
+    The downwelling atmospheric microwave brightness temperature (K).
+    
+    Args:
+        f_ghz (float): Frequency in GHz, with 1 <= f_ghz <= 1000.
+        phi1_deg (float): The local apparent elevation angle at height h1_km (degrees), 
+            with phi1_deg >= 0. 0°=horizon, +90°=zenith.
+        h1_km (float, optional): Height of atmospheric layer 1 (km). Default value is 0.
+        hk_km (float, optional): Height of atmospheric layer k (km). Default value is 100.1.
+        atm (p835_6.ReferenceAtmosphere, optional): A reference atmosphere from ITU-R P.835-6.
+            Default value is MEAN_ANNUAL_GLOBAL.
+        rho0_gm3 (float, optional): Ground-level water vapour density (g/m3). Only applies when atm
+            is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+
+    Returns:
+        TB_downwelling (float): The downwelling atmospheric microwave brightness temperature (K).
+    """
+    return _p676_13_dso_shared.cdll.P676_13_DownwellingMicrowaveBrightnessTemperature(f_ghz,
+                                                phi1_deg, h1_km, hk_km, atm.value, rho0_gm3)
+
+
+def upwelling_microwave_brightness_temperature(f_ghz: float, phi1_deg: float,
+                                               h1_km: float=0, hk_km=100.1,
+                                               atm: p835_6.ReferenceAtmosphere=
+                                                   p835_6.ReferenceAtmosphere.MEAN_ANNUAL_GLOBAL,
+                                               rho0_gm3: float=7.5, emissivity: float=0.95,
+                                               t_earth_k: float=290) -> float:
+    """
+    ITU-R P.676-13, Annex 1, Section 4.2.
+
+    The upwelling atmospheric microwave brightness temperature (K).
+    
+    Args:
+        f_ghz (float): Frequency in GHz, with 1 <= f_ghz <= 1000.
+        phi1_deg (float): The local apparent elevation angle at height h1_km (degrees), 
+            with phi1_deg >= 0. 0°=horizon, +90°=zenith.
+        h1_km (float, optional): Height of atmospheric layer 1 (km). Default value is 0.
+        hk_km (float, optional): Height of atmospheric layer k (km). Default value is 100.1.
+        atm (p835_6.ReferenceAtmosphere, optional): A reference atmosphere from ITU-R P.835-6.
+            Default value is MEAN_ANNUAL_GLOBAL.
+        rho0_gm3 (float, optional): Ground-level water vapour density (g/m3). Only applies when atm
+            is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+        emissivity (float, optional): Emissivity of the Earth's surface. Default value is 0.95.
+        t_earth_k (float, optional): Temperature of the Earth's surface (K). Default value is 290.
+
+    Returns:
+        TB_upwelling (float): The upwelling atmospheric microwave brightness temperature (K).
+    """
+    return _p676_13_dso_shared.cdll.P676_13_UpwellingMicrowaveBrightnessTemperature(f_ghz, phi1_deg,
+                                           h1_km, hk_km, atm.value, rho0_gm3, emissivity, t_earth_k)
+
+
+def slant_path_instant_oxygen_gaseous_att(f_ghz: float, theta_deg: float, ps_hpa: float,
+                                          ts_k: float, rhows_gm3: float) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Section 1.1.
+
+    Gets the predicted slant path instantaneous gaseous attenuation attributable to oxygen (dB).
+    The prediction method is applicable to paths between the surface of the Earth and space for
+    elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        ps_hpa (float): Instantaneous total (barometric) surface pressure (hPa) at the desired
+            location.
+        ts_k (float): Instantaneous surface temperature (K) at the desired location.
+        rhows_gm3 (float): Instantaneous surface water vapour density (g/m3) at the desired
+            location.
+
+    Returns:
+        Ao (float): The predicted slant path instantaneous gaseous attenuation attributable to
+            oxygen (dB).
+    """
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathInstantOxygenGaseousAtt(f_ghz, theta_deg,
+                                                                      ps_hpa, ts_k, rhows_gm3)
 
 
 def _init_dynamic_library() -> ct.CDLL:
@@ -207,6 +317,21 @@ def _set_args_and_return_ctypes(lib):
     lib.P676_13_EarthBasedStationApparentElevAngle.argtypes = [ct.c_double, ct.c_double,
                                                                ct.c_double, ct.c_int, ct.c_double]
     lib.P676_13_EarthBasedStationApparentElevAngle.restype = ct.c_double
+
+    lib.P676_13_PhaseDispersion.argtypes = [ct.c_double, ct.c_double, ct.c_double, ct.c_double]
+    lib.P676_13_PhaseDispersion.restype = ct.c_double
+
+    lib.P676_13_DownwellingMicrowaveBrightnessTemperature.argtypes = [ct.c_double, ct.c_double,
+                                                ct.c_double, ct.c_double, ct.c_int, ct.c_double]
+    lib.P676_13_DownwellingMicrowaveBrightnessTemperature.restype = ct.c_double
+
+    lib.P676_13_UpwellingMicrowaveBrightnessTemperature.argtypes = [ct.c_double, ct.c_double,
+                    ct.c_double, ct.c_double, ct.c_int, ct.c_double, ct.c_double, ct.c_double]
+    lib.P676_13_UpwellingMicrowaveBrightnessTemperature.restype = ct.c_double
+
+    lib.P676_13_SlantPathInstantOxygenGaseousAtt.argtypes = [ct.c_double, ct.c_double, ct.c_double,
+                                                             ct.c_double, ct.c_double]
+    lib.P676_13_SlantPathInstantOxygenGaseousAtt.restype = ct.c_double
 
 
 _p676_13_dso_shared = SimpleNamespace(

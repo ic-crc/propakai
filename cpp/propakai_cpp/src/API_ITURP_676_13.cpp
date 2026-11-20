@@ -60,3 +60,31 @@ PROPAKAI_API double P676_13_EarthBasedStationApparentElevAngle(double he_km, dou
 		return ITURP_676_13::EarthBasedStationApparentElevAngle(he_km, hs_km, phis_deg, static_cast<ITURP_835_6::ReferenceAtmosphere>(atm), rho0_gm3);
 	});
 }
+
+PROPAKAI_API double P676_13_PhaseDispersion(double f_GHz, double p_hPa, double T_K, double rho_gm3)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::PhaseDispersion(f_GHz, p_hPa, T_K, rho_gm3);
+	});
+}
+
+PROPAKAI_API double P676_13_DownwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, double h1_km, double hk_km, int atm, double rho0_gm3)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::DownwellingMicrowaveBrightnessTemperature(f_GHz, phi1_deg, h1_km, hk_km, static_cast<ITURP_835_6::ReferenceAtmosphere>(atm), rho0_gm3);
+	});
+}
+
+PROPAKAI_API double P676_13_UpwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, double h1_km, double hk_km, int atm, double rho0_gm3, double emissivity, double TEarth_K)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::UpwellingMicrowaveBrightnessTemperature(f_GHz, phi1_deg, h1_km, hk_km, static_cast<ITURP_835_6::ReferenceAtmosphere>(atm), rho0_gm3, emissivity, TEarth_K);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathInstantOxygenGaseousAtt(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathInstantOxygenGaseousAtt(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3);
+	});
+}

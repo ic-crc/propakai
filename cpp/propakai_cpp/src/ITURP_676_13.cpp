@@ -9,6 +9,9 @@
 #include "ITURP_676_13.h"
 #include <cmath>
 #include <algorithm>
+#include <cstddef>
+#include <utility> // for std::pair
+#include <tuple>
 
 
 double ITURP_676_13::GaseousAttenuation(double f_GHz, double p_hPa/*=1013.25*/, double T_K/*=288.15*/, double rho_gm3/*=7.5*/)
@@ -346,6 +349,342 @@ double ITURP_676_13::EarthBasedStationApparentElevAngle(double he_km, double hs_
 	return phie_deg;
 }
 
+// ITU-R P.676-13, Annex 1, Section 3.
+// 
+// N'Oxygen.
+// 
+// f_GHz: Frequency (GHz), with 1 <= f_GHz <= 1000.
+// p_hPa: Atmospheric pressure (hPa).
+// T_K: Temperature (K).
+// rho_gm3: Water vapour density (g/m3).
+// Returns: Real part of the complex refractivity attributable to oxygen.
+double ITURP_676_13::NpOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3)
+{
+	constexpr int NUM_LINES = 44;
+	double f = f_GHz;
+	double P = p_hPa;
+	double theta = 300.0 / T_K;
+	double e = rho_gm3 * T_K / 216.7;
+	double NpO = 0.0;
+	double prod1 = 1.0E-7 * P * theta * theta * theta;
+	double prod2 = 1.1 * e * theta;
+	double prod3 = 1.0E-4 * (P + e) * std::pow(theta, 0.8);
+
+	for (int i = 0; i < NUM_LINES; ++i)
+	{
+		double fi = s_TABLE_1[i][0];
+		double a1 = s_TABLE_1[i][1];
+		double a2 = s_TABLE_1[i][2];
+		double a3 = s_TABLE_1[i][3];
+		double a4 = s_TABLE_1[i][4];
+		double a5 = s_TABLE_1[i][5];
+		double a6 = s_TABLE_1[i][6];
+
+		double Si = a1 * prod1 * std::exp(a2 * (1.0 - theta)); // eq. (3) for oxygen
+		double df = a3 * 1.0E-4 * ((P * std::pow(theta, 0.8 - a4)) + prod2); // eq. (6a) for oxygen
+		df = std::sqrt((df * df) + 2.25E-6); // eq. (6b) for oxygen
+		double delta = (a5 + (a6 * theta)) * prod3; // eq. (7) for oxygen
+
+		// eq. (25c)
+		double Fpi = (f / fi) * ((((fi - f) + (delta * df)) / (((fi - f) * (fi - f)) + (df * df))) -
+								(((fi + f) + (delta * df)) / (((fi + f) * (fi + f)) + (df * df))));
+		NpO += Si * Fpi; // eq. (25a)
+	}
+
+	double d = 5.6E-4 * (P + e) * std::pow(theta, 0.8); // eq. (9)
+	double NpD = (-6.14E-5 * P * theta * theta * f * f) / ((f * f) + (d * d)); // eq. (25d)
+	NpO += NpD; // eq. (25a)
+
+	return NpO;
+}
+
+// ITU-R P.676-13, Annex 1, Section 3.
+// 
+// N'Water Vapour.
+// 
+// f_GHz: Frequency (GHz), with 1 <= f_GHz <= 1000.
+// p_hPa: Atmospheric pressure (hPa).
+// T_K: Temperature (K).
+// rho_gm3: Water vapour density (g/m3).
+// Returns: Real part of the complex refractivity attributable to water vapour.
+double ITURP_676_13::NpWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3)
+{
+	constexpr int NUM_LINES = 35;
+	double f = f_GHz;
+	double theta = 300.0 / T_K;
+	double e = rho_gm3 * T_K / 216.7;
+	double NpWV = 0.0;
+	double prod1 = 1.0E-1 * e * std::pow(theta, 3.5);
+
+	for (int i = 0; i < NUM_LINES; ++i)
+	{
+		double fi = s_TABLE_2[i][0];
+		double b1 = s_TABLE_2[i][1];
+		double b2 = s_TABLE_2[i][2];
+		double b3 = s_TABLE_2[i][3];
+		double b4 = s_TABLE_2[i][4];
+		double b5 = s_TABLE_2[i][5];
+		double b6 = s_TABLE_2[i][6];
+
+		double Si = b1 * prod1 * std::exp(b2 * (1.0 - theta)); // eq. (3) for water vapour
+		double df = b3 * 1.0E-4 * ((p_hPa * std::pow(theta, b4)) + (b5 * e * std::pow(theta, b6))); // eq. (6a) water vapour
+		df = 0.535 * df + std::sqrt((0.217 * df * df) + (2.1316E-12 * fi * fi / theta)); // eq. (6b) for water vapour
+
+		// eq. (25c) with delta=0 (eq. (7))
+		double Fpi = (f / fi) * (((fi - f) / (((fi - f) * (fi - f)) + (df * df))) - 
+									((fi + f) / (((fi + f) * (fi + f)) + (df * df))));
+		NpWV += Si * Fpi; // eq. (25b)
+	}
+
+	return NpWV;
+}
+
+double ITURP_676_13::PhaseDispersion(double f_GHz, double p_hPa, double T_K, double rho_gm3)
+{
+	double Np_oxygen = NpOxygen(f_GHz, p_hPa, T_K, rho_gm3);
+	double Np_water_vapour = NpWaterVapour(f_GHz, p_hPa, T_K, rho_gm3);
+	double phi = -1.2008 * f_GHz * (Np_oxygen + Np_water_vapour); // eq. (24)
+	return phi;
+}
+
+// ITU-R P.676-13, Annex 1, Section 4.
+double ITURP_676_13::TBFunc(double f_GHz, double Tj)
+{
+	double TB = 0.048 * f_GHz / (std::exp(0.048 * f_GHz / Tj) - 1.0); // eq. (26)
+	return TB;
+}
+
+double ITURP_676_13::DownwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, 
+                                                               double h1_km, double hk_km, 
+                                                               Atm atm, double rho0_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+	constexpr double Re = 6371.0;
+
+	double r_1 = 0.0;
+	double n_1 = 0.0;
+	double beta_1_deg = 90.0 - phi1_deg;
+	double sin_beta_1 = std::sin(beta_1_deg * (PI / 180.0));
+
+	// step 1
+	double TB_dw = TBFunc(f_GHz, 2.73);
+
+	double h_lower = h1_km;
+	double h_upper = hk_km;
+	std::pair<int, int> indices = LayerIndices(h_lower, h_upper);
+	int i_lower = indices.first;
+	int i_upper = indices.second;
+
+	for (int i = i_lower; i < i_upper; ++i)
+	{
+		int j = i_upper - i;
+
+		// step 2
+		double TB_dw_last = TB_dw;
+
+		// step 3
+		double h_j_bot = LayerBottomHeight(j, i_lower, i_upper, h_lower, h_upper);
+		double delta_j = LayerThickness(j, i_lower, i_upper, h_lower, h_upper);
+		double h_j_mid = h_j_bot + (delta_j / 2.0);
+		double Tj = ITURP_835_6::Temperature(h_j_mid, atm);
+		double TB = TBFunc(f_GHz, Tj);
+
+		// step 4
+		double n_j = RefractiveIndex(h_j_mid, atm, rho0_gm3);
+		double r_j = Re + h_j_bot;
+		if (i == i_lower)
+		{
+			r_1 = r_j;
+			n_1 = n_j;
+		}
+		double beta_j_rad = std::asin(((n_1 * r_1) / (n_j * r_j)) * sin_beta_1);
+		double cos_beta_j = std::cos(beta_j_rad);
+		double a_j = (-r_j * cos_beta_j) + std::sqrt((r_j * r_j * cos_beta_j * cos_beta_j) + 
+														(2.0 * r_j * delta_j) + (delta_j * delta_j));
+
+		double P = ITURP_835_6::Pressure(h_j_mid, atm);
+		double rho = ITURP_835_6::WaterVapourDensity(h_j_mid, atm, rho0_gm3);
+		double e = rho * Tj / 216.7; // water vapour pressure, in hPa
+		double Pdry = P - e; // eq. (5) of P.453-14
+		double y_j = GaseousAttenuation(f_GHz, Pdry, Tj, rho);
+
+		// step 4
+		double Lj = std::pow(10.0, (-a_j * y_j) / 10.0);
+
+		// step 5
+		TB_dw = (TB_dw_last * Lj) + ((1.0 - Lj) * TB);
+	}
+
+	return TB_dw;
+}
+
+double ITURP_676_13::UpwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, 
+                                                             double h1_km, double hk_km, 
+                                                             Atm atm, double rho0_gm3, 
+                                                             double emissivity, double TEarth_K)
+{
+	// Note: In ITU-R P.676-13, it seems there is an error at equations (28a) and (28c). The -1
+	// value is placed outside of the denominator, contrary to eq.(26). Using eq. (28a) and (28c)
+	// as is yields results that are very different than those shown in FIGURE 9. However when using
+	// -1 within the denominator like in eq.(26), results match those in FIGURE 9.
+
+	constexpr double PI = 3.14159265358979323846;
+	constexpr double Re = 6371.0;
+
+	double r_1 = 0.0;
+	double n_1 = 0.0;
+	double beta_1_deg = 90.0 - phi1_deg;
+	double sin_beta_1 = std::sin(beta_1_deg * (PI / 180.0));
+
+	// step 1
+	double reflectivity = 1.0 - emissivity;
+	double TB_dw = DownwellingMicrowaveBrightnessTemperature(f_GHz, phi1_deg, h1_km, hk_km, atm, 
+																rho0_gm3);
+	double TB_uw = (emissivity * TBFunc(f_GHz, TEarth_K)) + (reflectivity * TB_dw);
+
+	double h_lower = h1_km;
+	double h_upper = hk_km;
+	std::pair<int, int> indices = LayerIndices(h_lower, h_upper);
+	int j_lower = indices.first;
+	int j_upper = indices.second;
+
+	for (int j = j_lower; j < j_upper; ++j)
+	{
+		// step 2
+		double TB_uw_last = TB_uw;
+
+		// step 3
+		double h_j_bot = LayerBottomHeight(j, j_lower, j_upper, h_lower, h_upper);
+		double delta_j = LayerThickness(j, j_lower, j_upper, h_lower, h_upper);
+		double h_j_mid = h_j_bot + (delta_j / 2.0);
+		double Tj = ITURP_835_6::Temperature(h_j_mid, atm);
+		double TB = TBFunc(f_GHz, Tj);
+
+		// step 4
+		double n_j = RefractiveIndex(h_j_mid, atm, rho0_gm3);
+		double r_j = Re + h_j_bot;
+		if (j == j_lower)
+		{
+			r_1 = r_j;
+			n_1 = n_j;
+		}
+		double beta_j_rad = std::asin(((n_1 * r_1) / (n_j * r_j)) * sin_beta_1);
+		double cos_beta_j = std::cos(beta_j_rad);
+		double a_j = (-r_j * cos_beta_j) + std::sqrt((r_j * r_j * cos_beta_j * cos_beta_j) + 
+														(2.0 * r_j * delta_j) + (delta_j * delta_j));
+
+		double P = ITURP_835_6::Pressure(h_j_mid, atm);
+		double rho = ITURP_835_6::WaterVapourDensity(h_j_mid, atm, rho0_gm3);
+		double e = rho * Tj / 216.7; // water vapour pressure, in hPa
+		double Pdry = P - e; // eq. (5) of P.453-14
+		double y_j = GaseousAttenuation(f_GHz, Pdry, Tj, rho);
+
+		// step 4
+		double Lj = std::pow(10.0, (-a_j * y_j) / 10.0);
+
+		// step 5
+		TB_uw = (TB_uw_last * Lj) + ((1.0 - Lj) * TB);
+	}
+
+	return TB_uw;
+}
+
+// ITU-R P.676-13, Annex 2.
+std::tuple<double, double, double, double> ITURP_676_13::Part1Coeffs(double f_GHz)
+{
+	constexpr double min_freq = 1.0;
+	constexpr double freq_interval = 0.5;
+	constexpr std::size_t row_size = 5;
+	constexpr std::size_t num_rows = 700;
+
+	double raw_row = std::trunc((f_GHz - min_freq) / freq_interval);
+	if (f_GHz >= 118.75) // there is an extra row at 118.75 GHz
+	{
+		raw_row += 1.0;
+	}
+
+	std::size_t row = static_cast<std::size_t>(
+		std::clamp(raw_row, 0.0, static_cast<double>(num_rows - 2))
+	);
+
+	std::size_t index0 = row * row_size;
+	std::size_t index1 = (row + 1) * row_size;
+
+	double f0 = s_PART_1_COEFFS.GetValueFromIndex(index0 + 0);
+	double a0 = s_PART_1_COEFFS.GetValueFromIndex(index0 + 1);
+	double b0 = s_PART_1_COEFFS.GetValueFromIndex(index0 + 2);
+	double c0 = s_PART_1_COEFFS.GetValueFromIndex(index0 + 3);
+	double d0 = s_PART_1_COEFFS.GetValueFromIndex(index0 + 4);
+
+	double f1 = s_PART_1_COEFFS.GetValueFromIndex(index1 + 0);
+	double a1 = s_PART_1_COEFFS.GetValueFromIndex(index1 + 1);
+	double b1 = s_PART_1_COEFFS.GetValueFromIndex(index1 + 2);
+	double c1 = s_PART_1_COEFFS.GetValueFromIndex(index1 + 3);
+	double d1 = s_PART_1_COEFFS.GetValueFromIndex(index1 + 4);
+
+	double a = (a0 * (f1 - f_GHz) + a1 * (f_GHz - f0)) / (f1 - f0);
+	double b = (b0 * (f1 - f_GHz) + b1 * (f_GHz - f0)) / (f1 - f0);
+	double c = (c0 * (f1 - f_GHz) + c1 * (f_GHz - f0)) / (f1 - f0);
+	double d = (d0 * (f1 - f_GHz) + d1 * (f_GHz - f0)) / (f1 - f0);
+
+	return {a, b, c, d};
+}
+
+// ITU-R P.676-13, Annex 2.
+std::tuple<double, double, double, double> ITURP_676_13::Part2Coeffs(double f_GHz)
+{
+	constexpr double min_freq = 1.0;
+	constexpr double freq_interval = 0.5;
+	constexpr std::size_t row_size = 5;
+	constexpr std::size_t num_rows = 699;
+
+	double raw_row = std::trunc((f_GHz - min_freq) / freq_interval);
+
+	std::size_t row = static_cast<std::size_t>(
+		std::clamp(raw_row, 0.0, static_cast<double>(num_rows - 2))
+	);
+
+	std::size_t index0 = row * row_size;
+	std::size_t index1 = (row + 1) * row_size;
+
+	double f0 = s_PART_2_COEFFS.GetValueFromIndex(index0 + 0);
+	double a0 = s_PART_2_COEFFS.GetValueFromIndex(index0 + 1);
+	double b0 = s_PART_2_COEFFS.GetValueFromIndex(index0 + 2);
+	double c0 = s_PART_2_COEFFS.GetValueFromIndex(index0 + 3);
+	double d0 = s_PART_2_COEFFS.GetValueFromIndex(index0 + 4);
+
+	double f1 = s_PART_2_COEFFS.GetValueFromIndex(index1 + 0);
+	double a1 = s_PART_2_COEFFS.GetValueFromIndex(index1 + 1);
+	double b1 = s_PART_2_COEFFS.GetValueFromIndex(index1 + 2);
+	double c1 = s_PART_2_COEFFS.GetValueFromIndex(index1 + 3);
+	double d1 = s_PART_2_COEFFS.GetValueFromIndex(index1 + 4);
+
+	double a = (a0 * (f1 - f_GHz) + a1 * (f_GHz - f0)) / (f1 - f0);
+	double b = (b0 * (f1 - f_GHz) + b1 * (f_GHz - f0)) / (f1 - f0);
+	double c = (c0 * (f1 - f_GHz) + c1 * (f_GHz - f0)) / (f1 - f0);
+	double d = (d0 * (f1 - f_GHz) + d1 * (f_GHz - f0)) / (f1 - f0);
+
+	return {a, b, c, d};
+}
+
+double ITURP_676_13::SlantPathInstantOxygenGaseousAtt(double f_GHz, double theta_deg, double ps_hPa, 
+                                                      double Ts_K, double rhows_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+
+	double es = rhows_gm3 * Ts_K / 216.7;
+	double ps = ps_hPa - es;
+	double yo = DryAirGaseousAttenuation(f_GHz, ps, Ts_K, rhows_gm3);
+
+	double ao, bo, co, do_coeff; // Note: 'do' is a reserved C++ keyword, so we use 'do_coeff'
+	std::tie(ao, bo, co, do_coeff) = Part1Coeffs(f_GHz);
+
+	double ho = ao + bo * Ts_K + co * ps_hPa + do_coeff * rhows_gm3;
+	double Ao = yo * ho / std::sin(theta_deg * (PI / 180.0));
+
+	return Ao;
+}
+
 const double ITURP_676_13::s_TABLE_1[44][7]={
 	{50.474214,0.975,9.651,6.690,0.0,2.566,6.850},
 	{50.987745,2.529,8.653,7.170,0.0,2.246,6.800},
@@ -430,3 +769,12 @@ const double ITURP_676_13::s_TABLE_2[35][7]={
 	{987.926764,134.6,.257,29.85,.68,4.550,.90},
 	{1780.000000,17506.,.952,196.3,2.00,24.15,5.00}
 };
+
+// NOTE: coefficients files are not digital maps (not location dependent), but we will use the
+// DigitalMap class to tread-safely access their content. Only the number of rows and number of
+// columns matter here, other lat/lon related parameters are irrelevant (won't be used).
+const DigitalMap ITURP_676_13::s_PART_1_COEFFS("p676_13/R11010000020001TXTM.txt",
+	-90.0, +1.0, 700, -180.0, +1.0, 5, InterpolationType::Bilinear);
+
+const DigitalMap ITURP_676_13::s_PART_2_COEFFS("p676_13/R11010000020002TXTM.txt",
+	-90.0, +1.0, 699, -180.0, +1.0, 5, InterpolationType::Bilinear);

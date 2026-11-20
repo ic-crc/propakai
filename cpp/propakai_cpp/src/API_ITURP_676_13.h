@@ -34,6 +34,10 @@ PROPAKAI_API double P676_13_WaterVapourGaseousAttenuation(double f_GHz, double p
 PROPAKAI_API double P676_13_SlantPathGaseousAttenuation(double f_GHz, double h1_km, double h2_km, double phi1_deg, int atm DEFARG(MEAN_ANNUAL_GLOBAL), double rho0_gm3 DEFARG(7.5));
 PROPAKAI_API double P676_13_SpaceBasedStationApparentElevAngle(double he_km, double hs_km, double phie_deg, int atm DEFARG(MEAN_ANNUAL_GLOBAL), double rho0_gm3 DEFARG(7.5));
 PROPAKAI_API double P676_13_EarthBasedStationApparentElevAngle(double he_km, double hs_km, double phis_deg, int atm DEFARG(MEAN_ANNUAL_GLOBAL), double rho0_gm3 DEFARG(7.5));
+PROPAKAI_API double P676_13_PhaseDispersion(double f_GHz, double p_hPa DEFARG(1013.25), double T_K DEFARG(288.15), double rho_gm3 DEFARG(7.5));
+PROPAKAI_API double P676_13_DownwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, double h1_km DEFARG(0.0), double hk_km DEFARG(100.1), int atm DEFARG(MEAN_ANNUAL_GLOBAL), double rho0_gm3 DEFARG(7.5));
+PROPAKAI_API double P676_13_UpwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, double h1_km DEFARG(0.0), double hk_km DEFARG(100.1), int atm DEFARG(MEAN_ANNUAL_GLOBAL), double rho0_gm3 DEFARG(7.5), double emissivity DEFARG(0.95), double TEarth_K DEFARG(290.0));
+PROPAKAI_API double P676_13_SlantPathInstantOxygenGaseousAtt(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3);
 
 #ifdef __cplusplus
 	}

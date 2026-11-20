@@ -8,7 +8,9 @@
 
 #pragma once
 #include <utility> // for std::pair
+#include <tuple>
 #include "ITURP_835_6.h"
+#include "DigitalMap.h"
 
 
 class ITURP_676_13
@@ -120,6 +122,76 @@ public:
 	 */
 	static double EarthBasedStationApparentElevAngle(double he_km, double hs_km, double phis_deg, Atm atm = Atm::MEAN_ANNUAL_GLOBAL, double rho0_gm3 = 7.5);
 
+	/**
+	 * @brief ITU-R P.676-13, Annex 1, Section 3.
+	 * 
+	 * Calculates the gaseous phase dispersion (deg/km).
+	 * 
+	 * @param f_GHz Frequency (GHz), with 1 <= f_GHz <= 1000.
+	 * @param p_hPa (Optional) Atmospheric pressure (hPa). Defaults to 1013.25.
+	 * @param T_K (Optional) Temperature (K). Defaults to 288.15.
+	 * @param rho_gm3 (Optional) Water vapour density (g/m3). Defaults to 7.5.
+	 * @return The gaseous phase dispersion, phi (deg/km).
+	 */
+	static double PhaseDispersion(double f_GHz, double p_hPa = 1013.25, double T_K = 288.15, double rho_gm3 = 7.5);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 1, Section 4.1.
+	 * 
+	 * The downwelling atmospheric microwave brightness temperature (K).
+	 * 
+	 * @param f_GHz Frequency in GHz, with 1 <= f_GHz <= 1000.
+	 * @param phi1_deg The local apparent elevation angle at height h1_km (degrees), 
+	 *                 with phi1_deg >= 0. 0 deg=horizon, +90 deg=zenith.
+	 * @param h1_km (Optional) Height of atmospheric layer 1 (km). Default value is 0.
+	 * @param hk_km (Optional) Height of atmospheric layer k (km). Default value is 100.1.
+	 * @param atm (Optional) A reference atmosphere from ITU-R P.835-6.
+	 *            Default value is MEAN_ANNUAL_GLOBAL.
+	 * @param rho0_gm3 (Optional) Ground-level water vapour density (g/m3). Only applies when atm
+	 *                 is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+	 * @return The downwelling atmospheric microwave brightness temperature, TB_downwelling (K).
+	 */
+	static double DownwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, double h1_km = 0.0, double hk_km = 100.1, Atm atm = Atm::MEAN_ANNUAL_GLOBAL, double rho0_gm3 = 7.5);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 1, Section 4.2.
+	 * 
+	 * The upwelling atmospheric microwave brightness temperature (K).
+	 * 
+	 * @param f_GHz Frequency in GHz, with 1 <= f_GHz <= 1000.
+	 * @param phi1_deg The local apparent elevation angle at height h1_km (degrees), 
+	 *                 with phi1_deg >= 0. 0 deg=horizon, +90 deg=zenith.
+	 * @param h1_km (Optional) Height of atmospheric layer 1 (km). Default value is 0.
+	 * @param hk_km (Optional) Height of atmospheric layer k (km). Default value is 100.1.
+	 * @param atm (Optional) A reference atmosphere from ITU-R P.835-6.
+	 *            Default value is MEAN_ANNUAL_GLOBAL.
+	 * @param rho0_gm3 (Optional) Ground-level water vapour density (g/m3). Only applies when atm
+	 *                 is set to MEAN_ANNUAL_GLOBAL. Default value is 7.5.
+	 * @param emissivity (Optional) Emissivity of the Earth's surface. Default value is 0.95.
+	 * @param TEarth_K (Optional) Temperature of the Earth's surface (K). Default value is 290.
+	 * @return The upwelling atmospheric microwave brightness temperature, TB_upwelling (K).
+	 */
+	static double UpwellingMicrowaveBrightnessTemperature(double f_GHz, double phi1_deg, double h1_km = 0.0, double hk_km = 100.1, Atm atm = Atm::MEAN_ANNUAL_GLOBAL, double rho0_gm3 = 7.5, double emissivity = 0.95, double TEarth_K = 290.0);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Section 1.1.
+	 * 
+	 * Gets the predicted slant path instantaneous gaseous attenuation attributable to oxygen (dB).
+	 * The prediction method is applicable to paths between the surface of the Earth and space for
+	 * elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param ps_hPa Instantaneous total (barometric) surface pressure (hPa) at the desired
+	 *               location.
+	 * @param Ts_K Instantaneous surface temperature (K) at the desired location.
+	 * @param rhows_gm3 Instantaneous surface water vapour density (g/m3) at the desired
+	 *                  location.
+	 * @return The predicted slant path instantaneous gaseous attenuation attributable to
+	 *         oxygen, Ao (dB).
+	 */
+	static double SlantPathInstantOxygenGaseousAtt(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3);
+
 protected:
 	static double NppOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3);
 	static double NppWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3);
@@ -129,9 +201,17 @@ protected:
 	static double LayerBottomHeight(int i, int i_lower, int i_upper, double h_lower, double h_upper);
 	static double NonNegElevAnglSlantPathGaseousAtt(double f_GHz, double h1_km, double h2_km, double phi1_deg, Atm atm, double rho0_gm3);
 	static double NegElevAnglSlantPathGaseousAtt(double f_GHz, double h1_km, double h2_km, double phi1_deg, Atm atm, double rho0_gm3);
+	static double NpOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3);
+	static double NpWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3);
+	static double TBFunc(double f_GHz, double Tj);
+	static std::tuple<double, double, double, double> Part1Coeffs(double f_GHz);
+	static std::tuple<double, double, double, double> Part2Coeffs(double f_GHz);
 
 	static const double s_TABLE_1[44][7];
 	static const double s_TABLE_2[35][7];
+
+	static const DigitalMap s_PART_1_COEFFS;
+	static const DigitalMap s_PART_2_COEFFS;
 
 private:
 	// Prevent instantiation

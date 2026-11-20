@@ -66,7 +66,6 @@ class Test_P676_13_dso(unittest.TestCase):
         self.assertTrue(isclose(att_db, expected_att_db))
 
 
-    """
     def test_annex2_instantaneous_attenuation(self):
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P.676-13 A_Gas_A2_INST', header=None)
@@ -81,23 +80,25 @@ class Test_P676_13_dso(unittest.TestCase):
         Aw_list = df.iloc[23:33, 30].to_list()
 
         for i in range(0, len(f_list), 1):
-            Ao_zenith = p676_13.slant_path_instant_oxygen_gaseous_att(f_ghz=f_list[i], theta_deg=90,
-                            ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
+            Ao_zenith = p676_13_dso.slant_path_instant_oxygen_gaseous_att(f_ghz=f_list[i],
+                            theta_deg=90, ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
             self.assertTrue(isclose(Ao_zenith, Ao_zenith_list[i]))
 
-            Ao = p676_13.slant_path_instant_oxygen_gaseous_att(f_ghz=f_list[i],
+            Ao = p676_13_dso.slant_path_instant_oxygen_gaseous_att(f_ghz=f_list[i],
                    theta_deg=theta_list[i], ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
             self.assertTrue(isclose(Ao, Ao_list[i]))
 
-            Aw_zenith = p676_13.slant_path_instant_water_vapour_gaseous_att_1(f_ghz=f_list[i],
-                            theta_deg=90, ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
-            self.assertTrue(isclose(Aw_zenith, Aw_zenith_list[i]))
+            # TODO
+            #Aw_zenith = p676_13_dso.slant_path_instant_water_vapour_gaseous_att_1(f_ghz=f_list[i],
+            #                theta_deg=90, ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
+            #self.assertTrue(isclose(Aw_zenith, Aw_zenith_list[i]))
 
-            Aw = p676_13.slant_path_instant_water_vapour_gaseous_att_1(f_ghz=f_list[i],
-                   theta_deg=theta_list[i], ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
-            self.assertTrue(isclose(Aw, Aw_list[i]))
+            #Aw = p676_13_dso.slant_path_instant_water_vapour_gaseous_att_1(f_ghz=f_list[i],
+            #       theta_deg=theta_list[i], ps_hpa=P_list[i], ts_k=T_list[i], rhows_gm3=rho_list[i])
+            #self.assertTrue(isclose(Aw, Aw_list[i]))
 
 
+    """
     def test_annex2_weibull_approx(self):
         xlsx_file = _tu.get_pathname(_tu.ValidationFile.CG_3M3J_13_VALEX_REV830)
         df = pd.read_excel(xlsx_file, sheet_name='P.676-13 A_Gas_A2_Weib', header=None)
