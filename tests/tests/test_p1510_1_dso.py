@@ -30,7 +30,7 @@ import _test_utils as _tu
 class Test_P1510_1(unittest.TestCase):
 
     def test_temperature(self):
-        p1510_1._download_rec_data() # make sure rec data is present before running tests
+        p1510_1._download_rec_data(warn_if_already_installed=False)
         lib = _bu.get_dynamic_library('propakai_cpp')
         lib.P1510_1_AnnualMeanSurfaceTemperature.argtypes = [ct.c_double, ct.c_double]
         lib.P1510_1_AnnualMeanSurfaceTemperature.restype = ct.c_double
@@ -55,7 +55,7 @@ class Test_P1510_1(unittest.TestCase):
 
 
     def test_temperature_against_geocatalog(self):
-        p1510_1._download_rec_data() # make sure rec data is present before running tests
+        p1510_1._download_rec_data(warn_if_already_installed=False)
         lib = _bu.get_dynamic_library('propakai_cpp')
         lib.P1510_1_AnnualMeanSurfaceTemperature.argtypes = [ct.c_double, ct.c_double]
         lib.P1510_1_AnnualMeanSurfaceTemperature.restype = ct.c_double

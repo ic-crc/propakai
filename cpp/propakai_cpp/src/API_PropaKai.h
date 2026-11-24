@@ -66,37 +66,49 @@
 // Clean, short alias for quiet_NaN
 constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
 
+inline void SetNaN(double* ptr) noexcept 
+{
+	if (ptr) *ptr = NaN;
+}
+
 // 1. Default version: defaults to returning NaN (double), 
 //    unless you pass something else like -1 (int) or false (bool).
 template <typename Func, typename FallbackType = double>
 FallbackType ExecuteSafely(Func&& calculation, FallbackType fallbackValue = NaN) noexcept 
 {
-    try {
-        return calculation();
-    }
-    catch (const std::exception& e) {
-        std::cerr << "[PropaKai (DSO) Error] " << e.what() << '\n';
-        return fallbackValue;
-    }
-    catch (...) {
-        std::cerr << "[PropaKai (DSO) Error] Unknown internal exception.\n";
-        return fallbackValue;
-    }
+	try {
+		return calculation();
+	}
+	catch (const std::exception& e) {
+		std::cerr << "[PropaKai (DSO) Error] " << e.what() << '\n';
+		return fallbackValue;
+	}
+	catch (...) {
+		std::cerr << "[PropaKai (DSO) Error] Unknown internal exception.\n";
+		return fallbackValue;
+	}
 }
 
 // 2. For void functions
-template <typename Func>
-void ExecuteSafelyVoid(Func&& calculation) noexcept 
+// Accepts 0 or more double* output pointers and sets them to NaN on failure
+template <typename Func, typename... OutPtrs>
+void ExecuteSafelyVoid(Func&& calculation, OutPtrs*... outPtrs) noexcept 
 {
-    try {
-        calculation();
-    }
-    catch (const std::exception& e) {
-        std::cerr << "[PropaKai (DSO) Error] " << e.what() << '\n';
-    }
-    catch (...) {
-        std::cerr << "[PropaKai (DSO) Error] Unknown internal exception.\n";
-    }
+	auto resetOutputsToNaN = [&]() {
+		(SetNaN(outPtrs), ...); // C++17 fold expression
+	};
+
+	try {
+		calculation();
+	}
+	catch (const std::exception& e) {
+		std::cerr << "[PropaKai (DSO) Error] " << e.what() << '\n';
+		resetOutputsToNaN();
+	}
+	catch (...) {
+		std::cerr << "[PropaKai (DSO) Error] Unknown internal exception.\n";
+		resetOutputsToNaN();
+	}
 }
 
 #endif // defined(__cplusplus) && defined(BUILDING_PROPAKAI)

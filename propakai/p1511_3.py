@@ -168,12 +168,12 @@ def geodetic_to_aer(latg: float, long: float, hg_km: float,
     (AER: azimuth-elevation-range).
 
     Args:
-        latg (float): Origin geodetic latitude (degrees), with -90 <= lat <= 90.
-        long (float): Origin longitude (degrees), with -180 <= lon <= 180.
+        latg (float): Origin geodetic latitude (degrees), with -90 <= latg <= 90.
+        long (float): Origin longitude (degrees), with -180 <= long <= 180.
         hg_km (float): Origin height above mean sea level (e.g. above the WGS 84 reference
             ellipsoid) (km).
-        lats (float): Target geodetic latitude (degrees), with -90 <= lat <= 90.
-        lons (float): Target longitude (degrees), with -180 <= lon <= 180.
+        lats (float): Target geodetic latitude (degrees), with -90 <= lats <= 90.
+        lons (float): Target longitude (degrees), with -180 <= lons <= 180.
         hs_km (float): Target height above mean sea level (e.g. above the WGS 84 reference
             ellipsoid) (km).
     

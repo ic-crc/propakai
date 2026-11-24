@@ -17,3 +17,25 @@ static_assert(static_cast<int>(P835_6_MID_LATITUDE_SUMMER) == static_cast<int>(I
 static_assert(static_cast<int>(P835_6_MID_LATITUDE_WINTER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::MID_LATITUDE_WINTER));
 static_assert(static_cast<int>(P835_6_HIGH_LATITUDE_SUMMER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::HIGH_LATITUDE_SUMMER));
 static_assert(static_cast<int>(P835_6_HIGH_LATITUDE_WINTER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::HIGH_LATITUDE_WINTER));
+
+
+PROPAKAI_API double P835_6_Temperature(double h_km, int atm)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_835_6::Temperature(h_km, static_cast<ITURP_835_6::ReferenceAtmosphere>(atm));
+	});
+}
+
+PROPAKAI_API double P835_6_Pressure(double h_km, int atm)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_835_6::Pressure(h_km, static_cast<ITURP_835_6::ReferenceAtmosphere>(atm));
+	});
+}
+
+PROPAKAI_API double P835_6_WaterVapourDensity(double h_km, int atm, double rho0_gm3, double h0_km)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_835_6::WaterVapourDensity(h_km, static_cast<ITURP_835_6::ReferenceAtmosphere>(atm), rho0_gm3, h0_km);
+	});
+}

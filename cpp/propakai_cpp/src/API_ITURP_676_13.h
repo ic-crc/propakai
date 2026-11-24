@@ -11,14 +11,15 @@
 #include "API_PropaKai.h"
 #include "API_ITURP_835_6.h"
 
-
 #ifdef __cplusplus
 	#define DEFARG(val) = val
-
-	extern "C" {
 #else
 	// For C-compatibilty (does not support default arguments)
 	#define DEFARG(val)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 PROPAKAI_API double P676_13_GaseousAttenuation(double f_GHz, double p_hPa DEFARG(1013.25), double T_K DEFARG(288.15), double rho_gm3 DEFARG(7.5));
@@ -37,11 +38,10 @@ PROPAKAI_API double P676_13_SlantPathInstantWaterVapourGaseousAtt2(double f_GHz,
 PROPAKAI_API double P676_13_SlantPathStatisticalWaterVapourGaseousAtt(double f_GHz, double theta_deg, double p_percent, double lat, double lon,  int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
 PROPAKAI_API double P676_13_SlantPathInstantGaseousAttenuation(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3, double Vs_kgm2 DEFARG(PROPAKAI_NONE));
 PROPAKAI_API double P676_13_SlantPathStatisticalGaseousAttenuation(double f_GHz, double theta_deg, double p_percent, double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
-
 PROPAKAI_API double P676_13_WeibullApproximation(double f_GHz, double theta_deg, double p_percent, double lat, double lon, double h_mamsl DEFARG(PROPAKAI_AUTO));
 
 #ifdef __cplusplus
-	}
+}
 #endif
 
 #undef DEFARG

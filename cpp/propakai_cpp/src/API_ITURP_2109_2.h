@@ -14,8 +14,7 @@
 extern "C" {
 #endif
 
-PROPAKAI_API double P2109_2_BuildingEntryLoss(
-	double f_GHz, double probability_percent, double elevAngle_degrees, bool thermally_efficient);
+PROPAKAI_API double P2109_2_BuildingEntryLoss(double f_GHz, double probability_percent, double elevAngle_degrees, bool thermally_efficient);
 
 #ifdef __cplusplus
 }

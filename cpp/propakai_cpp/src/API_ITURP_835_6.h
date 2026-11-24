@@ -11,6 +11,12 @@
 #include "API_PropaKai.h"
 
 #ifdef __cplusplus
+	#define DEFARG(val) = val
+#else
+	#define DEFARG(val)
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -22,6 +28,10 @@ typedef enum {
 	P835_6_HIGH_LATITUDE_SUMMER = 5,
 	P835_6_HIGH_LATITUDE_WINTER = 6
 } P835_6_ReferenceAtmosphere;
+
+PROPAKAI_API double P835_6_Temperature(double h_km, int atm DEFARG(P835_6_MEAN_ANNUAL_GLOBAL));
+PROPAKAI_API double P835_6_Pressure(double h_km, int atm DEFARG(P835_6_MEAN_ANNUAL_GLOBAL));
+PROPAKAI_API double P835_6_WaterVapourDensity(double h_km, int atm DEFARG(P835_6_MEAN_ANNUAL_GLOBAL), double rho0_gm3 DEFARG(7.5), double h0_km DEFARG(2.0));
 
 #ifdef __cplusplus
 }

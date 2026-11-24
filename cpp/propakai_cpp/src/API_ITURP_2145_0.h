@@ -11,25 +11,33 @@
 #include "API_PropaKai.h"
 
 #ifdef __cplusplus
+	#define DEFARG(val) = val
+#else
+	#define DEFARG(val)
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 PROPAKAI_API double P2145_0_AUTO_CONSTANT();
-PROPAKAI_API double P2145_0_SurfaceTotalPressure(double p_percent, double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_SurfaceTemperature(double p_percent, double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_SurfaceWaterVapourDensity(double p_percent, double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_IntegratedWaterVapourContent(double p_percent, double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_MeanSurfaceTotalPressure(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_MeanSurfaceTemperature(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_MeanSurfaceWaterVapourDensity(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_MeanIntegratedWaterVapourContent(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_StdDevSurfaceTotalPressure(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_StdDevSurfaceTemperature(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_StdDevSurfaceWaterVapourDensity(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_StdDevIntegratedWaterVapourContent(double lat, double lon, int month, double h_mamsl);
-PROPAKAI_API double P2145_0_WeibullShapeParameter(double lat, double lon, double h_mamsl);
-PROPAKAI_API double P2145_0_WeibullScaleParameter(double lat, double lon, double h_mamsl);
+PROPAKAI_API double P2145_0_SurfaceTotalPressure(double p_percent, double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_SurfaceTemperature(double p_percent, double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_SurfaceWaterVapourDensity(double p_percent, double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_IntegratedWaterVapourContent(double p_percent, double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_MeanSurfaceTotalPressure(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_MeanSurfaceTemperature(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_MeanSurfaceWaterVapourDensity(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_MeanIntegratedWaterVapourContent(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_StdDevSurfaceTotalPressure(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_StdDevSurfaceTemperature(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_StdDevSurfaceWaterVapourDensity(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_StdDevIntegratedWaterVapourContent(double lat, double lon, int month DEFARG(-1), double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_WeibullShapeParameter(double lat, double lon, double h_mamsl DEFARG(PROPAKAI_AUTO));
+PROPAKAI_API double P2145_0_WeibullScaleParameter(double lat, double lon, double h_mamsl DEFARG(PROPAKAI_AUTO));
 
 #ifdef __cplusplus
 }
 #endif
+
+#undef DEFARG

@@ -10,8 +10,15 @@
 #include "ITURP_2108_1.h"
 
 
-PROPAKAI_API double P2108_1_HeightGainTerminalCorrection(double f_GHz, double h_m, int clut,
-                                                                  double R_m/*=0.0*/, double ws_m/*=27.0*/)
+// Compile-time check
+static_assert(static_cast<int>(P2108_1_WATER_SEA) == static_cast<int>(ITURP_2108_1::ClutterCategory::WATER_SEA));
+static_assert(static_cast<int>(P2108_1_OPEN_RURAL) == static_cast<int>(ITURP_2108_1::ClutterCategory::OPEN_RURAL));
+static_assert(static_cast<int>(P2108_1_SUBURBAN) == static_cast<int>(ITURP_2108_1::ClutterCategory::SUBURBAN));
+static_assert(static_cast<int>(P2108_1_URBAN_TREES_FOREST) == static_cast<int>(ITURP_2108_1::ClutterCategory::URBAN_TREES_FOREST));
+static_assert(static_cast<int>(P2108_1_DENSE_URBAN) == static_cast<int>(ITURP_2108_1::ClutterCategory::DENSE_URBAN));
+
+
+PROPAKAI_API double P2108_1_HeightGainTerminalCorrection(double f_GHz, double h_m, int clut, double R_m, double ws_m)
 {
 	return ExecuteSafely([&]() {
 		return ITURP_2108_1::HeightGainTerminalCorrection(f_GHz, h_m, static_cast<ITURP_2108_1::ClutterCategory>(clut), R_m, ws_m);
