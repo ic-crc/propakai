@@ -37,8 +37,19 @@
 #endif
 
 
-#ifndef __cplusplus
-#include <stdbool.h> // for 'bool' in C
+#ifdef __cplusplus
+	#include <limits>
+
+	// use "PROPAKAI_AUTO" and "PROPAKAI_NONE" instead of simpler AUTO and NONE to avoid any name collision with other libs
+	static constexpr double PROPAKAI_AUTO = std::numeric_limits<double>::quiet_NaN();
+	static constexpr double PROPAKAI_NONE = std::numeric_limits<double>::quiet_NaN();
+#else
+	#include <stdbool.h> // for 'bool' in C
+	#include <math.h> // Provides the C99 'NAN' macro
+
+	// Pure C gets standard macros that evaluate to a quiet NaN double
+	#define PROPAKAI_AUTO ((double)NAN)
+	#define PROPAKAI_NONE ((double)NAN)
 #endif
 
 

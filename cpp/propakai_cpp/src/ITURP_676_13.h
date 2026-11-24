@@ -16,7 +16,11 @@
 class ITURP_676_13
 {
 public:
+	using ReferenceAtmosphere = ITURP_835_6::ReferenceAtmosphere;
 	using Atm = ITURP_835_6::ReferenceAtmosphere;
+
+	static constexpr double AUTO = std::numeric_limits<double>::quiet_NaN();
+	static constexpr double NONE = std::numeric_limits<double>::quiet_NaN();
 
 	/**
 	 * @brief ITU-R P.676-13, Annex 1, Section 1.
@@ -192,6 +196,161 @@ public:
 	 */
 	static double SlantPathInstantOxygenGaseousAtt(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3);
 
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Section 1.2.
+	 * 
+	 * Gets the predicted slant path statistical gaseous attenuation attributable to oxygen (dB).
+	 * The prediction method is applicable to paths between the surface of the Earth and space for
+	 * elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param p_percent Exceedance probability (CCDF) of interest, in %, with 0.01 <= p_percent <= 99
+	 *                  for annual statistics and with 0.1 <= p_percent <= 99 for monthly statistics.
+	 * @param lat Latitude of the desired location (degrees), with -90 <= lat <= 90.
+	 * @param lon Longitude of the desired location (degrees), with -180 <= lon <= 180.
+	 * @param month (Optional) Month to get the statistics for (1=Jan, ..., 12=Dec). Use
+	 *              -1 for annual statistics. Default value is -1.
+	 * @param h_mamsl (Optional) Height of the desired location (meters above mean sea
+	 *                level). When set to AUTO, the height is automatically obtained from Recommendation
+	 *                ITU-R P.1511-3. Default value is AUTO.
+	 * @return The predicted slant path statistical gaseous attenuation attributable to
+	 *         oxygen, Ao (dB).
+	 */
+	static double SlantPathStatisticalOxygenGaseousAtt(double f_GHz, double theta_deg, double p_percent, double lat, double lon, int month = -1, double h_mamsl = AUTO);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Section 2.1.
+	 * 
+	 * Gets the predicted slant path instantaneous gaseous attenuation attributable to water vapour,
+	 * in dB, using method 1. The prediction method is applicable to paths between the surface of the
+	 * Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+	 * 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param ps_hPa Instantaneous total (barometric) surface pressure (hPa) at the desired
+	 *               location.
+	 * @param Ts_K Instantaneous surface temperature (K) at the desired location.
+	 * @param rhows_gm3 Instantaneous surface water vapour density (g/m3) at the desired
+	 *                  location.
+	 * @return The predicted slant path instantaneous gaseous attenuation attributable to
+	 *         water vapour, Aw (dB).
+	 */
+	static double SlantPathInstantWaterVapourGaseousAtt1(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Section 2.2.
+	 * 
+	 * Gets the predicted slant path instantaneous gaseous attenuation attributable to water vapour,
+	 * in dB, using method 2. The prediction method is applicable to paths between the surface of the
+	 * Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+	 * 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param ps_hPa Instantaneous total (barometric) surface pressure (hPa) at the desired
+	 *               location.
+	 * @param Ts_K Instantaneous surface temperature (K) at the desired location.
+	 * @param rhows_gm3 Instantaneous surface water vapour density (g/m3) at the desired
+	 *                  location.
+	 * @param Vs_kgm2 Integrated water vapour content (kg/m2 or mm) from the surface of the
+	 *                Earth at the desired location.
+	 * @return The predicted slant path instantaneous gaseous attenuation attributable to
+	 *         water vapour, Aw (dB).
+	 */
+	static double SlantPathInstantWaterVapourGaseousAtt2(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3, double Vs_kgm2);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Section 2.3.
+	 * 
+	 * Gets the predicted slant path statistical gaseous attenuation attributable to water vapour (dB).
+	 * The prediction method is applicable to paths between the surface of the Earth and space for
+	 * elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param p_percent Exceedance probability (CCDF) of interest, in %, with 0.01 <= p_percent <= 99
+	 *                  for annual statistics and with 0.1 <= p_percent <= 99 for monthly statistics.
+	 * @param lat Latitude of the desired location (degrees), with -90 <= lat <= 90.
+	 * @param lon Longitude of the desired location (degrees), with -180 <= lon <= 180.
+	 * @param month (Optional) Month to get the statistics for (1=Jan, ..., 12=Dec). Use
+	 *              -1 for annual statistics. Default value is -1.
+	 * @param h_mamsl (Optional) Height of the desired location (meters above mean sea
+	 *                level). When set to AUTO, the height is automatically obtained from Recommendation
+	 *                ITU-R P.1511-3. Default value is AUTO.
+	 * @return The predicted slant path statistical gaseous attenuation attributable to water
+	 *         vapour, Aw (dB).
+	 */
+	static double SlantPathStatisticalWaterVapourGaseousAtt(double f_GHz, double theta_deg, double p_percent, double lat, double lon,  int month = -1, double h_mamsl = AUTO);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Sections 1.1 and 2.1.
+	 * 
+	 * Gets the predicted slant path instantaneous gaseous attenuation attributable to both oxygen
+	 * and water vapour (dB). The prediction method is applicable to paths between the surface of the
+	 * Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+	 * 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param ps_hPa Instantaneous total (barometric) surface pressure (hPa) at the desired
+	 *               location.
+	 * @param Ts_K Instantaneous surface temperature (K) at the desired location.
+	 * @param rhows_gm3 Instantaneous surface water vapour density (g/m3) at the desired
+	 *                  location.
+	 * @param Vs_kgm2 (Optional) Integrated water vapour content (kg/m2 or mm) from the
+	 *                surface of the Earth at the desired location. When set to NONE, the prediction method
+	 *                from Annex 2, Section 2.1 is used, otherwise the prediction method from Annex 2,
+	 *                Section 2.2 is used. Default value is NONE.
+	 * @return The predicted slant path instantaneous gaseous attenuation attributable to
+	 *         both oxygen and water vapour, A_total (dB).
+	 */
+	static double SlantPathInstantGaseousAttenuation(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3, double Vs_kgm2 = NONE);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Sections 1.2 and 2.3.
+	 * 
+	 * Gets the predicted slant path statistical gaseous attenuation attributable to both oxygen and
+	 * water vapour (dB). The prediction method is applicable to paths between the surface of the
+	 * Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+	 * 350 GHz.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param p_percent Exceedance probability (CCDF) of interest, in %, with 0.01 <= p_percent <= 99
+	 *                  for annual statistics and with 0.1 <= p_percent <= 99 for monthly statistics.
+	 * @param lat Latitude of the desired location (degrees), with -90 <= lat <= 90.
+	 * @param lon Longitude of the desired location (degrees), with -180 <= lon <= 180.
+	 * @param month (Optional) Month to get the statistics for (1=Jan, ..., 12=Dec). Use
+	 *              -1 for annual statistics. Default value is -1.
+	 * @param h_mamsl (Optional) Height of the desired location (meters above mean sea
+	 *                level). When set to AUTO, the height is automatically obtained from Recommendation
+	 *                ITU-R P.1511-3. Default value is AUTO.
+	 * @return The predicted slant path statistical gaseous attenuation attributable to
+	 *         both oxygen and water vapour, A_total (dB).
+	 */
+	static double SlantPathStatisticalGaseousAttenuation(double f_GHz, double theta_deg, double p_percent, double lat, double lon, int month = -1, double h_mamsl = AUTO);
+
+	/**
+	 * @brief ITU-R P.676-13, Annex 2, Section 2.4.
+	 * 
+	 * Gets the Weibull approximation to the predicted slant path statistical gaseous attenuation
+	 * attributable to water vapour (dB). This approximation is based on annual statistics.
+	 * 
+	 * @param f_GHz Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+	 * @param theta_deg Elevation angle (degrees), with 5 <= theta_deg <= 90.
+	 * @param p_percent Exceedance probability (CCDF) of interest, in %.
+	 * @param lat Latitude of the desired location (degrees), with -90 <= lat <= 90.
+	 * @param lon Longitude of the desired location (degrees), with -180 <= lon <= 180.
+	 * @param h_mamsl (Optional) Height of the desired location (meters above mean sea
+	 *                level). When set to AUTO, the height is automatically obtained from Recommendation
+	 *                ITU-R P.1511-3. Default value is AUTO.
+	 * @return The Weibull approximation to the predicted slant path statistical gaseous
+	 *         attenuation attributable to water vapour, Aw (dB).
+	 */
+	static double WeibullApproximation(double f_GHz, double theta_deg, double p_percent, double lat, double lon, double h_mamsl = AUTO);
+
 protected:
 	static double NppOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3);
 	static double NppWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3);
@@ -206,9 +365,17 @@ protected:
 	static double TBFunc(double f_GHz, double Tj);
 	static std::tuple<double, double, double, double> Part1Coeffs(double f_GHz);
 	static std::tuple<double, double, double, double> Part2Coeffs(double f_GHz);
+	static double SlantPathStatisticalOxygenGaseousAttHelper(double f_GHz, double theta_deg, double mean_ps_hPa, double mean_Ts_K, double mean_rhows_gm3, double psp_hPa, double Tsp_K, double rhowsp_gm3);
+	static double SlantPathStatisticalWaterVapourGaseousAttHelper(double f_GHz, double theta_deg, double mean_ps_hPa, double mean_Ts_K, double mean_rhows_gm3, double Vsp_kgm2);
+	static double WeibullApproximationHelper(double f_GHz, double theta_deg, double p_percent, double mean_ps_hPa, double mean_Ts_K, double mean_rhows_gm3, double lambda_VS, double k_VS);
 
-	static const double s_TABLE_1[44][7];
-	static const double s_TABLE_2[35][7];
+	static constexpr int s_T1_ROW_COUNT = 44;
+	static constexpr int s_T1_COL_COUNT = 7;
+	static const double s_TABLE_1[s_T1_ROW_COUNT][s_T1_COL_COUNT];
+
+	static constexpr int s_T2_ROW_COUNT = 35;
+	static constexpr int s_T2_COL_COUNT = 7;
+	static const double s_TABLE_2[s_T2_ROW_COUNT][s_T2_COL_COUNT];
 
 	static const DigitalMap s_PART_1_COEFFS;
 	static const DigitalMap s_PART_2_COEFFS;

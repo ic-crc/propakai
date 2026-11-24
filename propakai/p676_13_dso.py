@@ -14,12 +14,20 @@ Quote: Standard & Citation
       *Recommendation ITU-R P.676-13: Attenuation by atmospheric gases and related effects*.
       Geneva: ITU.
       https://www.itu.int/rec/R-REC-P.676/en
+
+Note: Monthly Digital Maps Usage
+    Unlike the Python implementation (`p676_13`), this module does not automatically
+    download monthly data when missing. Use `download_monthly_data()` to fetch it when needed.
 """
 
 from types import SimpleNamespace
 import ctypes as ct
 from propakai import _bin_utils as _bu
 from propakai import p835_6
+from propakai.p1511_3 import _download_rec_data as _download_p1511_data
+from propakai.p2145_0 import _download_annual_rec_data as _download_p2145_annual_data
+from propakai.p2145_0 import _download_monthly_rec_data as _download_p2145_monthly_data
+from propakai.p676_13 import _download_rec_data as _download_p676_coeffs
 
 
 __all__ = ['gaseous_attenuation',
@@ -31,7 +39,15 @@ __all__ = ['gaseous_attenuation',
            'phase_dispersion',
            'downwelling_microwave_brightness_temperature',
            'upwelling_microwave_brightness_temperature',
-           'slant_path_instant_oxygen_gaseous_att']
+           'slant_path_instant_oxygen_gaseous_att',
+           'slant_path_statistical_oxygen_gaseous_att',
+           'slant_path_instant_water_vapour_gaseous_att_1',
+           'slant_path_instant_water_vapour_gaseous_att_2',
+           'slant_path_statistical_water_vapour_gaseous_att',
+           'slant_path_instant_gaseous_attenuation',
+           'slant_path_statistical_gaseous_attenuation',
+           'weibull_approximation',
+           'download_monthly_data']
 
 
 def gaseous_attenuation(f_ghz: float, p_hpa: float=1013.25, t_k: float=288.15,
@@ -288,9 +304,252 @@ def slant_path_instant_oxygen_gaseous_att(f_ghz: float, theta_deg: float, ps_hpa
                                                                       ps_hpa, ts_k, rhows_gm3)
 
 
+def slant_path_statistical_oxygen_gaseous_att(f_ghz: float, theta_deg: float, p_percent: float,
+                                              lat: float, lon: float, month: int|None=None,
+                                              h_mamsl: float|None=None) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Section 1.2.
+
+    Gets the predicted slant path statistical gaseous attenuation attributable to oxygen (dB).
+    The prediction method is applicable to paths between the surface of the Earth and space for
+    elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        p_percent (float): Exceedance probability (CCDF) of interest, in %, with 0.01 <= p <= 99
+            for annual statistics and with 0.1 <= p <= 99 for monthly statistics.
+        lat (float): Latitude of the desired location (degrees), with -90 <= lat <= 90.
+        lon (float): Longitude of the desired location (degrees), with -180 <= lon <= 180.
+        month (int or None, optional): Month to get the statistics for (1=Jan, ..., 12=Dec). Use
+            None for annual statistics. Default value is None.
+        h_mamsl (float or None, optional): Height of the desired location (meters above mean sea
+            level). When set to None, the height is automatically obtained from Recommendation
+            ITU-R P.1511-3. Default value is None.
+
+    Returns:
+        Ao (float): The predicted slant path statistical gaseous attenuation attributable to
+            oxygen (dB).
+    """
+    if month is None:
+        month = -1
+    if h_mamsl is None:
+        h_mamsl = float('nan')
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathStatisticalOxygenGaseousAtt(f_ghz, theta_deg,
+                                                              p_percent, lat, lon, month, h_mamsl)
+
+
+def slant_path_instant_water_vapour_gaseous_att_1(f_ghz: float, theta_deg: float, ps_hpa: float,
+                                                  ts_k: float, rhows_gm3: float) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Section 2.1.
+
+    Gets the predicted slant path instantaneous gaseous attenuation attributable to water vapour,
+    in dB, using method 1. The prediction method is applicable to paths between the surface of the
+    Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+    350 GHz.
+    
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        ps_hpa (float): Instantaneous total (barometric) surface pressure (hPa) at the desired
+            location.
+        ts_k (float): Instantaneous surface temperature (K) at the desired location.
+        rhows_gm3 (float): Instantaneous surface water vapour density (g/m3) at the desired
+            location.
+
+    Returns:
+        Aw (float): The predicted slant path instantaneous gaseous attenuation attributable to
+            water vapour (dB).
+    """
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathInstantWaterVapourGaseousAtt1(f_ghz, theta_deg,
+                                                                            ps_hpa, ts_k, rhows_gm3)
+
+
+def slant_path_instant_water_vapour_gaseous_att_2(f_ghz: float, theta_deg: float, ps_hpa: float,
+                                                  ts_k: float, rhows_gm3: float, vs_kgm2: float
+                                                  ) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Section 2.2.
+
+    Gets the predicted slant path instantaneous gaseous attenuation attributable to water vapour,
+    in dB, using method 2. The prediction method is applicable to paths between the surface of the
+    Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+    350 GHz.
+    
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        ps_hpa (float): Instantaneous total (barometric) surface pressure (hPa) at the desired
+            location.
+        ts_k (float): Instantaneous surface temperature (K) at the desired location.
+        rhows_gm3 (float): Instantaneous surface water vapour density (g/m3) at the desired
+            location.
+        vs_kgm2 (float): Integrated water vapour content (kg/m2 or mm) from the surface of the
+            Earth at the desired location.
+
+    Returns:
+        Aw (float): The predicted slant path instantaneous gaseous attenuation attributable to
+            water vapour (dB).
+    """
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathInstantWaterVapourGaseousAtt2(f_ghz, theta_deg,
+                                                                   ps_hpa, ts_k, rhows_gm3, vs_kgm2)
+
+
+def slant_path_statistical_water_vapour_gaseous_att(f_ghz: float, theta_deg: float,
+                                                    p_percent: float, lat: float, lon: float,
+                                                    month: int|None=None, h_mamsl: float|None=None
+                                                    ) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Section 2.3.
+
+    Gets the predicted slant path statistical gaseous attenuation attributable to water vapour (dB).
+    The prediction method is applicable to paths between the surface of the Earth and space for
+    elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        p_percent (float): Exceedance probability (CCDF) of interest, in %, with 0.01 <= p <= 99
+            for annual statistics and with 0.1 <= p <= 99 for monthly statistics.
+        lat (float): Latitude of the desired location (degrees), with -90 <= lat <= 90.
+        lon (float): Longitude of the desired location (degrees), with -180 <= lon <= 180.
+        month (int or None, optional): Month to get the statistics for (1=Jan, ..., 12=Dec). Use
+            None for annual statistics. Default value is None.
+        h_mamsl (float or None, optional): Height of the desired location (meters above mean sea
+            level). When set to None, the height is automatically obtained from Recommendation
+            ITU-R P.1511-3. Default value is None.
+
+    Returns:
+        Aw (float): The predicted slant path statistical gaseous attenuation attributable to water
+            vapour (dB).
+    """
+    if month is None:
+        month = -1
+    if h_mamsl is None:
+        h_mamsl = float('nan')
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathStatisticalWaterVapourGaseousAtt(f_ghz,
+                                             theta_deg, p_percent, lat, lon, month, h_mamsl)
+
+
+def slant_path_instant_gaseous_attenuation(f_ghz: float, theta_deg: float, ps_hpa: float,
+                                           ts_k: float, rhows_gm3: float, vs_kgm2: float|None=None
+                                           ) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Sections 1.1 and 2.1.
+
+    Gets the predicted slant path instantaneous gaseous attenuation attributable to both oxygen
+    and water vapour (dB). The prediction method is applicable to paths between the surface of the
+    Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+    350 GHz.
+
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        ps_hpa (float): Instantaneous total (barometric) surface pressure (hPa) at the desired
+            location.
+        ts_k (float): Instantaneous surface temperature (K) at the desired location.
+        rhows_gm3 (float): Instantaneous surface water vapour density (g/m3) at the desired
+            location.
+        vs_kgm2 (float or None, optional): Integrated water vapour content (kg/m2 or mm) from the
+            surface of the Earth at the desired location. When set to None, the prediction method
+            from Annex 2, Section 2.1 is used, otherwise the prediction method from Annex 2,
+            Section 2.2 is used. Default value is None.
+
+    Returns:
+        A_total (float): The predicted slant path instantaneous gaseous attenuation attributable to
+            both oxygen and water vapour (dB).
+    """
+    if vs_kgm2 is None:
+        vs_kgm2 = float('nan')
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathInstantGaseousAttenuation(f_ghz, theta_deg,
+                                                                ps_hpa, ts_k, rhows_gm3, vs_kgm2)
+
+
+def slant_path_statistical_gaseous_attenuation(f_ghz: float, theta_deg: float, p_percent: float,
+                                               lat: float, lon: float, month: int|None=None,
+                                               h_mamsl: float|None=None) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Sections 1.2 and 2.3.
+
+    Gets the predicted slant path statistical gaseous attenuation attributable to both oxygen and
+    water vapour (dB). The prediction method is applicable to paths between the surface of the
+    Earth and space for elevation angles of 5 degrees and above and for frequencies between 1 and
+    350 GHz.
+
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        p_percent (float): Exceedance probability (CCDF) of interest, in %, with 0.01 <= p <= 99
+            for annual statistics and with 0.1 <= p <= 99 for monthly statistics.
+        lat (float): Latitude of the desired location (degrees), with -90 <= lat <= 90.
+        lon (float): Longitude of the desired location (degrees), with -180 <= lon <= 180.
+        month (int or None, optional): Month to get the statistics for (1=Jan, ..., 12=Dec). Use
+            None for annual statistics. Default value is None.
+        h_mamsl (float or None, optional): Height of the desired location (meters above mean sea
+            level). When set to None, the height is automatically obtained from Recommendation
+            ITU-R P.1511-3. Default value is None.
+
+    Returns:
+        A_total (float): The predicted slant path statistical gaseous attenuation attributable to
+            both oxygen and water vapour (dB).
+    """
+    if month is None:
+        month = -1
+    if h_mamsl is None:
+        h_mamsl = float('nan')
+    return _p676_13_dso_shared.cdll.P676_13_SlantPathStatisticalGaseousAttenuation(f_ghz, theta_deg,
+                                                                p_percent, lat, lon, month, h_mamsl)
+
+
+def weibull_approximation(f_ghz: float, theta_deg: float, p_percent: float,
+                          lat: float, lon: float, h_mamsl: float|None=None) -> float:
+    """
+    ITU-R P.676-13, Annex 2, Section 2.4.
+
+    Gets the Weibull approximation to the predicted slant path statistical gaseous attenuation
+    attributable to water vapour (dB). This approximation is based on annual statistics.
+
+    Args:
+        f_ghz (float): Frequency of interest (GHz), with 1 <= f_ghz <= 350.
+        theta_deg (float): Elevation angle (degrees), with 5 <= theta_deg <= 90.
+        p_percent (float): Exceedance probability (CCDF) of interest, in %.
+        lat (float): Latitude of the desired location (degrees), with -90 <= lat <= 90.
+        lon (float): Longitude of the desired location (degrees), with -180 <= lon <= 180.
+        h_mamsl (float or None, optional): Height of the desired location (meters above mean sea
+            level). When set to None, the height is automatically obtained from Recommendation
+            ITU-R P.1511-3. Default value is None.
+
+    Returns:
+        Aw (float): The Weibull approximation to the predicted slant path statistical gaseous
+            attenuation attributable to water vapour (dB).
+    """
+    if h_mamsl is None:
+        h_mamsl = float('nan')
+    return _p676_13_dso_shared.cdll.P676_13_WeibullApproximation(f_ghz, theta_deg, p_percent, lat,
+                                                                 lon, h_mamsl)
+
+
+def download_monthly_data(month: int, warn_if_already_installed: bool=False) -> None:
+    """
+    Downloads and installs ITU-R P.2145-0's digital maps for the specified month, unless they are
+    already installed.
+    
+    Args:
+        month (int): Month (1=Jan, ..., 12=Dec).
+        warn_if_already_installed (bool, optional): Whether to print message when maps are already
+            installed for the specified month. Default value is False.
+    """
+    _download_p2145_monthly_data(month, warn_if_already_installed)
+
+
 def _init_dynamic_library() -> ct.CDLL:
     lib = _bu.get_dynamic_library('propakai_cpp')
     _set_args_and_return_ctypes(lib)
+    _download_p676_coeffs(warn_if_already_installed=False)
+    _download_p1511_data(warn_if_already_installed=False)
+    _download_p2145_annual_data(warn_if_already_installed=False)
+    # leave monthly data to be installed as needed via download_monthly_data()
     return lib
 
 
@@ -332,6 +591,34 @@ def _set_args_and_return_ctypes(lib):
     lib.P676_13_SlantPathInstantOxygenGaseousAtt.argtypes = [ct.c_double, ct.c_double, ct.c_double,
                                                              ct.c_double, ct.c_double]
     lib.P676_13_SlantPathInstantOxygenGaseousAtt.restype = ct.c_double
+
+    lib.P676_13_SlantPathStatisticalOxygenGaseousAtt.argtypes = [ct.c_double, ct.c_double,
+                             ct.c_double, ct.c_double, ct.c_double, ct.c_int, ct.c_double]
+    lib.P676_13_SlantPathStatisticalOxygenGaseousAtt.restype = ct.c_double
+
+    lib.P676_13_SlantPathInstantWaterVapourGaseousAtt1.argtypes = [ct.c_double, ct.c_double,
+                                                      ct.c_double, ct.c_double, ct.c_double]
+    lib.P676_13_SlantPathInstantWaterVapourGaseousAtt1.restype = ct.c_double
+
+    lib.P676_13_SlantPathInstantWaterVapourGaseousAtt2.argtypes = [ct.c_double, ct.c_double,
+                                         ct.c_double, ct.c_double, ct.c_double, ct.c_double]
+    lib.P676_13_SlantPathInstantWaterVapourGaseousAtt2.restype = ct.c_double
+
+    lib.P676_13_SlantPathStatisticalWaterVapourGaseousAtt.argtypes = [ct.c_double, ct.c_double,
+                                  ct.c_double, ct.c_double, ct.c_double, ct.c_int, ct.c_double]
+    lib.P676_13_SlantPathStatisticalWaterVapourGaseousAtt.restype = ct.c_double
+
+    lib.P676_13_SlantPathInstantGaseousAttenuation.argtypes = [ct.c_double, ct.c_double,
+                                     ct.c_double, ct.c_double, ct.c_double, ct.c_double]
+    lib.P676_13_SlantPathInstantGaseousAttenuation.restype = ct.c_double
+
+    lib.P676_13_SlantPathStatisticalGaseousAttenuation.argtypes = [ct.c_double, ct.c_double,
+                               ct.c_double, ct.c_double, ct.c_double, ct.c_int, ct.c_double]
+    lib.P676_13_SlantPathStatisticalGaseousAttenuation.restype = ct.c_double
+
+    lib.P676_13_WeibullApproximation.argtypes = [ct.c_double, ct.c_double, ct.c_double, ct.c_double,
+                                                 ct.c_double, ct.c_double]
+    lib.P676_13_WeibullApproximation.restype = ct.c_double
 
 
 _p676_13_dso_shared = SimpleNamespace(

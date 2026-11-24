@@ -252,7 +252,7 @@ def _load_digital_map(filename: str) -> array:
                                           filename))
 
 
-def _download_rec_data() -> None:
+def _download_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p1511_3_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     filenames = ['TOPO.dat', 'EGM2008.txt']
@@ -270,6 +270,8 @@ def _download_rec_data() -> None:
             _du.extract_files(zip_pathname3, ['EGM2008.txt'], create_dirs=True,
                               delete_zip_archive=True)
             _du.print_notice()
+        elif warn_if_already_installed:
+            _du.print_already_installed(full_path_data_dir, filenames)
 
 
 _p1511_3_shared = {

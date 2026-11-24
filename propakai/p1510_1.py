@@ -90,7 +90,7 @@ def _load_temperature(month: int|None=None) -> array:
     return p1144_13.load_digital_map(join(_du.install_dir(), _p1510_1_shared['DATA_DIR'], filename))
 
 
-def _download_rec_data() -> None:
+def _download_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p1510_1_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     filenames = [f'T_Month{i:02d}.TXT' for i in range(1, 12+1)]
@@ -102,6 +102,8 @@ def _download_rec_data() -> None:
             zip_pathname = _du.download(url, full_path_data_dir)
             _du.extract_files(zip_pathname, filenames, create_dirs=True, delete_zip_archive=True)
             _du.print_notice()
+        elif warn_if_already_installed:
+            _du.print_already_installed(full_path_data_dir, filenames)
 
 
 _p1510_1_shared = {

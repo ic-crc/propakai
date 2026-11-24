@@ -26,6 +26,7 @@ from propakai import _download_utils as _du
 from propakai import p835_6
 from propakai import p1144_13
 from propakai import p2145_0
+from propakai import p1511_3
 
 
 __all__ = ['gaseous_attenuation',
@@ -914,6 +915,8 @@ def slant_path_statistical_oxygen_gaseous_att(f_ghz: float, theta_deg: float, p_
         Ao (float): The predicted slant path statistical gaseous attenuation attributable to
             oxygen (dB).
     """
+    if h_mamsl is None:
+        h_mamsl = p1511_3.topographic_height(lat, lon)
     psp_hpa = p2145_0.surface_total_pressure(p_percent, lat, lon, month, h_mamsl)
     tsp_k = p2145_0.surface_temperature(p_percent, lat, lon, month, h_mamsl)
     rhowsp_gm3 = p2145_0.surface_water_vapour_density(p_percent, lat, lon, month, h_mamsl)
@@ -1049,6 +1052,8 @@ def slant_path_statistical_water_vapour_gaseous_att(f_ghz: float, theta_deg: flo
         Aw (float): The predicted slant path statistical gaseous attenuation attributable to water
             vapour (dB).
     """
+    if h_mamsl is None:
+        h_mamsl = p1511_3.topographic_height(lat, lon)
     vsp_kgm2 = p2145_0.integrated_water_vapour_content(p_percent, lat, lon, month, h_mamsl)
     mean_ps_hpa = p2145_0.mean_surface_total_pressure(lat, lon, month, h_mamsl)
     mean_ts_k = p2145_0.mean_surface_temperature(lat, lon, month, h_mamsl)
@@ -1124,6 +1129,8 @@ def slant_path_statistical_gaseous_attenuation(f_ghz: float, theta_deg: float, p
         A_total (float): The predicted slant path statistical gaseous attenuation attributable to
             both oxygen and water vapour (dB).
     """
+    if h_mamsl is None:
+        h_mamsl = p1511_3.topographic_height(lat, lon)
     Ao = slant_path_statistical_oxygen_gaseous_att(f_ghz, theta_deg, p_percent, lat, lon, month,
                                                    h_mamsl)
     Aw = slant_path_statistical_water_vapour_gaseous_att(f_ghz, theta_deg, p_percent, lat, lon,
@@ -1183,6 +1190,8 @@ def weibull_approximation(f_ghz: float, theta_deg: float, p_percent: float,
         Aw (float): The Weibull approximation to the predicted slant path statistical gaseous
             attenuation attributable to water vapour (dB).
     """
+    if h_mamsl is None:
+        h_mamsl = p1511_3.topographic_height(lat, lon)
     mean_ps_hpa = p2145_0.mean_surface_total_pressure(lat, lon, None, h_mamsl)
     mean_ts_k = p2145_0.mean_surface_temperature(lat, lon, None, h_mamsl)
     mean_rhows_gm3 = p2145_0.mean_surface_water_vapour_density(lat, lon, None, h_mamsl)
@@ -1280,7 +1289,7 @@ def _thread_safe_get_annex2_coeffs_part2_array() -> array:
     return arr
 
 
-def _download_rec_data() -> None:
+def _download_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p676_13_shared['DATA_DIR']
     full_path_data_dir = join(_du.install_dir(), data_dir)
     filenames = ['R11010000020001TXTM.txt', 'R11010000020002TXTM.txt']
@@ -1292,7 +1301,7 @@ def _download_rec_data() -> None:
             url = 'https://www.itu.int/dms_pub/itu-r/oth/11/01/R11010000020002TXTM.txt'
             _du.download(url, full_path_data_dir)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(full_path_data_dir, filenames)
 
 

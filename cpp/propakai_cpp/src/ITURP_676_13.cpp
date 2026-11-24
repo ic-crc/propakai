@@ -12,6 +12,9 @@
 #include <cstddef>
 #include <utility> // for std::pair
 #include <tuple>
+#include "ITURP_835_6.h"
+#include "ITURP_2145_0.h"
+#include "ITURP_1511_3.h"
 
 
 double ITURP_676_13::GaseousAttenuation(double f_GHz, double p_hPa/*=1013.25*/, double T_K/*=288.15*/, double rho_gm3/*=7.5*/)
@@ -42,7 +45,6 @@ double ITURP_676_13::WaterVapourGaseousAttenuation(double f_GHz, double p_hPa/*=
 // Returns: Imaginary part of the complex refractivity attributable to oxygen.
 double ITURP_676_13::NppOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3)
 {
-	constexpr int NUM_LINES = 44;
 	const double theta = 300.0/T_K;
 	const double e = rho_gm3*T_K/216.7;
 	double NppO = 0.0;
@@ -51,7 +53,7 @@ double ITURP_676_13::NppOxygen(double f_GHz, double p_hPa, double T_K, double rh
 	const double prod2 = 1.1*e*theta;
 	const double prod3 = 1.0E-4*(p_hPa+e)*std::pow(theta,0.8);
 
-	for(int i=0 ; i<NUM_LINES ; ++i)
+	for(int i=0 ; i<s_T1_ROW_COUNT ; ++i)
 	{
 		const double fi = s_TABLE_1[i][0];
 		const double* a = s_TABLE_1[i];
@@ -87,14 +89,13 @@ double ITURP_676_13::NppOxygen(double f_GHz, double p_hPa, double T_K, double rh
 // Returns: Imaginary part of the complex refractivity attributable to water vapour.
 double ITURP_676_13::NppWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3)
 {
-	constexpr int NUM_LINES = 35;
 	const double theta = 300.0/T_K;
 	const double e = rho_gm3*T_K/216.7;
 	double NppWV = 0.0;
 
 	const double prod1 = 1.0E-1*e*std::pow(theta, 3.5);
 
-	for(int i=0 ; i<NUM_LINES ; i++)
+	for(int i=0 ; i<s_T2_ROW_COUNT ; i++)
 	{
 		const double fi = s_TABLE_2[i][0];
 		const double* b = s_TABLE_2[i];
@@ -360,7 +361,6 @@ double ITURP_676_13::EarthBasedStationApparentElevAngle(double he_km, double hs_
 // Returns: Real part of the complex refractivity attributable to oxygen.
 double ITURP_676_13::NpOxygen(double f_GHz, double p_hPa, double T_K, double rho_gm3)
 {
-	constexpr int NUM_LINES = 44;
 	double f = f_GHz;
 	double P = p_hPa;
 	double theta = 300.0 / T_K;
@@ -370,7 +370,7 @@ double ITURP_676_13::NpOxygen(double f_GHz, double p_hPa, double T_K, double rho
 	double prod2 = 1.1 * e * theta;
 	double prod3 = 1.0E-4 * (P + e) * std::pow(theta, 0.8);
 
-	for (int i = 0; i < NUM_LINES; ++i)
+	for (int i = 0; i < s_T1_ROW_COUNT; ++i)
 	{
 		double fi = s_TABLE_1[i][0];
 		double a1 = s_TABLE_1[i][1];
@@ -409,14 +409,13 @@ double ITURP_676_13::NpOxygen(double f_GHz, double p_hPa, double T_K, double rho
 // Returns: Real part of the complex refractivity attributable to water vapour.
 double ITURP_676_13::NpWaterVapour(double f_GHz, double p_hPa, double T_K, double rho_gm3)
 {
-	constexpr int NUM_LINES = 35;
 	double f = f_GHz;
 	double theta = 300.0 / T_K;
 	double e = rho_gm3 * T_K / 216.7;
 	double NpWV = 0.0;
 	double prod1 = 1.0E-1 * e * std::pow(theta, 3.5);
 
-	for (int i = 0; i < NUM_LINES; ++i)
+	for (int i = 0; i < s_T2_ROW_COUNT; ++i)
 	{
 		double fi = s_TABLE_2[i][0];
 		double b1 = s_TABLE_2[i][1];
@@ -685,7 +684,241 @@ double ITURP_676_13::SlantPathInstantOxygenGaseousAtt(double f_GHz, double theta
 	return Ao;
 }
 
-const double ITURP_676_13::s_TABLE_1[44][7]={
+// ITU-R P.676-13, Annex 2, Section 1.2.
+// 
+// Gets the predicted slant path statistical gaseous attenuation attributable to oxygen (dB).
+// The prediction method is applicable to paths between the surface of the Earth and space for
+// elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+// 
+// f_GHz: Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+// theta_deg: Elevation angle (degrees), with 5 <= theta_deg <= 90.
+// mean_ps_hPa: Mean total (barometric) surface pressure (hPa) at the desired location.
+// mean_Ts_K: Mean surface temperature (K) at the desired location.
+// mean_rhows_gm3: Mean surface water vapour density (g/m3) at the desired location.
+// psp_hPa: Total (barometric) surface pressure at the exceedance probability p, in
+//          hPa, at the desired location.
+// Tsp_K: Surface temperature at the exceedance probability p, in K, at the desired
+//        location.
+// rhowsp_gm3: Surface water vapour density at the exceedance probability p, in g/m3,
+//             at the desired location.
+// Returns: The predicted slant path statistical gaseous attenuation attributable to
+//          oxygen, Ao (dB).
+double ITURP_676_13::SlantPathStatisticalOxygenGaseousAttHelper(double f_GHz, double theta_deg, 
+                                                                double mean_ps_hPa, double mean_Ts_K, 
+                                                                double mean_rhows_gm3, double psp_hPa, 
+                                                                double Tsp_K, double rhowsp_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+
+	double m_es = mean_rhows_gm3 * mean_Ts_K / 216.7;
+	double m_ps = mean_ps_hPa - m_es;
+	double yo = DryAirGaseousAttenuation(f_GHz, m_ps, mean_Ts_K, mean_rhows_gm3);
+
+	double ao, bo, co, do_coeff;
+	std::tie(ao, bo, co, do_coeff) = Part1Coeffs(f_GHz);
+
+	double ho = ao + bo * Tsp_K + co * psp_hPa + do_coeff * rhowsp_gm3;
+	double Ao = yo * ho / std::sin(theta_deg * (PI / 180.0));
+
+	return Ao;
+}
+
+double ITURP_676_13::SlantPathStatisticalOxygenGaseousAtt(double f_GHz, double theta_deg, 
+                                                          double p_percent, double lat, double lon, 
+                                                          int month, double h_mamsl)
+{
+	if (std::isnan(h_mamsl))
+		h_mamsl = ITURP_1511_3::TopographicHeight(lat, lon);
+
+	double psp_hPa = ITURP_2145_0::SurfaceTotalPressure(p_percent, lat, lon, month, h_mamsl);
+	double Tsp_K = ITURP_2145_0::SurfaceTemperature(p_percent, lat, lon, month, h_mamsl);
+	double rhowsp_gm3 = ITURP_2145_0::SurfaceWaterVapourDensity(p_percent, lat, lon, month, h_mamsl);
+	double mean_ps_hPa = ITURP_2145_0::MeanSurfaceTotalPressure(lat, lon, month, h_mamsl);
+	double mean_Ts_K = ITURP_2145_0::MeanSurfaceTemperature(lat, lon, month, h_mamsl);
+	double mean_rhows_gm3 = ITURP_2145_0::MeanSurfaceWaterVapourDensity(lat, lon, month, h_mamsl);
+
+	double Ao = SlantPathStatisticalOxygenGaseousAttHelper(f_GHz, theta_deg, mean_ps_hPa, mean_Ts_K, 
+														   mean_rhows_gm3, psp_hPa, Tsp_K, rhowsp_gm3);
+	return Ao;
+}
+
+double ITURP_676_13::SlantPathInstantWaterVapourGaseousAtt1(double f_GHz, double theta_deg, 
+                                                            double ps_hPa, double Ts_K, 
+                                                            double rhows_gm3)
+{
+	constexpr double PI = 3.14159265358979323846;
+
+	double es = rhows_gm3 * Ts_K / 216.7;
+	double ps = ps_hPa - es;
+	double yw = WaterVapourGaseousAttenuation(f_GHz, ps, Ts_K, rhows_gm3);
+
+	double hw = 5.6585E-5 * f_GHz + 1.8348;
+	hw += 2.6846 / (((f_GHz - 22.235080) * (f_GHz - 22.235080)) + 2.7649);
+	hw += 5.8905 / (((f_GHz - 183.310087) * (f_GHz - 183.310087)) + 4.9219);
+	hw += 2.9810 / (((f_GHz - 325.152888) * (f_GHz - 325.152888)) + 3.0748);
+
+	double Aw = yw * hw / std::sin(theta_deg * (PI / 180.0));
+	return Aw;
+}
+
+double ITURP_676_13::SlantPathInstantWaterVapourGaseousAtt2(double f_GHz, double theta_deg, 
+                                                            double ps_hPa, double Ts_K, 
+                                                            double rhows_gm3, double Vs_kgm2)
+{
+	constexpr double PI = 3.14159265358979323846;
+
+	double aV, bV, cV, dV;
+	std::tie(aV, bV, cV, dV) = Part2Coeffs(f_GHz);
+
+	double KV = aV + bV * rhows_gm3 + cV * Ts_K + dV * ps_hPa;
+	double Aw = KV * Vs_kgm2 / std::sin(theta_deg * (PI / 180.0));
+
+	return Aw;
+}
+
+// ITU-R P.676-13, Annex 2, Section 2.3.
+// 
+// Gets the predicted slant path statistical gaseous attenuation attributable to water vapour (dB).
+// The prediction method is applicable to paths between the surface of the Earth and space for
+// elevation angles of 5 degrees and above and for frequencies between 1 and 350 GHz.
+// 
+// f_GHz: Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+// theta_deg: Elevation angle (deg), with 5 <= theta_deg <= 90.
+// mean_ps_hPa: Mean total (barometric) surface pressure (hPa) at the desired location.
+// mean_Ts_K: Mean surface temperature (K) at the desired location.
+// mean_rhows_gm3: Mean surface water vapour density (g/m3) at the desired location.
+// Vsp_kgm2: Integrated water vapour content at the exceedance probability p, in kg/m2
+//           or mm, from the surface of the Earth at the desired location.
+// Returns: The predicted slant path statistical gaseous attenuation attributable to water
+//          vapour, Aw (dB).
+double ITURP_676_13::SlantPathStatisticalWaterVapourGaseousAttHelper(double f_GHz, double theta_deg, 
+                                                                     double mean_ps_hPa, double mean_Ts_K, 
+                                                                     double mean_rhows_gm3, double Vsp_kgm2)
+{
+	constexpr double PI = 3.14159265358979323846;
+
+	double aV, bV, cV, dV;
+	std::tie(aV, bV, cV, dV) = Part2Coeffs(f_GHz);
+
+	double KV = aV + bV * mean_rhows_gm3 + cV * mean_Ts_K + dV * mean_ps_hPa;
+	double Aw = KV * Vsp_kgm2 / std::sin(theta_deg * (PI / 180.0));
+
+	return Aw;
+}
+
+double ITURP_676_13::SlantPathStatisticalWaterVapourGaseousAtt(double f_GHz, double theta_deg, 
+                                                               double p_percent, double lat, 
+                                                               double lon, int month, 
+                                                               double h_mamsl)
+{
+	if (std::isnan(h_mamsl))
+		h_mamsl = ITURP_1511_3::TopographicHeight(lat, lon);
+
+	double Vsp_kgm2 = ITURP_2145_0::IntegratedWaterVapourContent(p_percent, lat, lon, month, h_mamsl);
+	double mean_ps_hPa = ITURP_2145_0::MeanSurfaceTotalPressure(lat, lon, month, h_mamsl);
+	double mean_Ts_K = ITURP_2145_0::MeanSurfaceTemperature(lat, lon, month, h_mamsl);
+	double mean_rhows_gm3 = ITURP_2145_0::MeanSurfaceWaterVapourDensity(lat, lon, month, h_mamsl);
+
+	double Aw = SlantPathStatisticalWaterVapourGaseousAttHelper(f_GHz, theta_deg, mean_ps_hPa, 
+																mean_Ts_K, mean_rhows_gm3, Vsp_kgm2);
+	return Aw;
+}
+
+double ITURP_676_13::SlantPathInstantGaseousAttenuation(double f_GHz, double theta_deg, 
+                                                        double ps_hPa, double Ts_K, 
+                                                        double rhows_gm3, double Vs_kgm2)
+{
+	double Ao = SlantPathInstantOxygenGaseousAtt(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3);
+	double Aw;
+
+	if (std::isnan(Vs_kgm2))
+		Aw = SlantPathInstantWaterVapourGaseousAtt1(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3);
+	else
+		Aw = SlantPathInstantWaterVapourGaseousAtt2(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3, 
+													Vs_kgm2);
+
+	return Ao + Aw;
+}
+
+double ITURP_676_13::SlantPathStatisticalGaseousAttenuation(double f_GHz, double theta_deg, 
+                                                            double p_percent, double lat, 
+                                                            double lon, int month, double h_mamsl)
+{
+	// Resolve h_mamsl once if AUTO so ITURP_2145_0 doesn't query ITURP_1511_3 seven times
+	if (std::isnan(h_mamsl))
+		h_mamsl = ITURP_1511_3::TopographicHeight(lat, lon);
+
+	// Fetch the shared mean surface parameters once
+	double mean_ps_hPa = ITURP_2145_0::MeanSurfaceTotalPressure(lat, lon, month, h_mamsl);
+	double mean_Ts_K = ITURP_2145_0::MeanSurfaceTemperature(lat, lon, month, h_mamsl);
+	double mean_rhows_gm3 = ITURP_2145_0::MeanSurfaceWaterVapourDensity(lat, lon, month, h_mamsl);
+
+	// Fetch the exceedance probability parameters for oxygen
+	double psp_hPa = ITURP_2145_0::SurfaceTotalPressure(p_percent, lat, lon, month, h_mamsl);
+	double Tsp_K = ITURP_2145_0::SurfaceTemperature(p_percent, lat, lon, month, h_mamsl);
+	double rhowsp_gm3 = ITURP_2145_0::SurfaceWaterVapourDensity(p_percent, lat, lon, month, h_mamsl);
+
+	// Fetch the exceedance probability parameter for water vapour
+	double Vsp_kgm2 = ITURP_2145_0::IntegratedWaterVapourContent(p_percent, lat, lon, month, h_mamsl);
+
+	double Ao = SlantPathStatisticalOxygenGaseousAttHelper(f_GHz, theta_deg, mean_ps_hPa, 
+															mean_Ts_K, mean_rhows_gm3, psp_hPa, 
+															Tsp_K, rhowsp_gm3);
+	double Aw = SlantPathStatisticalWaterVapourGaseousAttHelper(f_GHz, theta_deg, mean_ps_hPa, 
+																mean_Ts_K, mean_rhows_gm3, Vsp_kgm2);
+
+	return Ao + Aw;
+}
+
+// ITU-R P.676-13, Annex 2, Section 2.4.
+// 
+// Gets the Weibull approximation to the predicted slant path statistical gaseous attenuation
+// attributable to water vapour (dB).
+// 
+// f_GHz: Frequency of interest (GHz), with 1 <= f_GHz <= 350.
+// theta_deg: Elevation angle (degrees), with 5 <= theta_deg <= 90.
+// p_percent: Exceedance probability (CCDF) of interest, in %.
+// mean_ps_hPa: Mean total (barometric) surface pressure (hPa) at the desired location.
+// mean_Ts_K: Mean surface temperature (K) at the desired location.
+// mean_rhows_gm3: Mean surface water vapour density (g/m3) at the desired location.
+// lambda_VS: Surface Weibull water vapour scale parameter at the desired location.
+// k_VS: Surface Weibull water vapour shape parameter at the desired location.
+// Returns: The Weibull approximation to the predicted slant path statistical gaseous
+//          attenuation attributable to water vapour, Aw (dB).
+double ITURP_676_13::WeibullApproximationHelper(double f_GHz, double theta_deg, double p_percent, 
+                                                double mean_ps_hPa, double mean_Ts_K, 
+                                                double mean_rhows_gm3, double lambda_VS, double k_VS)
+{
+	constexpr double PI = 3.14159265358979323846;
+
+	double aV, bV, cV, dV;
+	std::tie(aV, bV, cV, dV) = Part2Coeffs(f_GHz);
+
+	double KV = aV + bV * mean_rhows_gm3 + cV * mean_Ts_K + dV * mean_ps_hPa;
+	double Aw = lambda_VS * KV * std::pow(-std::log(p_percent / 100.0), 1.0 / k_VS) / 
+				std::sin(theta_deg * (PI / 180.0));
+
+	return Aw;
+}
+
+double ITURP_676_13::WeibullApproximation(double f_GHz, double theta_deg, double p_percent, 
+                                          double lat, double lon, double h_mamsl)
+{
+	if (std::isnan(h_mamsl))
+		h_mamsl = ITURP_1511_3::TopographicHeight(lat, lon);
+
+	double mean_ps_hPa = ITURP_2145_0::MeanSurfaceTotalPressure(lat, lon, -1, h_mamsl);
+	double mean_Ts_K = ITURP_2145_0::MeanSurfaceTemperature(lat, lon, -1, h_mamsl);
+	double mean_rhows_gm3 = ITURP_2145_0::MeanSurfaceWaterVapourDensity(lat, lon, -1, h_mamsl);
+	double k_VS = ITURP_2145_0::WeibullShapeParameter(lat, lon, h_mamsl);
+	double lambda_VS = ITURP_2145_0::WeibullScaleParameter(lat, lon, h_mamsl);
+
+	double Aw = WeibullApproximationHelper(f_GHz, theta_deg, p_percent, mean_ps_hPa, mean_Ts_K, 
+											mean_rhows_gm3, lambda_VS, k_VS);
+	return Aw;
+}
+
+const double ITURP_676_13::s_TABLE_1[ITURP_676_13::s_T1_ROW_COUNT][ITURP_676_13::s_T1_COL_COUNT]={
 	{50.474214,0.975,9.651,6.690,0.0,2.566,6.850},
 	{50.987745,2.529,8.653,7.170,0.0,2.246,6.800},
 	{51.503360,6.193,7.709,7.640,0.0,1.947,6.729},
@@ -732,7 +965,7 @@ const double ITURP_676_13::s_TABLE_1[44][7]={
 	{834.145546,183.100,0.145,14.700,0.0,0.000,0.000}
 };
 
-const double ITURP_676_13::s_TABLE_2[35][7]={
+const double ITURP_676_13::s_TABLE_2[ITURP_676_13::s_T2_ROW_COUNT][ITURP_676_13::s_T2_COL_COUNT]={
 	{22.235080,.1079,2.144,26.38,.76,5.087,1.00},
 	{67.803960,.0011,8.732,28.58,.69,4.930,.82},
 	{119.995940,.0007,8.353,29.48,.70,4.780,.79},

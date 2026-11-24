@@ -23,6 +23,7 @@ Note: Monthly Digital Maps Usage
 import ctypes as ct
 from propakai import _bin_utils as _bu
 from propakai.p2145_0 import _download_annual_rec_data, _download_monthly_rec_data
+from propakai.p1511_3 import _download_rec_data as _download_p1511_data
 
 
 __all__ = ['surface_total_pressure',
@@ -445,6 +446,8 @@ def _init_dynamic_library() -> ct.CDLL:
     _set_args_and_return_ctypes(lib)
     # make sure annual digital maps are installed
     _download_annual_rec_data(warn_if_already_installed=False) # From p2145_0.py
+    _download_p1511_data(warn_if_already_installed=False)
+    # leave monthly data to be installed as needed via download_monthly_data()
     return lib
 
 

@@ -10,14 +10,6 @@
 #include "ITURP_676_13.h"
 #include "ITURP_835_6.h"
 
-// Compile-time check
-static_assert(static_cast<int>(MEAN_ANNUAL_GLOBAL) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::MEAN_ANNUAL_GLOBAL));
-static_assert(static_cast<int>(LOW_LATITUDE) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::LOW_LATITUDE));
-static_assert(static_cast<int>(MID_LATITUDE_SUMMER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::MID_LATITUDE_SUMMER));
-static_assert(static_cast<int>(MID_LATITUDE_WINTER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::MID_LATITUDE_WINTER));
-static_assert(static_cast<int>(HIGH_LATITUDE_SUMMER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::HIGH_LATITUDE_SUMMER));
-static_assert(static_cast<int>(HIGH_LATITUDE_WINTER) == static_cast<int>(ITURP_835_6::ReferenceAtmosphere::HIGH_LATITUDE_WINTER));
-
 
 PROPAKAI_API double P676_13_GaseousAttenuation(double f_GHz, double p_hPa, double T_K, double rho_gm3)
 {
@@ -86,5 +78,54 @@ PROPAKAI_API double P676_13_SlantPathInstantOxygenGaseousAtt(double f_GHz, doubl
 {
 	return ExecuteSafely([&]() {
 		return ITURP_676_13::SlantPathInstantOxygenGaseousAtt(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathStatisticalOxygenGaseousAtt(double f_GHz, double theta_deg, double p_percent, double lat, double lon, int month, double h_mamsl)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathStatisticalOxygenGaseousAtt(f_GHz, theta_deg, p_percent, lat, lon, month, h_mamsl);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathInstantWaterVapourGaseousAtt1(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathInstantWaterVapourGaseousAtt1(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathInstantWaterVapourGaseousAtt2(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3, double Vs_kgm2)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathInstantWaterVapourGaseousAtt2(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3, Vs_kgm2);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathStatisticalWaterVapourGaseousAtt(double f_GHz, double theta_deg, double p_percent, double lat, double lon,  int month, double h_mamsl)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathStatisticalWaterVapourGaseousAtt(f_GHz, theta_deg, p_percent, lat, lon,  month, h_mamsl);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathInstantGaseousAttenuation(double f_GHz, double theta_deg, double ps_hPa, double Ts_K, double rhows_gm3, double Vs_kgm2)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathInstantGaseousAttenuation(f_GHz, theta_deg, ps_hPa, Ts_K, rhows_gm3, Vs_kgm2);
+	});
+}
+
+PROPAKAI_API double P676_13_SlantPathStatisticalGaseousAttenuation(double f_GHz, double theta_deg, double p_percent, double lat, double lon, int month, double h_mamsl)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::SlantPathStatisticalGaseousAttenuation(f_GHz, theta_deg, p_percent, lat, lon, month, h_mamsl);
+	});
+}
+
+PROPAKAI_API double P676_13_WeibullApproximation(double f_GHz, double theta_deg, double p_percent, double lat, double lon, double h_mamsl)
+{
+	return ExecuteSafely([&]() {
+		return ITURP_676_13::WeibullApproximation(f_GHz, theta_deg, p_percent, lat, lon, h_mamsl);
 	});
 }

@@ -79,6 +79,8 @@ class Test_P839_4_dso(unittest.TestCase):
         L_may_list = df.iloc[23:59, 16].to_list()
         L_aug_list = df.iloc[23:59, 17].to_list()
         L_nov_list = df.iloc[23:59, 18].to_list()
+        for month in [2,5,8,11]:
+            p840_9_dso.download_monthly_data(month)
         for lat, lon, p, expect_L_feb, expect_L_may, expect_L_aug, expect_L_nov, in zip(lat_list,
             lon_list, p_list, L_feb_list, L_may_list, L_aug_list, L_nov_list):
             L_feb = p840_9_dso.integrated_cloud_liquid_water_content(p_percent=p, lat=lat, lon=lon,
