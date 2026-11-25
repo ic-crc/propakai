@@ -14,47 +14,17 @@
 #include <limits>
 #include <algorithm>
 #include <vector>
+#include <stdexcept>
 
 
 const DigitalMap ITURP_452_18::s_DN50_map("p1812_8/DN50.TXT", 90.0, -1.5, 121, 0.0, +1.5, 241, InterpolationType::Bilinear);
 const DigitalMap ITURP_452_18::s_N050_map("p1812_8/N050.TXT", 90.0, -1.5, 121, 0.0, +1.5, 241, InterpolationType::Bilinear);
 
 
-// f:          frequency (GHz) [0.1, 50.0]
-// p:          required time percentage(s) for which the calculated basic transmission loss is not exceeded (%) [0.001, 50]
-// worstMonth: true to indicate an average "worst month" prediction, false to indicate an average annual prediction
-// latt:       latitude of interfering station (degrees) [-90, 90]
-// lont:       longitude of interfering, positive = East of Greenwich (degrees) [-180, 180]
-// latr:       latitude of interfered-with station (degrees) [-90, 90]
-// lonr:       longitude of interfered-with station, positive = East of Greenwich (degrees) [-180, 180]
-// htg:        interfering station's antenna centre height above ground level (m) [N/A, N/A]
-// hrg:        interfered-with station's antenna centre height above ground level (m) [N/A, N/A]
-// Gt:         interfering station's antenna gain in the direction of the horizon along the great-circle interference path (dBi)
-// Gr:         interfered-with station's antenna gain in the direction of the horizon along the great-circle interference path (dBi)
-// vpol:       true to indicate vertical polarization, false to indicate horizontal polarization
-// n:          number of profile points
-// d:          distance from interferer profile of n points (km) (distance limit of 10000 km)
-// h:          terrain height profile of n points (m above mean sea level)
-// cc:         clutter category profile of n points (if set to nullptr, OPEN_RURAL is assumed everywhere).
-//             cc is not used if a representative clutter height profile is specified via the rch parameter.
-// rch:        representative clutter height (m) profile of n points (if set to nullptr, default representative clutter height values
-//             associated with clutter categories in cc are used)
-// rcz:        radio climatic zone profile of n points (if set to nullptr, INLAND is assumed everywhere)
-// dct, dcr:   If at least 75% of the path is over zone B (SEA) two further parameters are required, dct, dcr, giving the distance of
-//             the transmitter and the receiver from the coast (km), respectively, in the direction of the other terminal.
-//             For a terminal on a ship or sea platform the distance is zero. (If set to ITURP_452_18::AUTO, values are automatically
-//             estimated using the radio climate zone (rcz) and distance (d) profiles).
-// P:          atmospheric pressure (hPa), default is 1013.25 hPa
-// TC:         temperature (°C), default is 15
-// deltaN:     average radio-refractivity lapse-rate through the lowest 1 km of the atmosphere (if set to ITURP_452_18::AUTO, its
-//             value is automatically obtained from one of the Recommendation's digital map) (N-units/km)
-// N0:         sea-level surface refractivity (if set to ITURP_452_18::AUTO, its value is automatically obtained from one of the
-//             Recommendation's digital map) (N-units)
-// [return]:   basic transmission loss not exceeded for p% time
-double ITURP_452_18::ClearAirBasicTransmissionLoss(double f, double p, bool worstMonth, double latt, double lont, double latr, double lonr, 
-                                                   double htg, double hrg, double Gt, double Gr, bool vpol, unsigned int n, const double* d, const double* h,
-                                                   const ClutterCategory* cc, const double* rch, const RadioClimaticZone* rcz, double dct, double dcr,
-                                                   double P, double TC, double deltaN, double N0)
+double ITURP_452_18::ClearAirBasicTransmissionLoss(double f_GHz, double p_percent, bool worstMonth, double latt, double lont, double latr, double lonr,
+												   double htg_m, double hrg_m, double Gt_dBi, double Gr_dBi, bool vpol, unsigned int n, const double* d_km,
+												   const double* h_mamsl, const ClutterCategory* cc, const double* rch_m, const RadioClimaticZone* rcz,
+												   double dct_km, double dcr_km, double P_hPa, double T_C, double deltaN, double N0)
 {
 std::vector<double> gVector;
 const double* g; // g: terrain height (m amsl) + representative clutter height (m) profile of n points
@@ -94,43 +64,51 @@ double Lbs; // Lbs: basic transmission loss due to troposcatter (dB)
 double Lba; // Lba: the prediction of the basic transmission loss occurring during periods of anomalous propagation (ducting and layer reflection) (dB)
 double Lb; // Lbc: final basic transmission loss not exceeded for p% time (dB)
 
-	dn = d[n-1];
-	GProfile(n, d, h, cc, rch, gVector);
+	constexpr int MAX_ALLOWED_N = 1'000'000; // sanity limit
+	if (n < 3 || n > MAX_ALLOWED_N)
+		throw std::invalid_argument("Invalid value for parameter 'n' (number of profile points).");
+	if (d_km == nullptr)
+		throw std::invalid_argument("Parameter 'd_km' (distance profile) cannot be nullptr.");
+	if (h_mamsl == nullptr)
+		throw std::invalid_argument("Parameter 'h_mamsl' (terrain height profile) cannot be nullptr.");
+
+	dn = d_km[n-1];
+	GProfile(n, d_km, h_mamsl, cc, rch_m, gVector);
 	g = gVector.data();
-	LengthOfPathSectionsProfile(n, d, lopsVector);
+	LengthOfPathSectionsProfile(n, d_km, lopsVector);
 	lops = lopsVector.data();
 	omega = OverWaterPercent(dn, n, rcz, lops);
-	if( omega >= 0.75 ) // otherwise dct and dcr are not used
+	if( omega >= 0.75 ) // otherwise dct_km and dcr_km are not used
 	{
-		if( IsAUTO(dct) )
-			dct = Dct(n, rcz, lops);
-		if( IsAUTO(dcr) )
-			dcr = Dcr(n, rcz, lops);
+		if( IsAUTO(dct_km) )
+			dct_km = Dct(n, rcz, lops);
+		if( IsAUTO(dcr_km) )
+			dcr_km = Dcr(n, rcz, lops);
 	}
 	LongestContinuousLand(dn, n, rcz, lops, dtm, dlm);
     ITURP_2001_6::GreatCircleIntermediatePoint(latt, lont, latr, lonr, dn/2.0, centreLat, centreLon);
 	B0 = B0Calc(centreLat, dtm, dlm);
 
 	if( worstMonth )
-		p = AnnualEquivalentTimePercent(p, centreLat, omega);
-	TK = TC + 273.15;
+		p_percent = AnnualEquivalentTimePercent(p_percent, centreLat, omega);
+	TK = T_C + 273.15;
 	if( IsAUTO(deltaN) )
 		deltaN = s_DN50_map.GetValue(centreLat, centreLon);
 	if( IsAUTO(N0) )
 		N0 = s_N050_map.GetValue(centreLat, centreLon);
 	EffectiveEarthRadius(deltaN, ae, aB);
 
-	hts = h[0] + htg;
-	hrs = h[n-1] + hrg;
+	hts = h_mamsl[0] + htg_m;
+	hrs = h_mamsl[n-1] + hrg_m;
 
-	PathProfileParameters(f, htg, hrg, n, d, h, ae, dlt, dlr, thetat, thetar, theta, hstd, hsrd, hte, hre, hm);
+	PathProfileParameters(f_GHz, htg_m, hrg_m, n, d_km, h_mamsl, ae, dlt, dlr, thetat, thetar, theta, hstd, hsrd, hte, hre, hm);
 
-	LoSPropagationLoss(f, p, B0, hts, hrs, dn, dlt, dlr, omega, P, TK, /*out*/Lbfsg, /*out*/Lb0p, /*out*/Lb0B);
-	DiffractionLoss(f, p, B0, hts, hrs, vpol, ae, aB, n, d, g, omega, hstd, hsrd, Lbfsg, Lb0p, /*out*/Ldp, /*out*/Lbd50, /*out*/Lbd);
-	Lbs = TroposcatterLoss(f, p, Gt, Gr, dn, theta, N0, P, TK);
+	LoSPropagationLoss(f_GHz, p_percent, B0, hts, hrs, dn, dlt, dlr, omega, P_hPa, TK, /*out*/Lbfsg, /*out*/Lb0p, /*out*/Lb0B);
+	DiffractionLoss(f_GHz, p_percent, B0, hts, hrs, vpol, ae, aB, n, d_km, g, omega, hstd, hsrd, Lbfsg, Lb0p, /*out*/Ldp, /*out*/Lbd50, /*out*/Lbd);
+	Lbs = TroposcatterLoss(f_GHz, p_percent, Gt_dBi, Gr_dBi, dn, theta, N0, P_hPa, TK);
 	Lbs = std::max(Lbs, Lbfsg);
-	Lba = DuctingLayerReflectionLoss(f, p, ae, B0, dlm, dn, hts, hrs, dlt, dlr, thetat, thetar, hte, hre, hm, omega, dct, dcr, P, TK);
-	Lb =  OverallPrediction(p, B0, dn, omega, hts, hrs, ae, n, d, h, Lb0p, Lb0B, Ldp, Lbd50, Lba, Lbd, Lbs);
+	Lba = DuctingLayerReflectionLoss(f_GHz, p_percent, ae, B0, dlm, dn, hts, hrs, dlt, dlr, thetat, thetar, hte, hre, hm, omega, dct_km, dcr_km, P_hPa, TK);
+	Lb =  OverallPrediction(p_percent, B0, dn, omega, hts, hrs, ae, n, d_km, h_mamsl, Lb0p, Lb0B, Ldp, Lbd50, Lba, Lbd, Lbs);
 
 	return Lb;
 }
@@ -291,8 +269,7 @@ void ITURP_452_18::LongestContinuousLand(double dn, unsigned int n, const RadioC
 			}
 			else // unexpected value, assumes INLAND
 			{
-				temp_dtm += lops[i];
-				temp_dlm += lops[i];
+				throw std::invalid_argument("Unrecognized RadioClimaticZone value in parameter 'rcz'.");
 			}
 		}
 		dtm = std::max(dtm, temp_dtm);
@@ -627,7 +604,7 @@ double ITURP_452_18::ReprHeight(ClutterCategory cc)
 	case DENSE_URBAN:
 		return 20.0;
 	default:
-		return 0.0;
+		throw std::invalid_argument("Unrecognized ClutterCategory value in parameter 'cc'.");
 	}
 }
 

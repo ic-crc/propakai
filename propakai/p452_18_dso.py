@@ -105,7 +105,7 @@ def clear_air_basic_transmission_loss(
     rch_ptr, _n, _rch_backing = _tu.to_c_double_ptr(rch_m, n)
     rcz_ptr, _n, _rcz_backing = _tu.to_c_int_ptr(rcz, n)
     cdll = _p452_18_dso_shared['cdll']
-    AUTOMATIC = cdll.P452_18_AUTO_CONSTANT()
+    AUTOMATIC = float('nan')
     if dct_km is None:
         dct_km = AUTOMATIC
     if dcr_km is None:
@@ -126,14 +126,11 @@ def _init_dynamic_library() -> ct.CDLL:
     lib = _bu.get_dynamic_library('propakai_cpp')
     _set_args_and_return_ctypes(lib)
     # make sure digital maps are installed
-    _download_rec_data() # From p452_18.py
+    _download_rec_data(warn_if_already_installed=False) # From p452_18.py
     return lib
 
 
 def _set_args_and_return_ctypes(lib):
-    lib.P452_18_AUTO_CONSTANT.argtypes = []
-    lib.P452_18_AUTO_CONSTANT.restype = ct.c_double
-
     lib.P452_18_ClearAirBasicTransmissionLoss.argtypes = [
         ct.c_double, ct.c_double, ct.c_bool, ct.c_double, ct.c_double, ct.c_double, ct.c_double,
         ct.c_double, ct.c_double, ct.c_double, ct.c_double, ct.c_bool, ct.c_uint,

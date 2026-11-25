@@ -10,21 +10,35 @@
 #include "ITURP_452_18.h"
 
 
-PROPAKAI_API double P452_18_AUTO_CONSTANT()
-{
-	return ITURP_452_18::AUTO;
-}
+static_assert(static_cast<int>(P452_18_COASTAL_LAND) == static_cast<int>(ITURP_452_18::RadioClimaticZone::COASTAL_LAND));
+static_assert(static_cast<int>(P452_18_INLAND) == static_cast<int>(ITURP_452_18::RadioClimaticZone::INLAND));
+static_assert(static_cast<int>(P452_18_SEA) == static_cast<int>(ITURP_452_18::RadioClimaticZone::SEA));
+
+static_assert(static_cast<int>(P452_18_WATER_SEA) == static_cast<int>(ITURP_452_18::ClutterCategory::WATER_SEA));
+static_assert(static_cast<int>(P452_18_OPEN_RURAL) == static_cast<int>(ITURP_452_18::ClutterCategory::OPEN_RURAL));
+static_assert(static_cast<int>(P452_18_SUBURBAN) == static_cast<int>(ITURP_452_18::ClutterCategory::SUBURBAN));
+static_assert(static_cast<int>(P452_18_URBAN_TREES_FOREST) == static_cast<int>(ITURP_452_18::ClutterCategory::URBAN_TREES_FOREST));
+static_assert(static_cast<int>(P452_18_DENSE_URBAN) == static_cast<int>(ITURP_452_18::ClutterCategory::DENSE_URBAN));
+
+// Can't use std::isnan() within static_assert() in C++ 17 since std::isnan() is not constexpr.
+// The following trick works instead since NaN is the only value that does not equal itself.
+static_assert(PROPAKAI_AUTO != PROPAKAI_AUTO && ITURP_452_18::AUTO != ITURP_452_18::AUTO, "AUTO must be NaN");
+//static_assert(std::isnan(PROPAKAI_AUTO) && std::isnan(ITURP_1812_8::AUTO)); // does not compile on CLang
+
 
 PROPAKAI_API double P452_18_ClearAirBasicTransmissionLoss(
-	double f, double p, bool worstMonth, double latt, double lont, double latr, double lonr,
-	double htg, double hrg, double Gt, double Gr, bool vpol, unsigned int n, const double* d,
-	const double* h, const int* cc, const double* rch, const int* rcz,
-	double dct, double dcr, double P, double TC, double deltaN, double N0)
+	double f_GHz, double p_percent, bool worstMonth, double latt, double lont, double latr, double lonr,
+	double htg_m, double hrg_m, double Gt_dBi, double Gr_dBi, bool vpol, unsigned int n, const double* d_km,
+	const double* h_mamsl, const int* cc, const double* rch_m, const int* rcz, double dct_km, double dcr_km,
+	double P_hPa, double T_C, double deltaN, double N0)
 {
 	return ExecuteSafely([&]() {
 		return ITURP_452_18::ClearAirBasicTransmissionLoss(
-			f, p, worstMonth, latt, lont, latr, lonr, htg, hrg, Gt, Gr, vpol, n, d, h,
-			reinterpret_cast<const ITURP_452_18::ClutterCategory*>(cc), rch,
-			reinterpret_cast<const ITURP_452_18::RadioClimaticZone*>(rcz), dct, dcr, P, TC, deltaN, N0);
+			f_GHz, p_percent, worstMonth, latt, lont, latr, lonr,
+			htg_m, hrg_m, Gt_dBi, Gr_dBi, vpol, n, d_km, h_mamsl,
+			reinterpret_cast<const ITURP_452_18::ClutterCategory*>(cc),
+			rch_m,
+			reinterpret_cast<const ITURP_452_18::RadioClimaticZone*>(rcz),
+			dct_km, dcr_km, P_hPa, T_C, deltaN, N0);
 	});
 }

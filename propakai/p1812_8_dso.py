@@ -99,7 +99,7 @@ def basic_transmission_loss(f_ghz: float, p_percent: float, pl_percent: float, l
     sh_ptr, _n, _sh_backing = _tu.to_c_double_ptr(sh_mamsl, n)
     rcz_ptr, _n, _rcz_backing = _tu.to_c_int_ptr(rcz, n)
     cdll = _p1812_8_dso_shared['cdll']
-    AUTOMATIC = cdll.P1812_8_AUTO_CONSTANT()
+    AUTOMATIC = float('nan')
     if dct_km is None:
         dct_km = AUTOMATIC
     if dcr_km is None:
@@ -137,14 +137,11 @@ def _init_dynamic_library() -> ct.CDLL:
     lib = _bu.get_dynamic_library('propakai_cpp')
     _set_args_and_return_ctypes(lib)
     # make sure digital maps are installed
-    _download_rec_data() # From p1812_8.py
+    _download_rec_data(warn_if_already_installed=False) # From p1812_8.py
     return lib
 
 
 def _set_args_and_return_ctypes(lib):
-    lib.P1812_8_AUTO_CONSTANT.argtypes = []
-    lib.P1812_8_AUTO_CONSTANT.restype = ct.c_double
-
     lib.P1812_8_FieldStrength.argtypes = [ct.c_double, ct.c_double]
     lib.P1812_8_FieldStrength.restype = ct.c_double
 
