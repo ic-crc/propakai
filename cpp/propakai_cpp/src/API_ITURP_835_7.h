@@ -33,3 +33,5 @@ PROPAKAI_API double P835_7_WaterVapourDensity(double z_km, int atm DEFARG(P835_7
 #ifdef __cplusplus
 }
 #endif
+
+#undef DEFARG

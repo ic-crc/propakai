@@ -35,3 +35,5 @@ PROPAKAI_API double P2108_1_EarthSpaceClutterLoss(double f_GHz, double theta_deg
 #ifdef __cplusplus
 }
 #endif
+
+#undef DEFARG

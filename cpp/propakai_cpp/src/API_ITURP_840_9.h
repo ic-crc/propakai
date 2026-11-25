@@ -32,3 +32,5 @@ PROPAKAI_API double P840_9_StdDevIntegratedCloudLiquidWaterContent(double lat, d
 #ifdef __cplusplus
 }
 #endif
+
+#undef DEFARG
