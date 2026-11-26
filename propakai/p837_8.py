@@ -273,7 +273,7 @@ def _thread_safe_get_mt_array(month: int) -> array:
     return arr
 
 
-def _download_rec_data() -> None:
+def _download_rec_data(warn_if_already_installed: bool=True) -> None:
     data_dir = _p837_8_shared.DATA_DIR
     directory = join(_du.install_dir(), data_dir)
     filenames = ['R001.TXT', 'MT_Month01.TXT', 'MT_Month02.TXT', 'MT_Month03.TXT', 'MT_Month04.TXT',
@@ -293,7 +293,7 @@ def _download_rec_data() -> None:
                                               create_dirs=True, delete_zip_archive=True)[0]
             _du.extract_files(zip_pathname4, filenames, create_dirs=True, delete_zip_archive=True)
             _du.print_notice()
-        else:
+        elif warn_if_already_installed:
             _du.print_already_installed(directory, filenames)
 
 
